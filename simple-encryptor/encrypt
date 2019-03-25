@@ -1,0 +1,123 @@
+#!/usr/bin/python3
+
+import argparse
+import getpass
+import sys
+import math
+import os.path
+import os
+import concurrent.futures
+
+def _encrypt_file(inputf,suffix,decode=False,password=None,delete=False):
+    try:
+        fin = open(inputf,"rb")
+    except OSError as e:
+        print("Opening: inputf")
+        print(str(e))
+        return
+    # chech the input file
+
+    if decode:
+        if inputf.endswith(suffix):
+            output = inputf[0:-len(suffix)-1]
+        else:
+            output = inputf + "." + suffix + "." + "decode"
+    else:
+        output = inputf + "." + suffix
+    try:
+        fout = open(output,"wb")
+    except OSError as e:
+        print("{:}->{:}".format(inputf,output))
+        print(str(e))
+        return
+    # check the output file
+
+    if password is None:
+        if decode and inputf.endswith(suffix):
+            key = os.path.basename(inputf[0:-len(suffix)-1])
+        else:
+            key = os.path.basename(inputf)
+    elif password=="":
+        key = getpass.getpass("Please input the password: ")
+    else:
+        key = password
+    # check if a custom password is given
+
+    key = bytes(key,"utf-8")
+    circular_sum = 0
+    while len(key)>=4:
+        head = int.from_bytes(key[0:4],"big")
+        key = key[4:]
+        circular_sum += head
+
+    mask = 0xffffffff
+    lowbits = circular_sum&mask
+    carry = circular_sum-lowbits
+    counter = 0
+    max_counter = 0x10000
+    while carry!=0:
+        circular_sum = lowbits+(carry>>32)
+        lowbits = circular_sum&mask
+        carry = circular_sum-lowbits
+        counter += 1
+        if counter>max_counter:
+            print("The key is invalid, please determine a new key instead. ")
+            return
+
+    key = circular_sum
+    # generate the key
+
+    if decode:
+        in_bitorder = "little"
+        out_bitorder = "big"
+    else:
+        in_bitorder = "big"
+        out_bitorder = "little"
+    # determine the bit order
+
+    byte = fin.read(4)
+    length = len(byte)
+    while length>0:
+        bytea = byte
+        byte = int.from_bytes(byte,in_bitorder)
+        byte ^= key
+        byte &= (1<<(length<<3))-1
+        fout.write(byte.to_bytes(length,out_bitorder))
+        byte = fin.read(4)
+        length = len(byte)
+    fout.flush()
+    fout.close()
+    fin.close()
+    # encode or decode
+
+    if delete:
+        os.remove(inputf)
+
+def _encrypt_dir(executor,inputf,suffix,decode=False,password=None):
+    directory = os.scandir(inputf)
+    for f in directory:
+        if f.is_dir():
+            _encrypt_dir(executor,f,suffix,decode,password)
+        else:
+            executor.submit(_encrypt_file,f.path,suffix,decode,password,True)
+
+if __name__=="__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input",nargs="+",action="store")
+    parser.add_argument("--password","-p",nargs="?",const="",default=None)
+    parser.add_argument("--decode","-d",action="store_true")
+    parser.add_argument("--delete",action="store_true")
+    parser.add_argument("--recursive","-r",action="store_true")
+    parser.add_argument("--suffix","-a",action="store",default="zencred2")
+    args = parser.parse_args()
+
+    inputf = args.input
+    inputf = [os.path.expanduser(f) for f in inputf]
+    inputf = [os.path.expandvars(f) for f in inputf]
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        for f in inputf:
+            if os.path.isdir(f):
+                if args.recursive:
+                    _encrypt_dir(executor,f,args.suffix,args.decode,args.password)
+            else:
+                executor.submit(_encrypt_file,f,args.suffix,args.decode,args.password,args.delete)

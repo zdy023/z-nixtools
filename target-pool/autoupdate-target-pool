@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+
+import os.path
+import utils
+import datetime
+import math
+
+target_pool = os.path.expanduser("~/.target_pool")
+update_plan = os.path.expanduser("~/.target_update_plan")
+ddl_record = os.path.expanduser("~/.target_ddl")
+
+if not os.path.exists(update_plan):
+    with open(update_plan,"w") as f:
+        f.write("# target\tDDL (weekday)\n")
+        exit(0)
+if not os.path.exists(ddl_record):
+    with open(ddl_record,"w") as f:
+        f.write("# target\tDDL (yyyy-mm-dd)\n")
+        exit(0)
+if not os.path.exists(target_pool):
+    with open(target_pool,"w") as f:
+        f.write("# target\tweight\n")
+        exit(0)
+
+with open(update_plan) as f:
+    update_policies = [line.strip() for line in f.readlines() if not line.startswith("#")]
+    update_policies = [line if "#" not in line else line[0:line.find("#")].strip() for line in update_policies]
+    update_policies = [line for line in update_policies if len(line)!=0]
+    update_policies = [utils.splitline(line) for line in update_policies]
+    update_policies = {item[0]: item[1] for item in update_policies}
+with open(ddl_record) as f:
+    update_ddl = [line.strip() for line in f.readlines() if not line.startswith("#")]
+    update_ddl = [line if "#" not in line else line[0:line.find("#")].strip() for line in update_ddl]
+    update_ddl = [line for line in update_ddl if len(line)!=0]
+    update_ddl = [line.rsplit(maxsplit=1) for line in update_ddl]
+    update_ddl = {item[0]: datetime.datetime.strptime(item[1],"%Y-%m-%d") for item in update_ddl}
+
+todayweekday = datetime.date.today().weekday()+1
+today = datetime.datetime.today()
+caldiff = lambda cur,ddl: ddl-cur if ddl>cur else ddl-cur+7
+genweight1 = lambda diff: int(math.ceil(10./diff)) if diff!=0 else 1
+genweight2 = lambda cur,dll: int(math.ceil(30./((dll-cur).days+1))) if dll>cur else 0
+
+with open(target_pool) as f:
+    target_lines = [line.strip() for line in f.readlines() if not line.startswith("#")]
+    target_lines = [line if "#" not in line else line[0:line.find("#")].strip() for line in target_lines]
+    target_lines = [line for line in target_lines if len(line)!=0]
+targets = []
+sum_weight = 0
+for line in target_lines:
+    target,weight = utils.splitline(line)
+    if target in update_ddl:
+        weight = genweight2(today,update_ddl[target])
+        if weight==0:
+            continue
+        del update_ddl[target]
+        if target in update_policies:
+            del update_policies[target]
+    elif target in update_policies:
+        weight = genweight1(caldiff(todayweekday,update_policies[target]))
+        del update_policies[target]
+    targets.append((target,weight))
+
+for target in update_ddl:
+    weight = genweight2(today,update_ddl[target])
+    if weight==0:
+        continue
+    targets.append((target,weight))
+    if target in update_policies:
+        del update_policies[target]
+for target in update_policies:
+    weight = genweight1(caldiff(todayweekday,update_policies[target]))
+    targets.append((target,weight))
+
+with open(target_pool,"w") as f:
+    f.write("# target\tweight\n")
+    for target,weight in targets:
+        f.write("{:}\t{:d}\n".format(target,weight))

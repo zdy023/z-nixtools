@@ -1,0 +1,20 @@
+#!/bin/bash
+
+case $1 in
+	update)
+		autoupdate-target-pool;;
+	edit)
+		edit-target-pool;;
+	init)
+		init-target-pool;;
+	select)
+		select-target;;
+	plan)
+		edit-plan;;
+	ddl)
+		edit-ddl;;
+	list-ddls)
+		list-ddls;;
+	*)
+		echo "Invalid command!";;
+esac

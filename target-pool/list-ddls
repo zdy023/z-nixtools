@@ -1,0 +1,46 @@
+#!/usr/bin/python3
+
+import os.path
+import utils
+import datetime
+import math
+
+target_pool = os.path.expanduser("~/.target_pool")
+update_plan = os.path.expanduser("~/.target_update_plan")
+ddl_record = os.path.expanduser("~/.target_ddl")
+
+if not os.path.exists(update_plan):
+    with open(update_plan,"w") as f:
+        f.write("# target\tDDL (weekday)\n")
+        exit(0)
+if not os.path.exists(ddl_record):
+    with open(ddl_record,"w") as f:
+        f.write("# target\tDDL (yyyy-mm-dd)\n")
+        exit(0)
+if not os.path.exists(target_pool):
+    with open(target_pool,"w") as f:
+        f.write("# target\tweight\n")
+        exit(0)
+
+todayweekday = datetime.date.today().weekday()+1
+today = datetime.datetime.today()
+caldiff = lambda cur,ddl: ddl-cur if ddl>cur else ddl-cur+7
+weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thusday","Friday","Saturday"]
+
+with open(update_plan) as f:
+    update_policies = [line.strip() for line in f.readlines() if not line.startswith("#")]
+    update_policies = [line if "#" not in line else line[0:line.find("#")].strip() for line in update_policies]
+    update_policies = [line for line in update_policies if len(line)!=0]
+    update_policies = [utils.splitline(line) for line in update_policies]
+    for target,weekday in update_policies:
+        if caldiff(todayweekday,weekday)<=2:
+            print("Target: {:}\tDDL: {:}".format(target,weekdays[weekday%7]))
+with open(ddl_record) as f:
+    update_ddl = [line.strip() for line in f.readlines() if not line.startswith("#")]
+    update_ddl = [line if "#" not in line else line[0:line.find("#")].strip() for line in update_ddl]
+    update_ddl = [line for line in update_ddl if len(line)!=0]
+    update_ddl = [line.rsplit(maxsplit=1) for line in update_ddl]
+    update_ddl = [(item[0],datetime.datetime.strptime(item[1],"%Y-%m-%d")) for item in update_ddl]
+    for target,ddl in update_ddl:
+        if (ddl-today).days>=0 and (ddl-today).days<=3:
+            print("Target: {:}\tDDL: {:%Y-%m-%d}".format(target,ddl))

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+pool="$HOME/.target_pool"
+if [ ! -s $pool ] ; then
+	echo '# target	weight' >$pool
+fi

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+vim /home/david/.target_update_plan

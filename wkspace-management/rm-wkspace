@@ -1,0 +1,6 @@
+#!/bin/bash
+
+args=($*)
+for it in ${args[@]} ; do
+	rm -i $WKSPACE/$it
+done

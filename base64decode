@@ -1,0 +1,45 @@
+#!/usr/bin/python3
+
+import base64
+import argparse
+import sys
+import binascii
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--decode","-d",action="store",type=str,help="Base64 string to be decoded")
+parser.add_argument("--file","-f",action="store",type=str,help="Text file where stored Base64 string to be decoded; \"-\" for stdin; If either this option or \"--decode\" isn't set, the coded string will be read from stdin")
+parser.add_argument("--encoding",action="store",default="utf-8",type=str,help="Encoding of decoded string; Default to utf-8")
+args = parser.parse_args()
+
+if args.decode is None:
+    if args.file is None or args.file=="-":
+        f = sys.stdin
+    else:
+        try:
+            f = open(args.file)
+        except OSError:
+            print("File opening error! ")
+
+    coded = ""
+    for linenum,line in enumerate(f):
+        if line!="":
+            coded += line.strip()
+        else:
+            try:
+                decoded = str(base64.b64decode(coded),encoding=args.encoding)
+                print(decoded)
+            except binascii.Error:
+                print("Decode error at line " + linenum + ". ")
+            coded = ""
+    if coded!="":
+        try:
+            decoded = str(base64.b64decode(coded),encoding=args.encoding)
+            print(decoded)
+        except binascii.Error:
+            print("Decode error at line " + linenum + ". ")
+else:
+    try:
+        decoded = str(base64.b64decode(args.decode),encoding=args.encoding)
+        print(decoded)
+    except binascii.Error:
+        print("Decode error! ")
