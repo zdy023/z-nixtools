@@ -175,15 +175,21 @@ usage: encrypt [-h] [--password [PASSWORD]] [--decode] [--delete]
                input [input ...]
 
 positional arguments:
-  input
+  input                 The file to encrypt or decrypt
 
 optional arguments:
   -h, --help            show this help message and exit
   --password [PASSWORD], -p [PASSWORD]
-  --decode, -d
-  --delete
-  --recursive, -r
+                        Indicates whether a password should be used
+  --decode, -d          Decrypts the file if set
+  --delete              Delete the inputed file if set
+  --recursive, -r       Encrypt the files under the directory recursively if
+                        set. With "--delete" option set implicitly
   --suffix SUFFIX, -a SUFFIX
+                        Specify the suffix of the encrypted file. The suffix
+                        will be appended to the inputed file name during
+                        encryption and be truncated from the inputed file name
+                        during decryption
 ```
 
 ## Configuration for `~/.profile` and `~/.bashrc`
