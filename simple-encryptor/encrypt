@@ -3,7 +3,7 @@
 """
 simple-encryptor
 Author: David Chang
-Last revision: Mar 23th, 2019
+Last revision: Mar 26th, 2019
 """
 
 import argparse
@@ -109,12 +109,12 @@ def _encrypt_dir(executor,inputf,suffix,decode=False,password=None):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("input",nargs="+",action="store")
-    parser.add_argument("--password","-p",nargs="?",const="",default=None)
-    parser.add_argument("--decode","-d",action="store_true")
-    parser.add_argument("--delete",action="store_true")
-    parser.add_argument("--recursive","-r",action="store_true")
-    parser.add_argument("--suffix","-a",action="store",default="zencred2")
+    parser.add_argument("input",nargs="+",action="store",help="The file to encrypt or decrypt")
+    parser.add_argument("--password","-p",nargs="?",const="",default=None,help="Indicates whether a password should be used")
+    parser.add_argument("--decode","-d",action="store_true",help="Decrypts the file if set")
+    parser.add_argument("--delete",action="store_true",help="Delete the inputed file if set")
+    parser.add_argument("--recursive","-r",action="store_true",help="Encrypt the files under the directory recursively if set. With \"--delete\" option set implicitly")
+    parser.add_argument("--suffix","-a",action="store",default="zencred2",help="Specify the suffix of the encrypted file. The suffix will be appended to the inputed file name during encryption and be truncated from the inputed file name during decryption")
     args = parser.parse_args()
 
     inputf = args.input
