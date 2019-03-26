@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# wkspace-management
+# Author: David Chang
+# Last revision: Nov 22nd, 2018
+
 args=($*)
 for it in ${args[@]} ; do
 	rm -i $WKSPACE/$it

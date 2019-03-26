@@ -1,3 +1,7 @@
 #!/bin/bash
 
+# target-pool
+# Author: David Chang
+# Last revision: Feb 25th, 2019
+
 vim $HOME/.target_pool

@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+"""
+target-pool
+Author: David Chang
+Last revision: Feb 26th, 2019
+"""
+
 import random
 import os.path
 import utils

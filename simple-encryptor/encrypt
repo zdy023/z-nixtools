@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+"""
+simple-encryptor
+Author: David Chang
+Last revision: Mar 23th, 2019
+"""
+
 import argparse
 import getpass
 import sys

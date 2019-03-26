@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# get current desktop
+# wkspace-management
+# Author: David Chang
+# Last revision: Mar 26th, 2019
 
+# get current desktop
 desk=$(wmctrl -d |awk '//{if($2=="*") num = $1;} END{print num;}')
 
 # get PIDs and stores

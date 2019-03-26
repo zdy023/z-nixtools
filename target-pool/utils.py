@@ -1,3 +1,9 @@
+"""
+target-pool
+Author: David Chang
+Last revision: Feb 28th, 2019
+"""
+
 def splitline(line):
     """
     return target, a number

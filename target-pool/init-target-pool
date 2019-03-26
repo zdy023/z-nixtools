@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# target-pool
+# Author: David Chang
+# Last revision: Feb 25th, 2019
+
 pool="$HOME/.target_pool"
 if [ ! -s $pool ] ; then
 	echo '# target	weight' >$pool

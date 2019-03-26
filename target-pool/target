@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# target-pool
+# Author: David Chang
+# Last revision: Mar 6th, 2019
+
 case $1 in
 	update)
 		autoupdate-target-pool;;

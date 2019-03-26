@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# wkspace-management
+# Author: David Chang
+# Last revision: Nov 25th, 2018
+
 awk '//{
 if(NR==1)
 {

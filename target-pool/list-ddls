@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+"""
+target-pool
+Author: David Chang
+Last revision: Mar 6th, 2019
+"""
+
 import os.path
 import utils
 import datetime

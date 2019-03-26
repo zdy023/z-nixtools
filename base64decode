@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+# base64decode
+# Author: David Chang
+# Last revision: Dec 10th, 2018
+
 import base64
 import argparse
 import sys
