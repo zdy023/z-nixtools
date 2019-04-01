@@ -47,7 +47,7 @@ autocmd FileType lisp,asm nnoremap <localleader>cc I;<Space><Esc>
 
 set tabstop=4
 set shiftwidth=4
-autocmd FileType python,yaml set expandtab
+autocmd FileType python,yaml,rust set expandtab
 " tab settings
 
 nnoremap ds ^x
