@@ -7,6 +7,8 @@ export LESS=" -R"
 export LESSGLOBALTAGS="global"
 # less configuration
 
+alias pale1="dosbox -c \"mount c pale\" -c \"c:\" -c \"pal.exe\" -c \"exit\""
+
 alias timetable="vim $HOME/.timetable.rem"
 alias schedule="vim $HOME/.schedule.rem"
 alias showtodo="remind $HOME/.timetable.rem"

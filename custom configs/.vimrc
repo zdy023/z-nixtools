@@ -13,7 +13,7 @@ autocmd BufRead * :loadview
 autocmd BufWrite * :mkview!
 " automat view management
 
-tnoremap ll <c-w>:tabn<CR>
+tnoremap ;; <c-w>:tabn<CR>
 tnoremap hh <c-w>:tabN<CR>
 " convenient tab switch under terminal mode
 
@@ -87,6 +87,11 @@ endfunction
 call GithubPreferedTableMode()
 let g:table_mode_delimiter='\t'
 " for plugin vim-table-mode
+
+let g:user_emmet_install_global=0
+auto Filetype html,markdown EmmetInstall
+let g:user_emmet_leader_key='<F8>'
+" for emmet
 
 colorscheme torte
 hi Normal ctermfg=252 ctermbg=none
