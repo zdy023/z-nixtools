@@ -14,9 +14,9 @@ import os.path
 import os
 import concurrent.futures
 
-def _encrypt_file(inputf,suffix,decode=False,password=None,delete=False):
+def _encrypt_file(inputf, suffix, decode=False, password=None, delete=False):
     try:
-        fin = open(inputf,"rb")
+        fin = open(inputf, "rb")
     except OSError as e:
         print("Opening: inputf")
         print(str(e))
@@ -31,9 +31,9 @@ def _encrypt_file(inputf,suffix,decode=False,password=None,delete=False):
     else:
         output = inputf + "." + suffix
     try:
-        fout = open(output,"wb")
+        fout = open(output, "wb")
     except OSError as e:
-        print("{:}->{:}".format(inputf,output))
+        print("{:}->{:}".format(inputf, output))
         print(str(e))
         return
     # check the output file
@@ -49,10 +49,10 @@ def _encrypt_file(inputf,suffix,decode=False,password=None,delete=False):
         key = password
     # check if a custom password is given
 
-    key = bytes(key,"utf-8")
+    key = bytes(key, "utf-8")
     circular_sum = 0
     while len(key)>=4:
-        head = int.from_bytes(key[0:4],"big")
+        head = int.from_bytes(key[0:4], "big")
         key = key[4:]
         circular_sum += head
 
@@ -85,10 +85,10 @@ def _encrypt_file(inputf,suffix,decode=False,password=None,delete=False):
     length = len(byte)
     while length>0:
         bytea = byte
-        byte = int.from_bytes(byte,in_bitorder)
+        byte = int.from_bytes(byte, in_bitorder)
         byte ^= key
         byte &= (1<<(length<<3))-1
-        fout.write(byte.to_bytes(length,out_bitorder))
+        fout.write(byte.to_bytes(length, out_bitorder))
         byte = fin.read(4)
         length = len(byte)
     fout.flush()
@@ -99,23 +99,28 @@ def _encrypt_file(inputf,suffix,decode=False,password=None,delete=False):
     if delete:
         os.remove(inputf)
 
-def _encrypt_dir(executor,inputf,suffix,decode=False,password=None):
+def _encrypt_dir(executor, inputf, suffix, decode=False, password=None):
     directory = os.scandir(inputf)
     for f in directory:
         if f.is_dir():
-            _encrypt_dir(executor,f,suffix,decode,password)
+            _encrypt_dir(executor, f, suffix, decode, password)
         else:
-            executor.submit(_encrypt_file,f.path,suffix,decode,password,True)
+            executor.submit(_encrypt_file, f.path, suffix, decode, password, True)
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("input",nargs="+",action="store",help="The file to encrypt or decrypt")
-    parser.add_argument("--password","-p",nargs="?",const="",default=None,help="Indicates whether a password should be used")
-    parser.add_argument("--decode","-d",action="store_true",help="Decrypts the file if set")
-    parser.add_argument("--delete",action="store_true",help="Delete the inputed file if set")
-    parser.add_argument("--recursive","-r",action="store_true",help="Encrypt the files under the directory recursively if set. With \"--delete\" option set implicitly")
-    parser.add_argument("--suffix","-a",action="store",default="zencred2",help="Specify the suffix of the encrypted file. The suffix will be appended to the inputed file name during encryption and be truncated from the inputed file name during decryption")
+    parser.add_argument("input", nargs="+", action="store", help="The file to encrypt or decrypt")
+    parser.add_argument("--password", "-p", nargs="?", const="", default=None, help="Indicates whether a password should be used")
+    parser.add_argument("--decode", "-d", action="store_true", help="Decrypts the file if set")
+    parser.add_argument("--delete", action="store_true", help="Delete the inputed file if set")
+    parser.add_argument("--recursive", "-r", action="store_true", help="Encrypt the files under the directory recursively if set. With \"--delete\" option set implicitly")
+    parser.add_argument("--suffix", "-a", action="store", default="zencred2", help="Specify the suffix of the encrypted file. The suffix will be appended to the inputed file name during encryption and be truncated from the inputed file name during decryption")
     args = parser.parse_args()
+
+    if args.password=="":
+        password = getpass.getpass("Please input the password: ")
+    else:
+        password = args.password
 
     inputf = args.input
     inputf = [os.path.expanduser(f) for f in inputf]
@@ -124,6 +129,6 @@ if __name__=="__main__":
         for f in inputf:
             if os.path.isdir(f):
                 if args.recursive:
-                    _encrypt_dir(executor,f,args.suffix,args.decode,args.password)
+                    _encrypt_dir(executor, f, args.suffix, args.decode, password)
             else:
-                executor.submit(_encrypt_file,f,args.suffix,args.decode,args.password,args.delete)
+                executor.submit(_encrypt_file, f, args.suffix, args.decode, password, args.delete)
