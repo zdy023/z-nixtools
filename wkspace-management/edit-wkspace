@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# wkspace-management
-# Author: David Chang
-# Last revision: Jan 5th, 2019
-
-vim $WKSPACE/$1
