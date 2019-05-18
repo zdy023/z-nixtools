@@ -7,7 +7,8 @@ export LESS=" -R"
 export LESSGLOBALTAGS="global"
 # less configuration
 
-alias pale1="dosbox -c \"mount c pale\" -c \"c:\" -c \"pal.exe\" -c \"exit\""
+alias pale1="dosbox -c \"mount c PAL1\" -c \"c:\" -c \"pal.exe\" -c \"exit\""
+alias kill-netease-music="ps -eF |awk '/netease-cloud-music/{if(index(\$0, \"awk\")==0) system(\"kill -n9 \"\$2); }'"
 
 alias timetable="vim $HOME/.timetable.rem"
 alias schedule="vim $HOME/.schedule.rem"

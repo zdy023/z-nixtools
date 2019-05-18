@@ -3,7 +3,9 @@ set nosi!
 set noai!
 set showcmd!
 set number!
+set ruler!
 syntax on
+set hls
 set wrap
 set backspace=indent,eol,start
 set fdm=manual
@@ -14,10 +16,12 @@ autocmd BufWrite * :mkview!
 " automat view management
 
 tnoremap ;; <c-w>:tabn<CR>
-tnoremap hh <c-w>:tabN<CR>
+tnoremap ,, <c-w>:tabN<CR>
 " convenient tab switch under terminal mode
 
-nnoremap <c-o> a<CR><Esc>
+"nnoremap <c-o> a<CR><Esc>
+nnoremap <localleader><space> i <esc>la <esc>h
+nnoremap <localleader>x Xlxh
 nnoremap U vU
 inoremap jj <Esc>
 " basic edit settings
@@ -54,7 +58,8 @@ nnoremap ds ^x
 nnoremap d2s ^xx
 nnoremap d3s ^xxx
 nnoremap <localleader>ds ^dw
-nnoremap dl $xx
+nnoremap dl $x
+nnoremap d2l $xx
 nnoremap d3l $xxx
 nnoremap <localleader>dl $bdw
 " convenient deletion
@@ -90,7 +95,7 @@ let g:table_mode_delimiter='\t'
 
 let g:user_emmet_install_global=0
 auto Filetype html,markdown EmmetInstall
-let g:user_emmet_leader_key='<F8>'
+let g:user_emmet_leader_key='<c-g>'
 " for emmet
 
 colorscheme torte
@@ -103,6 +108,14 @@ set fileencodings=utf-8,gbk,gb2312,gb18030,cp936,utf-16,latin-1
 " for encodings
 
 autocmd FileType remind,markdown,tpp set spell
-autocmd FileType remind inoremap <c-j> <Space>%_\<CR>
+autocmd FileType remind,html inoremap <c-j> <Space>%_\<CR>
 autocmd FileType markdown inoremap <c-j> <br><CR>
 " for spell check and quick newline in several formats
+
+highlight TempMark  term=bold,reverse cterm=bold ctermfg=red ctermbg=yellow
+match TempMark /\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=/
+nnoremap <localleader>hl I'<esc>A'<esc>
+nnoremap <localleader>uh :s/\(^\s*\)\@<=\'\\|\'$//g<cr>
+
+highlight TailSpace ctermbg=green
+2match TailSpace /\s\+$/
