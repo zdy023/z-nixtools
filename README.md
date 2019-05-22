@@ -1,12 +1,12 @@
 # ztools
 
-Several gadgets for Linux. 
+Several gadgets for Linux.
 
 ## `base64decode`
 
 Base64 decoder constructed in Python 3.
 
-### Test Environment: 
+### Test Environment:
 
 * Python 3.6.7
 
@@ -46,11 +46,11 @@ Trick for target scheduling.
 * `target ddl` - edit the one-shot DDL-s (`~/.target_ddl`)
 * `target update` - update the weights in the target pool in accordance with `~/.target_update_plan` and `~/.target_ddl`; this command will update the weights subject to a reciprocal function of the difference to the ddl
 * `target select` - randomly select a target in accordance with the weights in the target pool
-* `target list-ddls` - list the closest DDL-s in `~/.target_update_plan` and `~/.target_ddl` 
+* `target list-ddls` - list the closest DDL-s in `~/.target_update_plan` and `~/.target_ddl`
 
 ### Configuration for Autocompletion
 
-In order to configure `bash` to autocomplete the command names, add following statements to `~/.bashrc`. 
+In order to configure `bash` to autocomplete the command names, add following statements to `~/.bashrc`.
 
 ```sh
 function _target() {
@@ -62,7 +62,7 @@ complete -F _target target
 
 ### About the Structure of the Target Pool File
 
-The target pool file is in the following form: 
+The target pool file is in the following form:
 
 ```
 # target	weight
@@ -71,11 +71,11 @@ Lab	4
 Literary read	2
 ```
 
-The lines starting with "#" will be considered as comments. The last field separated by white space characters is considered as the weight while the other fields are considered as the target name integrally. 
+The lines starting with "#" will be considered as comments. The last field separated by white space characters is considered as the weight while the other fields are considered as the target name integrally.
 
 ### About the Structure of the Every-week Plan File
 
-The plan file is in the following form: 
+The plan file is in the following form:
 
 ```
 # target	DDL (weekday)
@@ -83,11 +83,11 @@ Application for summer practice		4
 Prepare for experiment 1
 ```
 
-The lines starting with "#" will be considered as comments as well. The last field separated by white space characters is considered as the weekday of the periodic deadline of the particular target while the other fields are considered as the target name integrally as well. 
+The lines starting with "#" will be considered as comments as well. The last field separated by white space characters is considered as the weekday of the periodic deadline of the particular target while the other fields are considered as the target name integrally as well.
 
 ### About the Structure of the One-shot DDL File
 
-The ddl file is in the similar form with the pool file and the plan file: 
+The ddl file is in the similar form with the pool file and the plan file:
 
 ```
 # target	DDL (yyyy-mm-dd)
@@ -95,11 +95,11 @@ Big project of Intelligent Optimisation Algorithms	2019-6-13
 Report of oral history requested for Mao Thought	2019-5-31
 ```
 
-The difference is that the last field indicates the one-shot ddl of the corresponding target but not the weight or the periodic ddl. 
+The difference is that the last field indicates the one-shot ddl of the corresponding target but not the weight or the periodic ddl.
 
 ## simple-encryptor
 
-A simple encryption tool using XOR algorithm. 
+A simple encryption tool using XOR algorithm.
 
 ### Test Environment:
 
