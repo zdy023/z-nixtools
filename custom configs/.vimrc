@@ -8,6 +8,7 @@
 " tpope/vim-fugitive
 " dhruvasagar/vim-table-mode
 " mattn/emmet-vim
+" vim-latex/vim-latex
 "
 " vim-scripts/fcitx.vim
 
@@ -44,8 +45,10 @@ Plugin 'skywind3000/asyncrun.vim'
 Plugin 'terryma/vim-expand-region'
 Plugin 'vim-scripts/Mark'
 Plugin 'tpope/vim-fugitive'
+
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
+Plugin 'vim-latex/vim-latex'
 
 Plugin 'vim-scripts/fcitx.vim'
 
@@ -84,6 +87,8 @@ set scrolloff=15
 set fdm=manual
 " basic settings
 
+let g:tex_flavor="latex"
+
 autocmd BufRead,BufNewFile * packadd matchit
 
 autocmd BufRead * :loadview
@@ -119,13 +124,35 @@ autocmd FileType vim nnoremap <localleader>ct I"<Space><Esc>
 autocmd FileType vim nnoremap <localleader>cc I"<Esc>
 " vim comment
 
-"autocmd FileType html,markdown,php let b:match_words='<\(\w\+\)\(\s.*\)*>:</\1>'
-autocmd FileType matlab let b:match_words='\(^\s*\)\@<=\(while\|for\|if\|function\)\>:\(^\s*\)\@<=end\>'
-
 autocmd FileType tex,matlab,prolog nnoremap <localleader>cc I%<Esc>
 autocmd FileType sql,vhdl nnoremap <localleader>cc I--<Space><Esc>
 autocmd FileType lisp,asm nnoremap <localleader>cc I;<Space><Esc>
 " other comments
+
+let pattern_cif = '\<if\>:\<else\ if\>:\<else\>'
+let pattern_pif = '\<if\>:\<elif\>:\<else\>'
+let pattern_shif = '\<if\>:\<else\ if\>\|\<elif\>:\<else\>:\<fi\>'
+let pattern_mif = '\<if\>:\<elseif\>:\<else\>:\<end\>'
+
+let pattern_sh = '\<do\>:\<done\>,\<case\>:\<esac\>'
+let pattern_matlab = '\(^\s*\)\@<=\(while\|for\|function\)\>:\(^\s*\)\@<=end\>'
+
+let pattern_html = '<\(\w\+\)\(\s\+.*\)*>:</\1>,<!--:-->'
+let pattern_tex = '\\begin{\(.\+\)}:\\end{\1},\\left\>:\\right\>'
+
+let pattern_ccmt = '\/\*:\*\/'
+let pattern_jcmt = ',\/\*\*:\*\/'
+
+let pattern_hgpp = '<#:>'
+
+autocmd FileType c,cpp let b:match_words=pattern_cif.','.pattern_ccmt
+autocmd FileType java let b:match_words=pattern_cif.','.pattern_ccmt.','.pattern_jcmt
+autocmd FileType python let b:match_words=pattern_pif
+autocmd FileType sh let b:match_words=pattern_sh.','.pattern_shif
+autocmd FileType matlab let b:match_words=pattern_mif.','.pattern_matlab
+autocmd FileType html let b:match_words=pattern_html.','.pattern_hgpp
+autocmd FileType tex let b:match_words=pattern_tex
+autocmd FileType markdown let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_tex
 
 set tabstop=4
 set shiftwidth=4
