@@ -6,6 +6,7 @@
 " terryma/vim-expand-region
 " vim-scripts/Mark
 " tpope/vim-fugitive
+"
 " dhruvasagar/vim-table-mode
 " mattn/emmet-vim
 " vim-latex/vim-latex
@@ -129,6 +130,9 @@ autocmd FileType sql,vhdl nnoremap <localleader>cc I--<Space><Esc>
 autocmd FileType lisp,asm nnoremap <localleader>cc I;<Space><Esc>
 " other comments
 
+autocmd FileType markdown vnoremap <localleader>b s**<c-r>"**<esc>
+autocmd FileType markdown vnoremap <localleader>i s*<c-r>"*<esc>
+
 let pattern_cif = '\<if\>:\<else\ if\>:\<else\>'
 let pattern_pif = '\<if\>:\<elif\>:\<else\>'
 let pattern_shif = '\<if\>:\<else\ if\>\|\<elif\>:\<else\>:\<fi\>'
@@ -145,14 +149,17 @@ let pattern_jcmt = ',\/\*\*:\*\/'
 
 let pattern_hgpp = '<#:>'
 
+let pattern_zh_cn = '（:）,【:】,‘:’,“:”'
+
 autocmd FileType c,cpp let b:match_words=pattern_cif.','.pattern_ccmt
 autocmd FileType java let b:match_words=pattern_cif.','.pattern_ccmt.','.pattern_jcmt
 autocmd FileType python let b:match_words=pattern_pif
 autocmd FileType sh let b:match_words=pattern_sh.','.pattern_shif
 autocmd FileType matlab let b:match_words=pattern_mif.','.pattern_matlab
-autocmd FileType html let b:match_words=pattern_html.','.pattern_hgpp
-autocmd FileType tex let b:match_words=pattern_tex
-autocmd FileType markdown let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_tex
+
+autocmd FileType html let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_zh_cn
+autocmd FileType tex let b:match_words=pattern_tex.','.pattern_zh_cn
+autocmd FileType markdown let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_tex.','.pattern_zh_cn
 
 set tabstop=4
 set shiftwidth=4
