@@ -12,6 +12,7 @@
 " vim-latex/vim-latex
 "
 " vim-scripts/fcitx.vim
+" rhysd/vim-grammarous
 
 set nocompatible              " be iMproved, required
 filetype off                  " required
@@ -52,6 +53,7 @@ Plugin 'mattn/emmet-vim'
 Plugin 'vim-latex/vim-latex'
 
 Plugin 'vim-scripts/fcitx.vim'
+Plugin 'rhysd/vim-grammarous'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -136,18 +138,19 @@ autocmd FileType markdown vnoremap <localleader>i s*<c-r>"*<esc>
 let pattern_cif = '\<if\>:\<else\ if\>:\<else\>'
 let pattern_pif = '\<if\>:\<elif\>:\<else\>'
 let pattern_shif = '\<if\>:\<else\ if\>\|\<elif\>:\<else\>:\<fi\>'
-let pattern_mif = '\<if\>:\<elseif\>:\<else\>:\<end\>'
+let pattern_vif = '\<if\>:\<elseif\>:\<else\>:\<endif\>'
 
 let pattern_sh = '\<do\>:\<done\>,\<case\>:\<esac\>'
-let pattern_matlab = '\(^\s*\)\@<=\(while\|for\|function\)\>:\(^\s*\)\@<=end\>'
+let pattern_matlab = '\(^\s*\)\@<=\(while\|for\|function\|if\)\>:\(^\s*\)\@<=end\>'
+let pattern_vim = '\<\(function\|while\|for\)\>:\<end\1\>'
 
 let pattern_html = '<\(\w\+\)\(\s\+.*\)*>:</\1>,<!--:-->'
 let pattern_tex = '\\begin{\(.\+\)}:\\end{\1},\\left\>:\\right\>'
 
 let pattern_ccmt = '\/\*:\*\/'
-let pattern_jcmt = ',\/\*\*:\*\/'
+let pattern_jcmt = '\/\*\*:\*\/'
 
-let pattern_hgpp = '<#:>'
+let pattern_hgpp = '<#:\(\\\)\@<!>'
 
 let pattern_zh_cn = '（:）,【:】,‘:’,“:”'
 
@@ -155,7 +158,8 @@ autocmd FileType c,cpp let b:match_words=pattern_cif.','.pattern_ccmt
 autocmd FileType java let b:match_words=pattern_cif.','.pattern_ccmt.','.pattern_jcmt
 autocmd FileType python let b:match_words=pattern_pif
 autocmd FileType sh let b:match_words=pattern_sh.','.pattern_shif
-autocmd FileType matlab let b:match_words=pattern_mif.','.pattern_matlab
+autocmd FileType matlab let b:match_words=pattern_matlab
+autocmd FileType vim let b:match_words=pattern_vim.','.pattern_vif
 
 autocmd FileType html let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_zh_cn
 autocmd FileType tex let b:match_words=pattern_tex.','.pattern_zh_cn
@@ -220,14 +224,28 @@ set fileencodings=utf-8,gbk,gb2312,gb18030,cp936,utf-16,latin-1
 " for encodings
 
 autocmd FileType remind,markdown,tpp set spell
+let g:grammarous#languagetool_cmd="languagetool"
+let g:grammarous#default_comments_only_filetypes={"*": 1, "help": 0, "markdown": 0, "html": 0}
+let g:grammarous#show_first_error=1
+
 autocmd FileType remind,html inoremap <c-j> <Space>%_\<CR>
 autocmd FileType markdown inoremap <c-j> <br><CR>
 " for spell check and quick newline in several formats
 
 highlight TempMark  term=bold,reverse cterm=bold ctermfg=red ctermbg=yellow
-autocmd BufRead,BufNewFile * match TempMark /\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=/
+autocmd BufRead,BufNewFile * syn match TempMark /\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=/
 nnoremap <localleader>hl I'<esc>A'<esc>
 nnoremap <localleader>uh :s/\(^\s*\)\@<=\'\\|\'$//g<cr>
 
 highlight TailSpace ctermbg=green
-autocmd BufRead,BufNewFile * 2match TailSpace /\s\+$/
+autocmd BufRead,BufNewFile * syn match TailSpace /\s\+$/
+
+highlight GppMacro term=bold cterm=bold ctermfg=green
+autocmd BufRead,BufNewFile * syn match GppMacro /<#\w\+\|\(<#\w\+\([^>]\|\\>\)*\)\@<=>/
+
+function GppHTML(output)
+	exec 'set makeprg=gpp\ -H\ -o\ '.a:output.'\ '.@%
+endfunction
+function GppTeX(output)
+	exec 'set makeprg=gpp\ -T\ -o\ '.a:output.'\ '.@%
+endfunction
