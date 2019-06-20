@@ -6,6 +6,8 @@
 " terryma/vim-expand-region
 " vim-scripts/Mark
 " tpope/vim-fugitive
+" SirVer/ultisnips
+" zdy023/vim-snippets
 "
 " dhruvasagar/vim-table-mode
 " mattn/emmet-vim
@@ -47,6 +49,9 @@ Plugin 'skywind3000/asyncrun.vim'
 Plugin 'terryma/vim-expand-region'
 Plugin 'vim-scripts/Mark'
 Plugin 'tpope/vim-fugitive'
+Plugin 'SirVer/ultisnips'
+"Plugin 'honza/vim-snippets'
+Plugin 'zdy023/vim-snippets'
 
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
@@ -54,6 +59,7 @@ Plugin 'vim-latex/vim-latex'
 
 Plugin 'vim-scripts/fcitx.vim'
 Plugin 'rhysd/vim-grammarous'
+Plugin 'vim-scripts/LanguageTool'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -85,7 +91,7 @@ set hls
 set cursorline
 
 set wrap
-set scrolloff=15
+set scrolloff=7
 
 set fdm=manual
 " basic settings
@@ -216,6 +222,7 @@ let g:user_emmet_leader_key='<c-g>'
 
 colorscheme torte
 hi Normal ctermfg=252 ctermbg=none
+hi CursorLine term=underline cterm=reverse
 " for the theme
 
 set encoding=utf-8
@@ -236,6 +243,8 @@ highlight TempMark  term=bold,reverse cterm=bold ctermfg=red ctermbg=yellow
 autocmd BufRead,BufNewFile * syn match TempMark /\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=/
 nnoremap <localleader>hl I'<esc>A'<esc>
 nnoremap <localleader>uh :s/\(^\s*\)\@<=\'\\|\'$//g<cr>
+nnoremap <localleader>hn /\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=<cr>
+nnoremap <localleader>hN ?\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=<cr>
 
 highlight TailSpace ctermbg=green
 autocmd BufRead,BufNewFile * syn match TailSpace /\s\+$/
