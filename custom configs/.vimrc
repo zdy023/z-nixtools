@@ -170,6 +170,7 @@ autocmd FileType vim let b:match_words=pattern_vim.','.pattern_vif
 autocmd FileType html let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_zh_cn
 autocmd FileType tex let b:match_words=pattern_tex.','.pattern_zh_cn
 autocmd FileType markdown let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_tex.','.pattern_zh_cn
+autocmd FileType remind let b:match_words=pattern_zh_cn
 
 set tabstop=4
 set shiftwidth=4
