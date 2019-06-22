@@ -47,38 +47,82 @@ caldiff = lambda cur,ddl: ddl-cur if ddl>cur else ddl-cur+7
 genweight1 = lambda diff: int(math.ceil(10./diff)) if diff!=0 else 1
 genweight2 = lambda cur,dll: int(math.ceil(30./((dll-cur).days+1))) if dll>cur else 0
 
+#with open(target_pool) as f:
+    #all_lines = f.readlines()
+    #target_lines = [line.strip() for line in all_lines if not line.startswith("#")]
+    #target_lines = [line if "#" not in line else line[0:line.find("#")].strip() for line in target_lines]
+    #target_lines = [line for line in target_lines if len(line)!=0]
+#targets = []
+#for line in target_lines:
+    #target,weight = utils.splitline(line)
+    #if target in update_ddl:
+        #weight = genweight2(today,update_ddl[target])
+        #if weight==0:
+            #continue
+        #del update_ddl[target]
+        #if target in update_policies:
+            #del update_policies[target]
+    #elif target in update_policies:
+        #weight = genweight1(caldiff(todayweekday,update_policies[target]))
+        #del update_policies[target]
+    #targets.append((target,weight))
+#
+#for target in update_ddl:
+    #weight = genweight2(today,update_ddl[target])
+    #if weight==0:
+        #continue
+    #targets.append((target,weight))
+    #if target in update_policies:
+        #del update_policies[target]
+#for target in update_policies:
+    #weight = genweight1(caldiff(todayweekday,update_policies[target]))
+    #targets.append((target,weight))
+#
+#with open(target_pool,"w") as f:
+    #f.write("# target\tweight\n")
+    #for target,weight in targets:
+        #f.write("{:}\t{:d}\n".format(target,weight))
+
+processed_lines = []
 with open(target_pool) as f:
-    target_lines = [line.strip() for line in f.readlines() if not line.startswith("#")]
-    target_lines = [line if "#" not in line else line[0:line.find("#")].strip() for line in target_lines]
-    target_lines = [line for line in target_lines if len(line)!=0]
-targets = []
-sum_weight = 0
-for line in target_lines:
-    target,weight = utils.splitline(line)
-    if target in update_ddl:
-        weight = genweight2(today,update_ddl[target])
-        if weight==0:
-            continue
-        del update_ddl[target]
-        if target in update_policies:
-            del update_policies[target]
-    elif target in update_policies:
-        weight = genweight1(caldiff(todayweekday,update_policies[target]))
-        del update_policies[target]
-    targets.append((target,weight))
+    for line in f:
+        if "#" in line:
+            position = line.find("#")
+            plan = line[0:position].strip()
+            comment = " " + line[position:-1]
+        else:
+            plan = line.strip()
+            comment = ""
+        if plan!="":
+            target, weight = utils.splitline(plan)
+            if target in update_ddl:
+                weight = genweight2(today, update_ddl[target])
+                if weight==0:
+                    continue
+                del update_ddl[target]
+                if target in update_policies:
+                    del update_policies[target]
+            elif target in update_policies:
+                weight = genweight1(caldiff(todayweekday, update_policies[target]))
+                del update_policies[target]
+            processed_lines.append("{:}\t{:d}{:}\n".format(target, weight, comment))
+        else:
+            processed_lines.append(comment.lstrip() + "\n")
+
+processed_lines.append("\n")
 
 for target in update_ddl:
-    weight = genweight2(today,update_ddl[target])
+    weight = genweight2(today, update_ddl[target])
     if weight==0:
         continue
-    targets.append((target,weight))
+    processed_lines.append("{:}\t{:d}\n".format(target, weight))
     if target in update_policies:
         del update_policies[target]
 for target in update_policies:
-    weight = genweight1(caldiff(todayweekday,update_policies[target]))
-    targets.append((target,weight))
+    weight = genweight1(caldiff(todayweekday, update_policies[target]))
+    processed_lines.append("{:}\t{:d}\n".format(target, weight))
 
 with open(target_pool,"w") as f:
-    f.write("# target\tweight\n")
-    for target,weight in targets:
-        f.write("{:}\t{:d}\n".format(target,weight))
+    #f.write("# target\tweight\n")
+    for line in processed_lines:
+        f.write(line)
