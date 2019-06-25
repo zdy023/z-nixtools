@@ -86,6 +86,8 @@ genweight2 = lambda cur,dll: int(math.ceil(30./((dll-cur).days+1))) if dll>cur e
 processed_lines = []
 with open(target_pool) as f:
     for line in f:
+        if len(line.strip())==0:
+            continue
         if "#" in line:
             position = line.find("#")
             plan = line[0:position].strip()
