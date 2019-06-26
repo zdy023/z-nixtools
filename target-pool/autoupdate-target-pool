@@ -86,8 +86,6 @@ genweight2 = lambda cur,dll: int(math.ceil(30./((dll-cur).days+1))) if dll>cur e
 processed_lines = []
 with open(target_pool) as f:
     for line in f:
-        if len(line.strip())==0:
-            continue
         if "#" in line:
             position = line.find("#")
             plan = line[0:position].strip()
@@ -111,18 +109,21 @@ with open(target_pool) as f:
         else:
             processed_lines.append(comment.lstrip() + "\n")
 
-processed_lines.append("\n")
-
+infix_line = "\n"
 for target in update_ddl:
     weight = genweight2(today, update_ddl[target])
     if weight==0:
         continue
-    processed_lines.append("{:}\t{:d}\n".format(target, weight))
+    processed_lines.append("{:}{:}\t{:d}\n".format(infix_line, target, weight))
+    infix_line = ""
     if target in update_policies:
         del update_policies[target]
+
+infix_line = "\n"
 for target in update_policies:
     weight = genweight1(caldiff(todayweekday, update_policies[target]))
-    processed_lines.append("{:}\t{:d}\n".format(target, weight))
+    processed_lines.append("{:}{:}\t{:d}\n".format(infix_line, target, weight))
+    infix_line = ""
 
 with open(target_pool,"w") as f:
     #f.write("# target\tweight\n")
