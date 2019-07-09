@@ -138,8 +138,25 @@ autocmd FileType sql,vhdl nnoremap <localleader>cc I--<Space><Esc>
 autocmd FileType lisp,asm nnoremap <localleader>cc I;<Space><Esc>
 " other comments
 
+vnoremap <localleader>( s(<c-r>")<esc>
+vnoremap <localleader>[ s[<c-r>"]<esc>
+vnoremap <localleader>< s<<c-r>"><esc>
+vnoremap <localleader>{ s{<c-r>"}<esc>
+vnoremap <localleader>" s"<c-r>""<esc>
+vnoremap <localleader>' s'<c-r>"'<esc>
+
 autocmd FileType markdown vnoremap <localleader>b s**<c-r>"**<esc>
 autocmd FileType markdown vnoremap <localleader>i s*<c-r>"*<esc>
+autocmd FileType markdown vnoremap <localleader>e s***<c-r>"***<esc>
+autocmd FileType markdown vnoremap <localleader>) s（<c-r>"）<esc>
+autocmd FileType markdown vnoremap <localleader>] s〔<c-r>"〕<esc>
+autocmd FileType markdown vnoremap <localleader>} s【<c-r>"】<esc>
+autocmd FileType markdown vnoremap <localleader>> s《<c-r>"》<esc>
+autocmd FileType markdown vnoremap <localleader>` s“<c-r>"”<esc>
+autocmd FileType markdown vnoremap <localleader>~ s‘<c-r>"’<esc>
+
+autocmd FileType markdown nnoremap <localleader>v :AsyncRun typora %<cr>
+autocmd FileType html nnoremap <localleader>v :AsyncRun firefox %<cr>
 
 let pattern_cif = '\<if\>:\<else\ if\>:\<else\>'
 let pattern_pif = '\<if\>:\<elif\>:\<else\>'
@@ -158,7 +175,7 @@ let pattern_jcmt = '\/\*\*:\*\/'
 
 let pattern_hgpp = '<#:\(\\\)\@<!>'
 
-let pattern_zh_cn = '（:）,【:】,‘:’,“:”'
+let pattern_zh_cn = '（:）,【:】,‘:’,“:”,〔:〕,《:》'
 
 autocmd FileType c,cpp let b:match_words=pattern_cif.','.pattern_ccmt
 autocmd FileType java let b:match_words=pattern_cif.','.pattern_ccmt.','.pattern_jcmt
@@ -236,8 +253,8 @@ let g:grammarous#languagetool_cmd="languagetool"
 let g:grammarous#default_comments_only_filetypes={"*": 1, "help": 0, "markdown": 0, "html": 0}
 let g:grammarous#show_first_error=1
 
-autocmd FileType remind,html inoremap <c-j> <Space>%_\<CR>
-autocmd FileType markdown inoremap <c-j> <br><CR>
+autocmd FileType remind inoremap <c-j> <Space>%_\<CR>
+autocmd FileType markdown,html inoremap <c-j> <br><CR>
 " for spell check and quick newline in several formats
 
 highlight TempMark  term=bold,reverse cterm=bold ctermfg=red ctermbg=yellow
