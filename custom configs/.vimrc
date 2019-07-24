@@ -110,6 +110,11 @@ tnoremap ;; <c-w>:tabn<CR>
 tnoremap ,, <c-w>:tabN<CR>
 " convenient tab switch under terminal mode
 
+cnoremap vsb vertical sb
+cnoremap vt vertical terminal
+cnoremap vds vertical diffsplit
+cnoremap ho hid only
+
 "nnoremap <c-o> a<CR><Esc>
 nnoremap <localleader><space> i <esc>la <esc>h
 nnoremap <localleader>x Xlxh
