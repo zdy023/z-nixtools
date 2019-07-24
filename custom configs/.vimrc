@@ -96,6 +96,8 @@ set scrolloff=7
 set fdm=manual
 " basic settings
 
+set hidden
+
 let g:tex_flavor="latex"
 
 autocmd BufRead,BufNewFile * packadd matchit
@@ -208,6 +210,7 @@ inoremap <c-n> <c-x><c-n>
 inoremap <c-]> <c-x><c-]>
 inoremap <c-f> <c-x><c-f>
 inoremap <c-k> <c-x><c-k>
+inoremap <c-b> <c-r>=getcwd()<cr>
 " settings w.r.t. autocompletion
 
 set tags=tags
