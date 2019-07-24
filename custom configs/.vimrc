@@ -96,8 +96,6 @@ set scrolloff=7
 set fdm=manual
 " basic settings
 
-set hidden
-
 let g:tex_flavor="latex"
 
 autocmd BufRead,BufNewFile * packadd matchit
