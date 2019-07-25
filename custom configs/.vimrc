@@ -115,7 +115,7 @@ cnoremap ho<tab> hid only
 nnoremap <localleader>w :set wrap<cr>
 nnoremap <localleader>W :set nowrap<cr>
 nnoremap <localleader>cs :set spell<cr>
-nnoremap <localleader>cns :set nospell<cr>
+nnoremap <localleader>cS :set nospell<cr>
 
 "nnoremap <c-o> a<CR><Esc>
 nnoremap <localleader><space> i <esc>la <esc>h
