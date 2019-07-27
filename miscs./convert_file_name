@@ -1,0 +1,15 @@
+#!/bin/bash
+
+imgs=($(ls $1 |grep '\.\(jpg\|JPG\|jpeg\|JPEG\)$'))
+for im in ${imgs[@]}; do
+	filetype=$(file $1/$im)
+	if [[ "$filetype" =~ Web/P ]]; then
+		echo $1/$im->Web/P
+		mv $1/$im $1/${im%.*}.webp
+	else
+		if [[ "$filetype" =~ PNG ]]; then
+			echo $1/$im->PNG
+			mv $1/$im $1/${im%.*}.png
+		fi
+	fi
+done

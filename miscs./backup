@@ -1,0 +1,13 @@
+#!/bin/bash
+
+backup_name=~/.sogoubackup/sogoubackup$(date +"%Y%m%d")
+if [[ ! -d $backup_name ]]; then
+	mkdir $backup_name
+	cp -r ~/.config/SogouPY/ ~/.config/SogouPY.users/ ~/.config/sogou-qimpanel/ $backup_name
+fi
+
+let threshold=10
+baks=($(ls -dt ~/.sogoubackup/sogoubackup*))
+if [[ ${#baks[@]} -ge $threshold ]]; then
+	rm -rf ${baks[@]:$threshold}
+fi

@@ -133,3 +133,19 @@ optional arguments:
                         encryption and be truncated from the inputed file name
                         during decryption
 ```
+
+## Custom config files
+
+Now such config files as follows are collected in this repo:
+
+* `~/.bashrc`
+* `~/.profile`
+* `~/.vimrc`
+* `~/.tmux.conf`
+* `~/.config/fcitx/data/punc-ng.mb.zh_CN`
+* `~/.config/fcitx/data/QuickPhrase.mb`
+
+## Other tiny tools
+
+* `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely
+* `convert_file_name` - convert the extension name of the images from the mobile from 'jpeg' to the correct one
