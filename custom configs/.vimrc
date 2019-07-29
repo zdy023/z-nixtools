@@ -280,9 +280,12 @@ autocmd BufRead,BufNewFile * syn match TailSpace /\s\+$/
 highlight GppMacro term=bold cterm=bold ctermfg=green
 autocmd BufRead,BufNewFile * syn match GppMacro /<#\w\+\|\(<#\w\+\([^>]\|\\>\)*\)\@<=>/
 
+function SafePath(input)
+	return substitute(a:input, "[]()*#$&\\[]", "\\\\\\\\&", "g")
+endfunction
 function GppHTML(output)
-	exec 'set makeprg=gpp\ -H\ -o\ '.a:output.'\ '.@%
+	exec 'set makeprg=gpp\ -H\ -o\ '.SafePath(a:output).'\ '.SafePath(@%)
 endfunction
 function GppTeX(output)
-	exec 'set makeprg=gpp\ -T\ -o\ '.a:output.'\ '.@%
+	exec 'set makeprg=gpp\ -T\ -o\ '.SafePath(a:output).'\ '.SafePath(@%)
 endfunction
