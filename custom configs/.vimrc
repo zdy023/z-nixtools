@@ -256,7 +256,7 @@ hi CursorLine term=underline cterm=reverse
 
 set encoding=utf-8
 set termencoding=utf-8
-set fileencodings=utf-8,gbk,gb2312,gb18030,cp936,utf-16,latin-1
+set fileencodings=utf-8,gbk,gb2312,gb18030,cp936,big5,utf-16,latin-1
 " for encodings
 
 autocmd FileType remind,markdown,tpp set spell
