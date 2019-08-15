@@ -295,3 +295,6 @@ endfunction
 function GppTeX(output)
 	exec 'set makeprg=gpp\ -T\ -o\ '.SafePath(a:output).'\ '.SafePath(@%)
 endfunction
+
+set laststatus=2
+set statusline=%f\ (%n)%m\ %y%=[%{getcwd()}]\ @%l/%L\ lines,\ col\ %c,\ %P
