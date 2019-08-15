@@ -143,7 +143,10 @@ autocmd FileType vim nnoremap <localleader>cc I"<Esc>
 " vim comment
 
 autocmd FileType tex,matlab,prolog nnoremap <localleader>cc I%<Esc>
-autocmd FileType sql,vhdl nnoremap <localleader>cc I--<Space><Esc>
+autocmd FileType sql,vhdl,haskell nnoremap <localleader>cc I--<Space><Esc>
+autocmd FileType haskell nnoremap cic I{- <esc>
+autocmd FileType haskell nnoremap cac A -}<esc>
+autocmd FileType lhaskell nnoremap <localleader>cc I> <esc>
 autocmd FileType lisp,asm nnoremap <localleader>cc I;<Space><Esc>
 " other comments
 
@@ -201,7 +204,9 @@ autocmd FileType remind let b:match_words=pattern_zh_cn
 
 set tabstop=4
 set shiftwidth=4
-autocmd FileType python,yaml,rust set expandtab
+autocmd FileType yaml set tabstop=2
+autocmd FileType yaml set shiftwidth=2
+autocmd FileType python,yaml,rust,haskell,lhaskell set expandtab
 " tab settings
 
 nnoremap ds ^x
