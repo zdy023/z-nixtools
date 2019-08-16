@@ -56,6 +56,8 @@ Plugin 'zdy023/vim-snippets'
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
 Plugin 'vim-latex/vim-latex'
+"Plugin 'ycm-core/YouCompleteMe'
+Plugin 'zxqfl/tabnine-vim'
 
 Plugin 'vim-scripts/fcitx.vim'
 Plugin 'rhysd/vim-grammarous'
@@ -222,8 +224,8 @@ nnoremap <localleader>dl $bdw
 inoremap <c-n> <c-x><c-n>
 inoremap <c-]> <c-x><c-]>
 inoremap <c-f> <c-x><c-f>
-inoremap <c-k> <c-x><c-k>
-inoremap <c-b> <c-r>=getcwd()<cr>
+"inoremap <c-k> <c-x><c-k>
+"inoremap <c-b> <c-r>=getcwd()<cr>
 " settings w.r.t. autocompletion
 
 set tags=tags
@@ -297,4 +299,13 @@ function GppTeX(output)
 endfunction
 
 set laststatus=2
-set statusline=%f\ (%n)%m\ %y%=[%{getcwd()}]\ @%l/%L\ lines,\ col\ %c,\ %P
+set statusline=%f\ (%n)%m\ %y%=[%{getcwd()}]\ %B@%l/%L\ lines,\ col\ %c,\ %P
+
+let g:ycm_key_list_select_completion = ['<c-n>']
+let g:ycm_key_list_previous_completion = ['<c-p>']
+"let g:ycm_key_invoke_completion = ['<c-k>']
+let g:ycm_key_list_stop_completion = ['<c-b>']
+
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-.>"
+let g:UltiSnipsJumpBackwardTrigger="<c-,>"
