@@ -91,6 +91,7 @@ set ruler!
 syntax on
 set hls
 "set cursorline
+set nocursorline
 
 set wrap
 set scrolloff=7
