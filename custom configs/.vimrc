@@ -90,7 +90,7 @@ set ruler!
 
 syntax on
 set hls
-set cursorline
+"set cursorline
 
 set wrap
 set scrolloff=7
