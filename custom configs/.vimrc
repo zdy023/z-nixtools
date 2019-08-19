@@ -301,7 +301,7 @@ function GppTeX(output)
 endfunction
 
 set laststatus=2
-set statusline=%f\ (%n)%m\ %y%=[%{getcwd()}]\ %B@%l/%L\ lines,\ col\ %c,\ %P
+set statusline=%f\ (%n)%h%w%q%r%m\ %y%=[%{getcwd()}]\ %B@%l/%L\ lines,\ col\ %c,\ %P
 
 let g:ycm_key_list_select_completion = ['<c-n>']
 let g:ycm_key_list_previous_completion = ['<c-p>']
