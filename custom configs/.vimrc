@@ -160,6 +160,7 @@ vnoremap <localleader>< s<<c-r>"><esc>
 vnoremap <localleader>{ s{<c-r>"}<esc>
 vnoremap <localleader>" s"<c-r>""<esc>
 vnoremap <localleader>' s'<c-r>"'<esc>
+vnoremap <localleader>` s`<c-r>"`<esc>
 
 autocmd FileType markdown vnoremap <localleader>b s**<c-r>"**<esc>
 autocmd FileType markdown vnoremap <localleader>i s*<c-r>"*<esc>
@@ -170,7 +171,6 @@ autocmd FileType markdown vnoremap <localleader>} s【<c-r>"】<esc>
 autocmd FileType markdown vnoremap <localleader>> s《<c-r>"》<esc>
 autocmd FileType markdown vnoremap <localleader>@ s“<c-r>"”<esc>
 autocmd FileType markdown vnoremap <localleader>~ s‘<c-r>"’<esc>
-autocmd FileType markdown vnoremap <localleader>` s`<c-r>"`<esc>
 
 autocmd FileType markdown nnoremap <localleader>v :AsyncRun typora %<cr>
 autocmd FileType html nnoremap <localleader>v :AsyncRun firefox %<cr>
