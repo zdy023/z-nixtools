@@ -52,6 +52,7 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'SirVer/ultisnips'
 "Plugin 'honza/vim-snippets'
 Plugin 'zdy023/vim-snippets'
+Plugin 'majutsushi/tagbar'
 
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
