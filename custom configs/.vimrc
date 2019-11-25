@@ -56,12 +56,13 @@ Plugin 'zdy023/vim-snippets'
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
 Plugin 'vim-latex/vim-latex'
+Plugin 'vim-voom/VOoM'
 "Plugin 'ycm-core/YouCompleteMe'
 Plugin 'zxqfl/tabnine-vim'
 
 Plugin 'vim-scripts/fcitx.vim'
 Plugin 'rhysd/vim-grammarous'
-Plugin 'vim-scripts/LanguageTool'
+"Plugin 'vim-scripts/LanguageTool'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -257,6 +258,13 @@ let g:user_emmet_install_global=0
 auto Filetype html,markdown EmmetInstall
 let g:user_emmet_leader_key='<c-g>'
 " for emmet
+
+"let g:Tex_CompileRule_dvi = 'xelatex -interaction=nonstopmode $*'
+"let g:Tex_CompileRule_dvi = 'latexmk -xelatex -file-line-error -halt-on-error -interaction=nonstopmode $*'
+"let g:Tex_CompileRule_dvi = 'latexmk -pdf -file-line-error -halt-on-error -interaction=nonstopmode $*'
+let g:Tex_CompileRule_dvi = 'latexmk -pdf -f $*'
+"let g:Tex_ViewRule_pdf = 'okular $*'
+"let g:Tex_CustomTemplateDirectory = "/home/david/.vim/latex-templates"
 
 colorscheme torte
 hi Normal ctermfg=252 ctermbg=none
