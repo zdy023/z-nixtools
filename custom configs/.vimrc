@@ -64,6 +64,7 @@ Plugin 'zxqfl/tabnine-vim'
 Plugin 'vim-scripts/fcitx.vim'
 Plugin 'rhysd/vim-grammarous'
 "Plugin 'vim-scripts/LanguageTool'
+Plugin 'mattn/calendar-vim'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -164,15 +165,19 @@ vnoremap <localleader>" s"<c-r>""<esc>
 vnoremap <localleader>' s'<c-r>"'<esc>
 vnoremap <localleader>` s`<c-r>"`<esc>
 
+autocmd FileType tex vnoremap <localleader>` s`<c-r>"'<esc>
+autocmd FileType tex vnoremap <localleader>! s``<c-r>"''<esc>
 autocmd FileType markdown vnoremap <localleader>b s**<c-r>"**<esc>
 autocmd FileType markdown vnoremap <localleader>i s*<c-r>"*<esc>
 autocmd FileType markdown vnoremap <localleader>e s***<c-r>"***<esc>
-autocmd FileType markdown vnoremap <localleader>) s（<c-r>"）<esc>
-autocmd FileType markdown vnoremap <localleader>] s〔<c-r>"〕<esc>
-autocmd FileType markdown vnoremap <localleader>} s【<c-r>"】<esc>
-autocmd FileType markdown vnoremap <localleader>> s《<c-r>"》<esc>
-autocmd FileType markdown vnoremap <localleader>@ s“<c-r>"”<esc>
-autocmd FileType markdown vnoremap <localleader>~ s‘<c-r>"’<esc>
+autocmd FileType tex vnoremap <localleader>b s\textbf{<c-r>"}<esc>
+autocmd FileType tex vnoremap <localleader>i s\textit{<c-r>"}<esc>
+autocmd FileType markdown,tex vnoremap <localleader>) s（<c-r>"）<esc>
+autocmd FileType markdown,tex vnoremap <localleader>] s〔<c-r>"〕<esc>
+autocmd FileType markdown,tex vnoremap <localleader>} s【<c-r>"】<esc>
+autocmd FileType markdown,tex vnoremap <localleader>> s《<c-r>"》<esc>
+autocmd FileType markdown,tex vnoremap <localleader>@ s“<c-r>"”<esc>
+autocmd FileType markdown,tex vnoremap <localleader>~ s‘<c-r>"’<esc>
 
 autocmd FileType markdown nnoremap <localleader>v :AsyncRun typora %<cr>
 autocmd FileType html nnoremap <localleader>v :AsyncRun firefox %<cr>
@@ -208,6 +213,8 @@ autocmd FileType tex let b:match_words=pattern_tex.','.pattern_zh_cn
 autocmd FileType markdown let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_tex.','.pattern_zh_cn
 autocmd FileType remind let b:match_words=pattern_zh_cn
 
+autocmd FileType tex nnoremap \<tab> /<+\(\w\\|\ \)*+><cr>gn
+
 set tabstop=4
 set shiftwidth=4
 autocmd FileType yaml set tabstop=2
@@ -236,6 +243,7 @@ set tags=tags
 nnoremap <localleader>ta :AsyncRun<Space>ctags<Space>-R<Space>.<CR>
 nnoremap <localleader>tc :!ctags<Space>-R<Space>.<CR>
 " for tags (Exuberant Ctags 5.9~svn20110310)
+let g:tagbar_sort=0
 
 nnoremap <localleader>gt :echo<Space>g:asyncrun_status<CR>
 " for plugin asyncrun.vim
@@ -320,3 +328,6 @@ let g:ycm_key_list_stop_completion = ['<c-b>']
 let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<c-.>"
 let g:UltiSnipsJumpBackwardTrigger="<c-,>"
+
+let g:calendar_mark="right"
+let g:calendar_monday=1
