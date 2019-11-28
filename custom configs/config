@@ -1,0 +1,61 @@
+[global_config]
+  borderless = True
+  enabled_plugins = ActivityWatch, TerminalShot, LaunchpadCodeURLHandler, APTURLHandler, Logger, LaunchpadBugURLHandler
+  tab_position = bottom
+  window_state = maximise
+[keybindings]
+  close_term = None
+  close_window = <Primary><Shift>q
+  cycle_next = None
+  cycle_prev = None
+  go_down = <Alt>j
+  go_left = <Alt>h
+  go_next = None
+  go_prev = None
+  go_right = <Alt>l
+  go_up = <Alt>k
+  group_all_toggle = <Shift><Super>g
+  group_tab_toggle = <Shift><Super>t
+  help = None
+  hide_window = None
+  insert_number = None
+  insert_padded = None
+  layout_launcher = None
+  line_down = <Primary><Shift>e
+  line_up = <Primary><Shift>y
+  move_tab_left = <Primary><Shift>h
+  move_tab_right = <Primary><Shift>l
+  new_terminator = None
+  new_window = None
+  next_tab = <Primary>Tab
+  page_down = <Primary><Shift>f
+  page_down_half = <Primary><Shift>d
+  page_up = <Primary><Shift>b
+  page_up_half = <Primary><Shift>u
+  prev_tab = <Primary><Shift>Tab
+  reset_clear = <Primary><Shift>braceleft
+  search = <Primary><Alt>slash
+  split_horiz = <Primary><Alt>apostrophe
+  split_vert = <Primary><Alt>5
+  switch_to_tab_1 = <Alt>1
+  switch_to_tab_2 = <Alt>2
+  switch_to_tab_3 = <Alt>3
+  switch_to_tab_4 = <Alt>4
+  switch_to_tab_5 = <Alt>5
+[layouts]
+  [[default]]
+    [[[child1]]]
+      parent = window0
+      type = Terminal
+    [[[window0]]]
+      parent = ""
+      type = Window
+[plugins]
+[profiles]
+  [[default]]
+    background_darkness = 0.85
+    background_type = transparent
+    cursor_color = "#aaaaaa"
+    foreground_color = "#ad7fa8"
+    scrollback_lines = 5000
+    scrollbar_position = hidden

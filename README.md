@@ -145,6 +145,7 @@ Now such config files as follows are collected in this repo:
 * `~/.config/fcitx/data/punc-ng.mb.zh_CN`
 * `~/.config/fcitx/data/QuickPhrase.mb`
 * `~/.w3m/keymap`
+* `~/.config/terminator/config`
 
 ## Other tiny tools
 
