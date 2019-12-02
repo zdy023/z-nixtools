@@ -136,25 +136,25 @@ nnoremap cbc I#<Esc>
 nnoremap cbt I#<Space><Esc>
 " common comments
 
-autocmd FileType c,cpp,go,javascript,java,css,verilog,php nnoremap cic I/*<Esc>
-autocmd FileType java,php nnoremap cij I/**<Esc>
-autocmd FileType c,cpp,go,javascript,java,css,verilog,php nnoremap cac A*/<Esc>
+autocmd FileType c,cpp,go,javascript,java,css,verilog,php nnoremap <buffer> cic I/*<Esc>
+autocmd FileType java,php nnoremap <buffer> cij I/**<Esc>
+autocmd FileType c,cpp,go,javascript,java,css,verilog,php nnoremap <buffer> cac A*/<Esc>
 " C-like comments
 
-autocmd FileType python nnoremap cic I"""<Esc>
-autocmd FileType python nnoremap cac A"""<Esc>
+autocmd FileType python nnoremap <buffer> cic I"""<Esc>
+autocmd FileType python nnoremap <buffer> cac A"""<Esc>
 " python comment
 
-autocmd FileType vim nnoremap <localleader>ct I"<Space><Esc>
-autocmd FileType vim nnoremap <localleader>cc I"<Esc>
+autocmd FileType vim nnoremap <buffer> <localleader>ct I"<Space><Esc>
+autocmd FileType vim nnoremap <buffer> <localleader>cc I"<Esc>
 " vim comment
 
-autocmd FileType tex,matlab,prolog nnoremap <localleader>cc I%<Esc>
-autocmd FileType sql,vhdl,haskell nnoremap <localleader>cc I--<Space><Esc>
-autocmd FileType haskell nnoremap cic I{- <esc>
-autocmd FileType haskell nnoremap cac A -}<esc>
-autocmd FileType lhaskell nnoremap <localleader>cc I> <esc>
-autocmd FileType lisp,asm nnoremap <localleader>cc I;<Space><Esc>
+autocmd FileType tex,matlab,prolog nnoremap <buffer> <localleader>cc I%<Esc>
+autocmd FileType sql,vhdl,haskell nnoremap <buffer> <localleader>cc I--<Space><Esc>
+autocmd FileType haskell nnoremap <buffer> cic I{- <esc>
+autocmd FileType haskell nnoremap <buffer> cac A -}<esc>
+autocmd FileType lhaskell nnoremap <buffer> <localleader>cc I> <esc>
+autocmd FileType lisp,asm nnoremap <buffer> <localleader>cc I;<Space><Esc>
 " other comments
 
 vnoremap <localleader>( s(<c-r>")<esc>
@@ -165,22 +165,22 @@ vnoremap <localleader>" s"<c-r>""<esc>
 vnoremap <localleader>' s'<c-r>"'<esc>
 vnoremap <localleader>` s`<c-r>"`<esc>
 
-autocmd FileType tex vnoremap <localleader>` s`<c-r>"'<esc>
-autocmd FileType tex vnoremap <localleader>! s``<c-r>"''<esc>
-autocmd FileType markdown vnoremap <localleader>b s**<c-r>"**<esc>
-autocmd FileType markdown vnoremap <localleader>i s*<c-r>"*<esc>
-autocmd FileType markdown vnoremap <localleader>e s***<c-r>"***<esc>
-autocmd FileType tex vnoremap <localleader>b s\textbf{<c-r>"}<esc>
-autocmd FileType tex vnoremap <localleader>i s\textit{<c-r>"}<esc>
-autocmd FileType markdown,tex vnoremap <localleader>) s（<c-r>"）<esc>
-autocmd FileType markdown,tex vnoremap <localleader>] s〔<c-r>"〕<esc>
-autocmd FileType markdown,tex vnoremap <localleader>} s【<c-r>"】<esc>
-autocmd FileType markdown,tex vnoremap <localleader>> s《<c-r>"》<esc>
-autocmd FileType markdown,tex vnoremap <localleader>@ s“<c-r>"”<esc>
-autocmd FileType markdown,tex vnoremap <localleader>~ s‘<c-r>"’<esc>
+autocmd FileType tex vnoremap <buffer> <localleader>` s`<c-r>"'<esc>
+autocmd FileType tex vnoremap <buffer> <localleader>! s``<c-r>"''<esc>
+autocmd FileType markdown vnoremap <buffer> <localleader>b s**<c-r>"**<esc>
+autocmd FileType markdown vnoremap <buffer> <localleader>i s*<c-r>"*<esc>
+autocmd FileType markdown vnoremap <buffer> <localleader>e s***<c-r>"***<esc>
+autocmd FileType tex vnoremap <buffer> <localleader>b s\textbf{<c-r>"}<esc>
+autocmd FileType tex vnoremap <buffer> <localleader>i s\textit{<c-r>"}<esc>
+autocmd FileType markdown,tex vnoremap <buffer> <localleader>) s（<c-r>"）<esc>
+autocmd FileType markdown,tex vnoremap <buffer> <localleader>] s〔<c-r>"〕<esc>
+autocmd FileType markdown,tex vnoremap <buffer> <localleader>} s【<c-r>"】<esc>
+autocmd FileType markdown,tex vnoremap <buffer> <localleader>> s《<c-r>"》<esc>
+autocmd FileType markdown,tex vnoremap <buffer> <localleader>@ s“<c-r>"”<esc>
+autocmd FileType markdown,tex vnoremap <buffer> <localleader>~ s‘<c-r>"’<esc>
 
-autocmd FileType markdown nnoremap <localleader>v :AsyncRun typora %<cr>
-autocmd FileType html nnoremap <localleader>v :AsyncRun firefox %<cr>
+autocmd FileType markdown nnoremap <buffer> <localleader>v :AsyncRun typora %<cr>
+autocmd FileType html nnoremap <buffer> <localleader>v :AsyncRun firefox %<cr>
 
 let pattern_cif = '\<if\>:\<else\ if\>:\<else\>'
 let pattern_pif = '\<if\>:\<elif\>:\<else\>'
@@ -213,7 +213,7 @@ autocmd FileType tex let b:match_words=pattern_tex.','.pattern_zh_cn
 autocmd FileType markdown let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_tex.','.pattern_zh_cn
 autocmd FileType remind let b:match_words=pattern_zh_cn
 
-autocmd FileType tex nnoremap \<tab> /<+\(\w\\|\ \)*+><cr>gn
+autocmd FileType tex nnoremap <buffer> \<tab> /<+\(\w\\|\ \)*+><cr>gn
 
 set tabstop=4
 set shiftwidth=4
@@ -290,8 +290,8 @@ let g:grammarous#languagetool_cmd="languagetool"
 let g:grammarous#default_comments_only_filetypes={"*": 1, "help": 0, "markdown": 0, "html": 0}
 let g:grammarous#show_first_error=1
 
-autocmd FileType remind inoremap <c-j> <Space>%_\<CR>
-autocmd FileType markdown,html inoremap <c-j> <br><CR>
+autocmd FileType remind inoremap <buffer> <c-j> <Space>%_\<CR>
+autocmd FileType markdown,html inoremap <buffer> <c-j> <br><CR>
 " for spell check and quick newline in several formats
 
 highlight TempMark  term=bold,reverse cterm=bold ctermfg=red ctermbg=yellow
