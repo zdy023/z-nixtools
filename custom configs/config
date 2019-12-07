@@ -59,3 +59,4 @@
     foreground_color = "#ad7fa8"
     scrollback_lines = 5000
     scrollbar_position = hidden
+    show_titlebar = False
