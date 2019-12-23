@@ -326,8 +326,8 @@ let g:ycm_key_list_previous_completion = ['<c-p>']
 let g:ycm_key_list_stop_completion = ['<c-b>']
 
 let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<c-.>"
-let g:UltiSnipsJumpBackwardTrigger="<c-,>"
+let g:UltiSnipsJumpForwardTrigger="<c-k>"
+let g:UltiSnipsJumpBackwardTrigger="<c-l>"
 
 let g:calendar_mark="right"
 let g:calendar_monday=1
