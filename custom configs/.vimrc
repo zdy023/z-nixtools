@@ -124,6 +124,10 @@ nnoremap <localleader>W :set nowrap<cr>
 nnoremap <localleader>cs :set spell<cr>
 nnoremap <localleader>cS :set nospell<cr>
 
+cnoremap TT<tab> TagbarToggle
+autocmd FileType markdown cnoremap <buffer> Vp<tab> Voom pandoc
+autocmd FileType tex cnoremap <buffer> Vlt<tab> Voom latex
+
 "nnoremap <c-o> a<CR><Esc>
 nnoremap <localleader><space> i <esc>la <esc>h
 nnoremap <localleader>x Xlxh
@@ -217,8 +221,8 @@ autocmd FileType tex nnoremap <buffer> \<tab> /<+\(\w\\|\ \)*+><cr>gn
 
 set tabstop=4
 set shiftwidth=4
-autocmd FileType yaml set tabstop=2
-autocmd FileType yaml set shiftwidth=2
+autocmd FileType yaml,haskell,lhaskell set tabstop=2
+autocmd FileType yaml,haskell,lhaskell set shiftwidth=2
 autocmd FileType python,yaml,rust,haskell,lhaskell set expandtab
 " tab settings
 
@@ -264,7 +268,7 @@ let g:table_mode_delimiter='\t'
 " for plugin vim-table-mode
 
 let g:user_emmet_install_global=0
-auto Filetype html,markdown EmmetInstall
+auto FileType html,markdown EmmetInstall
 let g:user_emmet_leader_key='<c-g>'
 " for emmet
 
