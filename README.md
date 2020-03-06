@@ -146,6 +146,7 @@ Now such config files as follows are collected in this repo:
 * `~/.config/fcitx/data/QuickPhrase.mb`
 * `~/.w3m/keymap`
 * `~/.config/terminator/config`
+* `~/.config/htop/htoprc`
 
 ## Other tiny tools
 

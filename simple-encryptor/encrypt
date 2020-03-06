@@ -112,8 +112,8 @@ if __name__=="__main__":
     parser.add_argument("input", nargs="+", action="store", help="The file to encrypt or decrypt")
     parser.add_argument("--password", "-p", nargs="?", const="", default=None, help="Indicates whether a password should be used")
     parser.add_argument("--decode", "-d", action="store_true", help="Decrypts the file if set")
-    parser.add_argument("--keep", "-k", action="store_true", help="keep the inputed file if set")
-    parser.add_argument("--recursive", "-r", action="store_true", help="Encrypt the files under the directory recursively if set. With \"--delete\" option set implicitly")
+    parser.add_argument("--keep", "-k", action="store_true", help="Keeps the inputed file if set")
+    parser.add_argument("--recursive", "-r", action="store_true", help="Encrypt the files under the directory recursively if set. Without \"--keep\" option set implicitly")
     parser.add_argument("--suffix", "-S", action="store", default="zencred2", help="Specify the suffix of the encrypted file. The suffix will be appended to the inputed file name during encryption and be truncated from the inputed file name during decryption")
     args = parser.parse_args()
 
