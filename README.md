@@ -147,6 +147,7 @@ Now such config files as follows are collected in this repo:
 * `~/.w3m/keymap`
 * `~/.config/terminator/config`
 * `~/.config/htop/htoprc`
+* `~/.gotop/layout`
 
 ## Other tiny tools
 
