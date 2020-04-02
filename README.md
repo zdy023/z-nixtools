@@ -144,10 +144,17 @@ Now such config files as follows are collected in this repo:
 * `~/.tmux.conf`
 * `~/.config/fcitx/data/punc-ng.mb.zh_CN`
 * `~/.config/fcitx/data/QuickPhrase.mb`
-* `~/.w3m/keymap`
-* `~/.config/terminator/config`
 * `~/.config/htop/htoprc`
 * `~/.gotop/layout`
+
+Under directory `w3m`:
+
+* `~/.w3m/keymap`
+* `~/.w3m/config`
+
+Under directory `terminator`:
+
+* `~/.config/terminator/config`
 
 ## Other tiny tools
 
