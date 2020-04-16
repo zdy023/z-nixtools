@@ -13,10 +13,12 @@ alias ps-exe="ps -eF |grep '\\.exe'"
 function kill-ps() {
 	ps -eF |awk '/'"$1"'/{if(index($0, "awk")==0) system("kill -n9 "$2); }'
 }
+#export killps
 #alias kill-netease-music="ps -eF |awk '/netease-cloud-music/{if(index(\$0, \"awk\")==0) system(\"kill -n9 \"\$2); }'"
 #alias kill-youdao-dict="ps -eF |awk '/youdao-dict/{if(index(\$0, \"awk\")==0) system(\"kill -n9 \"\$2); }'"
 #alias kill-netease-music="kill-ps netease-cloud-music"
 #alias kill-youdao-dict="kill-ps youdao-dict"
+alias gotop="gotop -l "$HOME"/.gotop/layout"
 
 alias timetable="vim $HOME/.timetable.rem"
 alias schedule="vim $HOME/.schedule.rem"
@@ -57,4 +59,5 @@ function _complete_note() {
 	fi
 	return 0
 }
+
 complete -F _complete_note note
