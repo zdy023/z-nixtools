@@ -229,7 +229,7 @@ autocmd FileType python,yaml,rust,haskell,lhaskell set expandtab
 nnoremap ds ^x
 nnoremap d2s ^xx
 nnoremap d3s ^xxx
-nnoremap <localleader>ds ^dw
+nnoremap <localleader>dh ^dw
 nnoremap dl $x
 nnoremap d2l $xx
 nnoremap d3l $xxx
