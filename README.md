@@ -150,7 +150,6 @@ Now such config files as follows are collected in this repo:
 Under directory `w3m`:
 
 * `~/.w3m/keymap`
-* `~/.w3m/config`
 
 Under directory `terminator`:
 
