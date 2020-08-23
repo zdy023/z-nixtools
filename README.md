@@ -143,7 +143,7 @@ Now such config files as follows are collected in this repo:
 * `~/.vimrc`
 * `~/.tmux.conf`
 * `~/.config/fcitx/data/punc-ng.mb.zh_CN`
-* `~/.config/fcitx/data/QuickPhrase.mb`
+* `~/.local/share/fcitx5/data/QuickPhrase.mb`(`~/.config/fcitx/data/QuickPhrase.mb`)
 * `~/.config/htop/htoprc`
 * `~/.gotop/layout`
 
