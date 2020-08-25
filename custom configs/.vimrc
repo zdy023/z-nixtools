@@ -62,10 +62,12 @@ Plugin 'vim-voom/VOoM'
 "Plugin 'zxqfl/tabnine-vim'
 Plugin 'davinche/DrawIt'
 
-Plugin 'vim-scripts/fcitx.vim'
+Plugin 'lilydjwg/fcitx.vim'
 Plugin 'rhysd/vim-grammarous'
 "Plugin 'vim-scripts/LanguageTool'
 Plugin 'mattn/calendar-vim'
+"Plugin 'vim-scripts/dokuwiki'
+Plugin 'nblock/vim-dokuwiki'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -110,6 +112,8 @@ autocmd BufRead,BufNewFile * packadd matchit
 autocmd BufRead * :loadview
 autocmd BufWrite * :mkview!
 " automat view management
+
+set ttimeoutlen=100
 
 tnoremap ;; <c-w>:tabn<CR>
 tnoremap ,, <c-w>:tabN<CR>

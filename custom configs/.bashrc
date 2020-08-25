@@ -7,7 +7,7 @@ export LESS=" -R"
 export LESSGLOBALTAGS="global"
 # less configuration
 
-alias pale1="dosbox -c \"mount c PAL1\" -c \"c:\" -c \"pal.exe\" -c \"exit\""
+#alias pale1="dosbox -c \"mount c PAL1\" -c \"c:\" -c \"pal.exe\" -c \"exit\""
 #alias qq="/opt/deepinwine/apps/Deepin-TIM/run.sh"
 alias ps-exe="ps -eF |grep '\\.exe'"
 function kill-ps() {
@@ -18,7 +18,7 @@ function kill-ps() {
 #alias kill-youdao-dict="ps -eF |awk '/youdao-dict/{if(index(\$0, \"awk\")==0) system(\"kill -n9 \"\$2); }'"
 #alias kill-netease-music="kill-ps netease-cloud-music"
 #alias kill-youdao-dict="kill-ps youdao-dict"
-alias gotop="gotop -l "$HOME"/.gotop/layout"
+alias gotop="gotop -l .gotop/layout"
 
 alias timetable="vim $HOME/.timetable.rem"
 alias schedule="vim $HOME/.schedule.rem"
