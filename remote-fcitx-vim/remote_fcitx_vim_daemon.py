@@ -5,7 +5,6 @@ import os
 import os.path
 
 import socket
-import socketserver
 
 import time
 import multiprocessing
@@ -45,7 +44,10 @@ def remote_process(local_address, local_port, message_pipe):
     signal.signal(signal.SIGTERM, utils.existence_handler)
 
     try:
-        server_socket = socket.create_server((local_address, local_port), backlog=1)
+        #server_socket = socket.create_server((local_address, local_port), backlog=1)
+        server_socket = socket.socket()
+        server_socket.bind((local_address, local_port))
+        server_socket.listen(1)
         while True:
             session, _ = server_socket.accept()
             print("Remote machine connected.")

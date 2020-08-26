@@ -2,6 +2,7 @@
 
 import socket
 import os
+import os.path
 
 import argparse
 
@@ -12,7 +13,11 @@ parser.add_argument("message", type=str, choices=["NORMAL", "INSERTION", "CLOSED
 parser.add_argument("filename", type=str, help="The underlying file name.")
 args = parser.parse_args()
 
+socket_file_not_exists_error_code = 1
+
 socket_file = "/tmp/remote-fcitx-vim-socket.{:}.{:}".format(socket.gethostname(), os.getuid())
+if not os.path.exists(socket_file):
+    exit(socket_file_not_exists_error_code)
 session = socket.socket(socket.AF_UNIX)
 session.connect(socket_file)
 session.setblocking(True)

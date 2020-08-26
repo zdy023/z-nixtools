@@ -44,6 +44,7 @@ def get_fcitx_status():
 fcitx_statuses = {}
 
 try:
+    #session = socket.create_connection((args.address, args.port), source_address=("0.0.0.0", 30001))
     session = socket.create_connection((args.address, args.port))
     print("Connected.")
     while True:
