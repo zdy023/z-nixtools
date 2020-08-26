@@ -1,0 +1,5 @@
+" vim: set filetype=vim : 
+
+autocmd InsertLeave * call system("python3 ~/remote-fcitx-vim/remote_fcitx_vim_sender.py NORMAL \"".expand("%:p")."\"")
+autocmd InsertEnter * call system("python3 ~/remote-fcitx-vim/remote_fcitx_vim_sender.py INSERTION \"".expand("%:p")."\"")
+autocmd InsertEnter * call system("python3 ~/remote-fcitx-vim/remote_fcitx_vim_sender.py CLOSED \"".expand("%:p")."\"")
