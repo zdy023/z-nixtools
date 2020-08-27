@@ -1,5 +1,6 @@
 " vim: set filetype=vim : 
 
-autocmd InsertLeave * call system("python3 ~/remote-fcitx-vim/remote_fcitx_vim_sender.py NORMAL \"".expand("%:p")."\"")
-autocmd InsertEnter * call system("python3 ~/remote-fcitx-vim/remote_fcitx_vim_sender.py INSERTION \"".expand("%:p")."\"")
-autocmd InsertEnter * call system("python3 ~/remote-fcitx-vim/remote_fcitx_vim_sender.py CLOSED \"".expand("%:p")."\"")
+let s:remote_fcitx_vim_path="~/.local/bin"
+autocmd InsertLeave * call system("python3 ".s:remote_fcitx_vim_path."/remote_fcitx_vim_sender.py NORMAL \"".expand("%:p")."\"")
+autocmd InsertEnter * call system("python3 ".s:remote_fcitx_vim_path."/remote_fcitx_vim_sender.py INSERTION \"".expand("%:p")."\"")
+autocmd BufUnload * call system("python3 ".s:remote_fcitx_vim_path."/remote_fcitx_vim_sender.py CLOSED \"".expand("%:p")."\"")

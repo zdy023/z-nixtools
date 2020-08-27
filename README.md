@@ -2,33 +2,7 @@
 
 Several gadgets for Linux.
 
-## `base64decode`
-
-Base64 decoder constructed in Python 3.
-
-### Test Environment:
-
-* Python 3.6.7
-
-### Usage
-
-```sh
-base64decode --help
-```
-
-```
-usage: base64decode [-h] [--decode DECODE] [--file FILE] [--encoding ENCODING]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --decode DECODE, -d DECODE
-                        Base64 string to be decoded
-  --file FILE, -f FILE  Text file where stored Base64 string to be decoded; "-" for stdin; If either
-                        this option or "--decode" isn't set, the coded string will be read from stdin
-  --encoding ENCODING   Encoding of decoded string; Default to utf-8
-```
-
-## target-pool
+## `target-pool`
 
 Trick for target scheduling.
 
@@ -97,15 +71,77 @@ Report of oral history requested for Mao Thought	2019-5-31
 
 The difference is that the last field indicates the one-shot ddl of the corresponding target but not the weight or the periodic ddl.
 
-## simple-encryptor
+## `remote-fcitx-vim`
+
+An external extension like `fcitx.vim` plugin which helps to activate or deactivate `fcitx5` automatically on entering or leaving the insertion mode when you're using `vim` on a remote machine through `ssh`. This tool isn't plugged into `vim`, however, rather than `fcitx.vim` works as a plugin for `vim`. A daemon should be started on the remote machine. The client on the local machine connects to the remote daemon and receives the status of the remote `vim` from the daemon and switch the status of `fcitx5` accordingly.
+
+### Test Environment
+
+Local machine:
+
+* Manjaro 20.1 Mikah
+* x86_64 Linux 5.7.15-1-MANJARO
+* KDE 5.73.0 / Plasma 5.19.4
+* fcitx5 4.99.0
+* Python 3.8.5
+* openssh 8.3p1-3
+
+Remote machine:
+
+* Ubuntu 18.04 bionic
+* x86_64 Linux 4.15.0-109-generic
+* Vi IMproved 8.0, with patches 1-1453
+* Python 3.6.9
+* openssh-server 1:7.6p1-4ubuntu0.3
+
+### Usage
+
+After ssh-ing to the remote host, start the daemon. The daemon will be bound to `0.0.0.0:30002` by default. The default address and port could be modified by
+
+```sh
+python3 remote_fcitx_vim_daemon.py --address ADDRESS --port PORT &>>/dev/null &
+```
+
+Then launch the local client and connect to the remote daemon.
+
+```sh
+python3 remote_fcitx_vim_local_machine.py [--port REMOTE_PORT] REMOTE_ADDRESS &>>/dev/null &
+```
+
+Add the content in the `for_vimrc_on_server` to `~/.vimrc` and replace the value of `s:remote_fcitx_vim_path` with the path to `remote_fcitx_vim_sender.py`.
+
+And you could use this extension now. Enjoy it!
+
+### Resolution for the Remote Host behind an NAT
+
+When the remote host is behind an NAT, maybe you cannot connect to the port used by the underlying daemon directly. In this case, you may need to configure a new port mapping on the remote gateway or traverse the NAT by some way.
+
+If you have no idea to traverse the NAT or you don't want to install any additional software, here is an alternative solution. SSH2 protocol provides a simple forwarding and proxy function. Simply login to the remote machine with `-L` option:
+
+```sh
+ssh -L <local_port>:<daemon_address>:<daemon_port> -p <remote_port> remote_user@remote_host
+```
+
+The connection to the `<local_port>` will be forwarded to `<daemon_address>:<daemon_port>` automatically through the ssh connection. As for this extension, since the daemon is directly run on the ssh server, `<daemon_address>` could be simply set to `127.0.0.1`. `<daemon_address>` is the port the daemon listens to (`30002` by default).
+
+For more details w.r.t. the usage of `ssh -L` and `ssh -R`, please refer to the man page of `ssh`.
+
+## Other tiny tools
+
+* `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely
+* `convert_file_name` - convert the extension name of the images from the mobile from 'jpeg' to the correct one
+
+## Useless Toys
+
+### `simple-encryptor`
 
 A simple encryption tool using XOR algorithm.
 
-### Test Environment:
+#### Test Environment:
 
 * Python 3.6.7
 
-### Usage
+#### Usage
 
 ```sh
 encrypt --help
@@ -134,7 +170,33 @@ optional arguments:
                         during decryption
 ```
 
-## Custom config files
+### `base64decode`
+
+Base64 decoder constructed in Python 3.
+
+#### Test Environment:
+
+* Python 3.6.7
+
+#### Usage
+
+```sh
+base64decode --help
+```
+
+```
+usage: base64decode [-h] [--decode DECODE] [--file FILE] [--encoding ENCODING]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --decode DECODE, -d DECODE
+                        Base64 string to be decoded
+  --file FILE, -f FILE  Text file where stored Base64 string to be decoded; "-" for stdin; If either
+                        this option or "--decode" isn't set, the coded string will be read from stdin
+  --encoding ENCODING   Encoding of decoded string; Default to utf-8
+```
+
+# Custom config files
 
 Now such config files as follows are collected in this repo:
 
@@ -154,8 +216,3 @@ Under directory `w3m`:
 Under directory `terminator`:
 
 * `~/.config/terminator/config`
-
-## Other tiny tools
-
-* `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely
-* `convert_file_name` - convert the extension name of the images from the mobile from 'jpeg' to the correct one
