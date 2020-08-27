@@ -84,7 +84,7 @@ Local machine:
 * KDE 5.73.0 / Plasma 5.19.4
 * fcitx5 4.99.0
 * Python 3.8.5
-* openssh 8.3p1-3
+* openssh 8.3p1
 
 Remote machine:
 
@@ -92,7 +92,7 @@ Remote machine:
 * x86_64 Linux 4.15.0-109-generic
 * Vi IMproved 8.0, with patches 1-1453
 * Python 3.6.9
-* openssh-server 1:7.6p1-4ubuntu0.3
+* openssh-server 1:7.6p1
 
 ### Usage
 
@@ -125,6 +125,12 @@ ssh -L <local_port>:<daemon_address>:<daemon_port> -p <remote_port> remote_user@
 The connection to the `<local_port>` will be forwarded to `<daemon_address>:<daemon_port>` automatically through the ssh connection. As for this extension, since the daemon is directly run on the ssh server, `<daemon_address>` could be simply set to `127.0.0.1`. `<daemon_address>` is the port the daemon listens to (`30002` by default).
 
 For more details w.r.t. the usage of `ssh -L` and `ssh -R`, please refer to the man page of `ssh`.
+
+### Implementation Scheme
+
+![Implementation Scheme](remote-fcitx-vim/pipeline-of-remote-fcitx-vim.png)
+
+Note that in the current version, unix domain socket is adopted for "Socket B" on the figure. It could be replaced by an internet socket so as to support the `fcitx` status management of multiple hosts with singular daemon.
 
 ## Other tiny tools
 
