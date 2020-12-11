@@ -47,6 +47,7 @@ Plugin 'VundleVim/Vundle.vim'
 
 Plugin 'skywind3000/asyncrun.vim'
 Plugin 'terryma/vim-expand-region'
+Plugin 'Yggdroot/indentLine'
 Plugin 'vim-scripts/Mark'
 Plugin 'tpope/vim-fugitive'
 Plugin 'SirVer/ultisnips'
