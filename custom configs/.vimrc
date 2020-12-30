@@ -55,6 +55,8 @@ Plugin 'SirVer/ultisnips'
 Plugin 'zdy023/vim-snippets'
 Plugin 'majutsushi/tagbar'
 Plugin 'tpope/vim-obsession'
+Plugin 'maralla/completor.vim'
+"Plugin 'Word-Fuzzy-Completion'
 
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
