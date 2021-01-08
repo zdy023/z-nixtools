@@ -60,3 +60,4 @@
     scrollback_lines = 5000
     scrollbar_position = hidden
     show_titlebar = False
+	visible_bell = True
