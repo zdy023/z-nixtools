@@ -57,6 +57,7 @@ Plugin 'majutsushi/tagbar'
 Plugin 'tpope/vim-obsession'
 Plugin 'maralla/completor.vim'
 "Plugin 'Word-Fuzzy-Completion'
+Plugin 'voldikss/vim-floaterm'
 
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
@@ -66,9 +67,9 @@ Plugin 'vim-voom/VOoM'
 "Plugin 'zxqfl/tabnine-vim'
 Plugin 'davinche/DrawIt'
 Plugin 'wmvanvliet/jupyter-vim'
-"Plugin 'goerz/jupytext.vim'
+Plugin 'goerz/jupytext.vim'
 "Plugin 'anosillus/vim-ipynb'
-Plugin 'szymonmaszke/vimpyter'
+"Plugin 'szymonmaszke/vimpyter'
 
 Plugin 'lilydjwg/fcitx.vim'
 Plugin 'rhysd/vim-grammarous'
@@ -126,6 +127,15 @@ set ttimeoutlen=100
 tnoremap ;; <c-w>:tabn<CR>
 tnoremap ,, <c-w>:tabN<CR>
 " convenient tab switch under terminal mode
+
+let g:floaterm_keymap_new = '<Leader>fc'
+let g:floaterm_keymap_prev = '<Leader>fp'
+let g:floaterm_keymap_next = '<Leader>fn'
+let g:floaterm_keymap_first = '<Leader>f1'
+let g:floaterm_keymap_last = '<Leader>f9'
+let g:floaterm_keymap_kill = '<Leader>fk'
+let g:floaterm_keymap_toggle = '<Leader>ft'
+cnoremap flt<tab> FloatermNew 
 
 cnoremap vsb<tab> vertical sb 
 cnoremap vt<tab> vertical terminal 
