@@ -140,12 +140,18 @@ cnoremap flt<tab> FloatermNew
 cnoremap vsb<tab> vertical sb 
 cnoremap vt<tab> vertical terminal 
 cnoremap vds<tab> vertical diffsplit 
+cnoremap vsts<tab> vertical sts 
 cnoremap ho<tab> hid only 
 cnoremap nm<tab> norm 
 nnoremap <localleader>w :set wrap<cr>
 nnoremap <localleader>W :set nowrap<cr>
 nnoremap <localleader>cs :set spell<cr>
 nnoremap <localleader>cS :set nospell<cr>
+
+cnoremap +-<tab> set isk+=- 
+cnoremap --<tab> set isk-=- 
+cnoremap +_<tab> set isk+=_
+cnoremap -_<tab> set isk-=_
 
 cnoremap TT<tab> TagbarToggle
 autocmd FileType markdown cnoremap <buffer> Vp<tab> Voom pandoc
