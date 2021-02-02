@@ -148,10 +148,12 @@ nnoremap <localleader>W :set nowrap<cr>
 nnoremap <localleader>cs :set spell<cr>
 nnoremap <localleader>cS :set nospell<cr>
 
-cnoremap +-<tab> set isk+=- 
-cnoremap --<tab> set isk-=- 
-cnoremap +_<tab> set isk+=_
-cnoremap -_<tab> set isk-=_
+"cnoremap +-<tab> set isk+=- 
+"cnoremap --<tab> set isk-=- 
+"cnoremap +_<tab> set isk+=_
+"cnoremap -_<tab> set isk-=_
+cnoremap +<tab> set isk+=
+cnoremap -<tab> set isk-=
 
 cnoremap TT<tab> TagbarToggle
 autocmd FileType markdown cnoremap <buffer> Vp<tab> Voom pandoc
