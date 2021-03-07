@@ -147,6 +147,8 @@ nnoremap <localleader>w :set wrap<cr>
 nnoremap <localleader>W :set nowrap<cr>
 nnoremap <localleader>cs :set spell<cr>
 nnoremap <localleader>cS :set nospell<cr>
+nnoremap <localleader>cn :set number<cr>
+nnoremap <localleader>cN :set nonumber<cr>
 
 "cnoremap +-<tab> set isk+=- 
 "cnoremap --<tab> set isk-=- 
@@ -339,6 +341,7 @@ nnoremap <localleader>hN ?\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=<cr>
 
 highlight TailSpace ctermbg=green
 autocmd BufRead,BufNewFile * syn match TailSpace /\s\+$/
+nnoremap <localleader>d<space> :s/\s\+$//g<cr>:noh<cr>
 
 highlight GppMacro term=bold cterm=bold ctermfg=green
 autocmd BufRead,BufNewFile * syn match GppMacro /<#\w\+\|\(<#\w\+\([^>]\|\\>\)*\)\@<=>/
