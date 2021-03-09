@@ -190,7 +190,7 @@ autocmd FileType tex,matlab,prolog nnoremap <buffer> <localleader>cc I%<Esc>
 autocmd FileType sql,vhdl,haskell nnoremap <buffer> <localleader>cc I--<Space><Esc>
 autocmd FileType haskell nnoremap <buffer> cic I{- <esc>
 autocmd FileType haskell nnoremap <buffer> cac A -}<esc>
-autocmd FileType lhaskell nnoremap <buffer> <localleader>cc I> <esc>
+autocmd FileType lhaskell nnoremap <buffer> <localleader>cc 0i> <esc>
 autocmd FileType lisp,asm nnoremap <buffer> <localleader>cc I;<Space><Esc>
 " other comments
 
