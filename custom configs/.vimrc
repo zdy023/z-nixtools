@@ -111,7 +111,8 @@ set nocursorline
 set wrap
 set scrolloff=7
 
-set fdm=manual
+"set fdm=manual
+set fdm=marker
 " basic settings
 
 let g:tex_flavor="latex"
