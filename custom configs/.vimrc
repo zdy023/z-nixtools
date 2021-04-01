@@ -268,7 +268,7 @@ nnoremap <localleader>dh ^dw
 nnoremap dl $x
 nnoremap d2l $xx
 nnoremap d3l $xxx
-nnoremap <localleader>dl $bdw
+nnoremap <localleader>dl $daw
 " convenient deletion
 
 inoremap <c-n> <c-x><c-n>
