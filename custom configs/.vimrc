@@ -136,7 +136,7 @@ let g:floaterm_keymap_first = '<Leader>f1'
 let g:floaterm_keymap_last = '<Leader>f9'
 let g:floaterm_keymap_kill = '<Leader>fk'
 let g:floaterm_keymap_toggle = '<Leader>ft'
-cnoremap flt<tab> FloatermNew 
+"cnoremap flt<tab> FloatermNew 
 
 cnoremap vsb<tab> vertical sb 
 cnoremap vt<tab> vertical terminal 
@@ -194,6 +194,11 @@ autocmd FileType haskell nnoremap <buffer> cac A -}<esc>
 autocmd FileType lhaskell nnoremap <buffer> <localleader>cc 0i> <esc>
 autocmd FileType lisp,asm nnoremap <buffer> <localleader>cc I;<Space><Esc>
 " other comments
+
+nnoremap <localleader>cfa :set formatoptions+=a<cr>
+nnoremap <localleader>cfA :set formatoptions-=a<cr>
+nnoremap <localleader>cfc :set formatoptions+=mM<cr>
+nnoremap <localleader>cfC :set formatoptions-=mM<cr>
 
 vnoremap <localleader>( s(<c-r>")<esc>
 vnoremap <localleader>[ s[<c-r>"]<esc>
