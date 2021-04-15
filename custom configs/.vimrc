@@ -58,6 +58,7 @@ Plugin 'tpope/vim-obsession'
 Plugin 'maralla/completor.vim'
 "Plugin 'Word-Fuzzy-Completion'
 Plugin 'voldikss/vim-floaterm'
+Plugin 'chrisbra/changesPlugin'
 
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
