@@ -58,7 +58,7 @@ Plugin 'tpope/vim-obsession'
 Plugin 'maralla/completor.vim'
 "Plugin 'Word-Fuzzy-Completion'
 Plugin 'voldikss/vim-floaterm'
-Plugin 'chrisbra/changesPlugin'
+Plugin 'zdy023/changesPlugin'
 
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
@@ -126,8 +126,8 @@ autocmd BufWrite * :mkview!
 
 set ttimeoutlen=100
 
-tnoremap ;; <c-w>:tabn<CR>
-tnoremap ,, <c-w>:tabN<CR>
+"tnoremap ;; <c-w>:tabn<CR>
+"tnoremap ,, <c-w>:tabN<CR>
 " convenient tab switch under terminal mode
 
 let g:floaterm_keymap_new = '<Leader>fc'
@@ -161,13 +161,15 @@ cnoremap -<tab> set isk-=
 
 cnoremap TT<tab> TagbarToggle
 autocmd FileType markdown cnoremap <buffer> Vp<tab> Voom pandoc
-autocmd FileType tex cnoremap <buffer> Vlt<tab> Voom latex
+"autocmd FileType tex cnoremap <buffer> Vlt<tab> Voom latex
+autocmd FileType dokuwiki cnoremap <buffer> Vd<tab> Voom dokuwiki
 
 "nnoremap <c-o> a<CR><Esc>
-nnoremap <localleader><space> i <esc>la <esc>h
-nnoremap <localleader>x Xlxh
+"nnoremap <localleader><space> i <esc>la <esc>h
+xnoremap <localleader><space> s <c-r>" <esc>
+"nnoremap <localleader>x Xlxh
 nnoremap U vU
-inoremap jj <Esc>
+inoremap <nowait> jj <Esc>
 " basic edit settings
 
 nnoremap cj I//<Esc>
@@ -201,27 +203,55 @@ nnoremap <localleader>cfA :set formatoptions-=a<cr>
 nnoremap <localleader>cfc :set formatoptions+=mM<cr>
 nnoremap <localleader>cfC :set formatoptions-=mM<cr>
 
-vnoremap <localleader>( s(<c-r>")<esc>
-vnoremap <localleader>[ s[<c-r>"]<esc>
-vnoremap <localleader>< s<<c-r>"><esc>
-vnoremap <localleader>{ s{<c-r>"}<esc>
-vnoremap <localleader>" s"<c-r>""<esc>
-vnoremap <localleader>' s'<c-r>"'<esc>
-vnoremap <localleader>` s`<c-r>"`<esc>
+xnoremap <localleader>( s(<c-r>")<esc>
+xnoremap <localleader>[ s[<c-r>"]<esc>
+xnoremap <localleader>< s<<c-r>"><esc>
+xnoremap <localleader>{ s{<c-r>"}<esc>
+xnoremap <localleader>" s"<c-r>""<esc>
+xnoremap <localleader>' s'<c-r>"'<esc>
+xnoremap <localleader>` s`<c-r>"`<esc>
 
-autocmd FileType tex vnoremap <buffer> <localleader>` s`<c-r>"'<esc>
-autocmd FileType tex vnoremap <buffer> <localleader>! s``<c-r>"''<esc>
-autocmd FileType markdown vnoremap <buffer> <localleader>b s**<c-r>"**<esc>
-autocmd FileType markdown vnoremap <buffer> <localleader>i s*<c-r>"*<esc>
-autocmd FileType markdown vnoremap <buffer> <localleader>e s***<c-r>"***<esc>
-autocmd FileType tex vnoremap <buffer> <localleader>b s\textbf{<c-r>"}<esc>
-autocmd FileType tex vnoremap <buffer> <localleader>i s\textit{<c-r>"}<esc>
-autocmd FileType markdown,tex vnoremap <buffer> <localleader>) s（<c-r>"）<esc>
-autocmd FileType markdown,tex vnoremap <buffer> <localleader>] s〔<c-r>"〕<esc>
-autocmd FileType markdown,tex vnoremap <buffer> <localleader>} s【<c-r>"】<esc>
-autocmd FileType markdown,tex vnoremap <buffer> <localleader>> s《<c-r>"》<esc>
-autocmd FileType markdown,tex vnoremap <buffer> <localleader>@ s“<c-r>"”<esc>
-autocmd FileType markdown,tex vnoremap <buffer> <localleader>~ s‘<c-r>"’<esc>
+autocmd FileType tex xnoremap <buffer> <localleader>` s`<c-r>"'<esc>
+autocmd FileType tex xnoremap <buffer> <localleader>! s``<c-r>"''<esc>
+autocmd FileType markdown xnoremap <buffer> <localleader>b s**<c-r>"**<esc>
+autocmd FileType markdown xnoremap <buffer> <localleader>i s*<c-r>"*<esc>
+autocmd FileType markdown xnoremap <buffer> <localleader>e s***<c-r>"***<esc>
+autocmd FileType tex xnoremap <buffer> <localleader>b s\textbf{<c-r>"}<esc>
+autocmd FileType tex xnoremap <buffer> <localleader>i s\textit{<c-r>"}<esc>
+autocmd FileType dokuwiki xnoremap <buffer> <localleader>b s**<c-r>"**<esc>
+autocmd FileType dokuwiki xnoremap <buffer> <localleader>i s//<c-r>"//<esc>
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> <localleader>) s（<c-r>"）<esc>
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> <localleader>] s〔<c-r>"〕<esc>
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> <localleader>} s【<c-r>"】<esc>
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> <localleader>> s《<c-r>"》<esc>
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> <localleader>@ s“<c-r>"”<esc>
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> <localleader>~ s‘<c-r>"’<esc>
+
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i) lT（oht）
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a) lF（ohf）
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i] lT〔oht〕
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a] lF〔ohf〕
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i} lT【oht】
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a} lF【ohf】
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i> lT《oht》
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a> lF《ohf》
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i@ lT“oht”
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a@ lF“ohf”
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i~ lT‘oht’
+autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a~ lF‘ohf’
+
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i) :norm vi)<cr> 
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a) :norm va)<cr> 
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i] :norm vi]<cr> 
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a] :norm va]<cr> 
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i} :norm vi}<cr> 
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a} :norm va}<cr> 
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i> :norm vi><cr> 
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a> :norm va><cr> 
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i@ :norm vi@<cr>
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a@ :norm va@<cr>
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i~ :norm vi~<cr>
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a~ :norm va~<cr>
 
 autocmd FileType markdown nnoremap <buffer> <localleader>v :AsyncRun typora %<cr>
 autocmd FileType html nnoremap <buffer> <localleader>v :AsyncRun firefox %<cr>
@@ -258,7 +288,7 @@ autocmd FileType tex let b:match_words=pattern_tex.','.pattern_zh_cn
 autocmd FileType markdown let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_tex.','.pattern_zh_cn
 autocmd FileType remind let b:match_words=pattern_zh_cn
 
-autocmd FileType tex nnoremap <buffer> \<tab> /<+\(\w\\|\ \)*+><cr>gn
+"autocmd FileType tex nnoremap <buffer> \<tab> /<+\(\w\\|\ \)*+><cr>gn
 
 set tabstop=4
 set shiftwidth=4
@@ -267,19 +297,19 @@ autocmd FileType yaml,haskell,lhaskell set shiftwidth=2
 autocmd FileType python,yaml,rust,haskell,lhaskell set expandtab
 " tab settings
 
-nnoremap ds ^x
-nnoremap d2s ^xx
-nnoremap d3s ^xxx
-nnoremap <localleader>dh ^dw
-nnoremap dl $x
-nnoremap d2l $xx
-nnoremap d3l $xxx
-nnoremap <localleader>dl $daw
+nnoremap dt ^x
+nnoremap d2t ^xx
+nnoremap d3t ^xxx
+nnoremap <localleader>dt ^dw
+nnoremap dT $x
+nnoremap d2T $xx
+nnoremap d3T $xxx
+nnoremap <localleader>dT $daw
 " convenient deletion
 
-inoremap <c-n> <c-x><c-n>
-inoremap <c-]> <c-x><c-]>
-inoremap <c-f> <c-x><c-f>
+"inoremap <c-n> <c-x><c-n>
+"inoremap <c-]> <c-x><c-]>
+"inoremap <c-f> <c-x><c-f>
 "inoremap <c-k> <c-x><c-k>
 "inoremap <c-b> <c-r>=getcwd()<cr>
 " settings w.r.t. autocompletion
@@ -337,14 +367,15 @@ let g:grammarous#show_first_error=1
 
 autocmd FileType remind inoremap <buffer> <c-j> <Space>%_\<CR>
 autocmd FileType markdown,html inoremap <buffer> <c-j> <br><CR>
+autocmd FileType tex inoremap <buffer> <c-j> <space>\\<cr>
 " for spell check and quick newline in several formats
 
 highlight TempMark  term=bold,reverse cterm=bold ctermfg=red ctermbg=yellow
 autocmd BufRead,BufNewFile * syn match TempMark /\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=/
 nnoremap <localleader>hl I'<esc>A'<esc>
-nnoremap <localleader>uh :s/\(^\s*\)\@<=\'\\|\'$//g<cr>
-nnoremap <localleader>hn /\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=<cr>
-nnoremap <localleader>hN ?\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=<cr>
+nnoremap <localleader>uh :s/\(^\s*\)\@<=\'\\|\'$//g<cr>:noh<cr>
+nnoremap <localleader>hn /\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=<cr>:noh<cr>
+nnoremap <localleader>hN ?\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=<cr>:noh<cr>
 
 highlight TailSpace ctermbg=green
 autocmd BufRead,BufNewFile * syn match TailSpace /\s\+$/
@@ -353,27 +384,27 @@ nnoremap <localleader>d<space> :s/\s\+$//g<cr>:noh<cr>
 highlight GppMacro term=bold cterm=bold ctermfg=green
 autocmd BufRead,BufNewFile * syn match GppMacro /<#\w\+\|\(<#\w\+\([^>]\|\\>\)*\)\@<=>/
 
-function SafePath(input)
-	return substitute(a:input, "[]()*# $&\\[]", "\\\\\\\\&", "g")
-endfunction
-function GppHTML(output)
-	exec 'set makeprg=gpp\ -H\ -o\ '.SafePath(a:output).'\ '.SafePath(@%)
-endfunction
-function GppTeX(output)
-	exec 'set makeprg=gpp\ -T\ -o\ '.SafePath(a:output).'\ '.SafePath(@%)
-endfunction
+"function SafePath(input)
+	"return substitute(a:input, "[]()*# $&\\[]", "\\\\\\\\&", "g")
+"endfunction
+"function GppHTML(output)
+	"exec 'set makeprg=gpp\ -H\ -o\ '.SafePath(a:output).'\ '.SafePath(@%)
+"endfunction
+"function GppTeX(output)
+	"exec 'set makeprg=gpp\ -T\ -o\ '.SafePath(a:output).'\ '.SafePath(@%)
+"endfunction
 
 set laststatus=2
 set statusline=%f\ (%n)%h%w%q%r%m\ %y%=[%{getcwd()}]\ %B@%l/%L\ lines,\ col\ %c,\ %P
 
-let g:ycm_key_list_select_completion = ['<c-n>']
-let g:ycm_key_list_previous_completion = ['<c-p>']
+"let g:ycm_key_list_select_completion = ['<c-n>']
+"let g:ycm_key_list_previous_completion = ['<c-p>']
 "let g:ycm_key_invoke_completion = ['<c-k>']
-let g:ycm_key_list_stop_completion = ['<c-b>']
+"let g:ycm_key_list_stop_completion = ['<c-b>']
 
 let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<c-k>"
 let g:UltiSnipsJumpBackwardTrigger="<c-l>"
 
 let g:calendar_mark="right"
-let g:calendar_monday=1
+let g:calendar_monday=0
