@@ -367,7 +367,7 @@ let g:grammarous#show_first_error=1
 
 autocmd FileType remind inoremap <buffer> <c-j> <Space>%_\<CR>
 autocmd FileType markdown,html inoremap <buffer> <c-j> <br><CR>
-autocmd FileType tex inoremap <buffer> <c-j> <space>\\<cr>
+"autocmd FileType tex inoremap <buffer> <c-j> <space>\\<cr>
 " for spell check and quick newline in several formats
 
 highlight TempMark  term=bold,reverse cterm=bold ctermfg=red ctermbg=yellow
