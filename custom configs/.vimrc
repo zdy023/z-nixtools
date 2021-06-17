@@ -59,6 +59,7 @@ Plugin 'maralla/completor.vim'
 "Plugin 'Word-Fuzzy-Completion'
 Plugin 'voldikss/vim-floaterm'
 Plugin 'zdy023/changesPlugin'
+Plugin 'mbbill/undotree'
 
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
@@ -123,6 +124,8 @@ autocmd BufRead,BufNewFile * packadd matchit
 autocmd BufRead * :loadview
 autocmd BufWrite * :mkview!
 " automat view management
+
+set udf
 
 set ttimeoutlen=100
 
