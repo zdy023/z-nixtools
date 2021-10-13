@@ -60,6 +60,7 @@ Plugin 'maralla/completor.vim'
 Plugin 'voldikss/vim-floaterm'
 Plugin 'zdy023/changesPlugin'
 Plugin 'mbbill/undotree'
+Plugin 'chrisbra/NrrwRgn'
 
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
@@ -72,6 +73,7 @@ Plugin 'wmvanvliet/jupyter-vim'
 Plugin 'goerz/jupytext.vim'
 "Plugin 'anosillus/vim-ipynb'
 "Plugin 'szymonmaszke/vimpyter'
+Plugin 'inkarkat/vim-SyntaxRange'
 
 Plugin 'lilydjwg/fcitx.vim'
 Plugin 'rhysd/vim-grammarous'
@@ -79,6 +81,8 @@ Plugin 'rhysd/vim-grammarous'
 Plugin 'mattn/calendar-vim'
 "Plugin 'vim-scripts/dokuwiki'
 Plugin 'nblock/vim-dokuwiki'
+Plugin 'vim-scripts/bnf.vim'
+Plugin 'vim-scripts/ebnf.vim'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -166,6 +170,9 @@ cnoremap TT<tab> TagbarToggle
 autocmd FileType markdown cnoremap <buffer> Vp<tab> Voom pandoc
 "autocmd FileType tex cnoremap <buffer> Vlt<tab> Voom latex
 autocmd FileType dokuwiki cnoremap <buffer> Vd<tab> Voom dokuwiki
+
+autocmd BufRead,BufNewFile *.bnf set filetype=bnf
+autocmd BufRead,BufNewFile *.ebnf set filetype=ebnf
 
 "nnoremap <c-o> a<CR><Esc>
 "nnoremap <localleader><space> i <esc>la <esc>h
