@@ -410,6 +410,16 @@ autocmd FileType tex call SyntaxRange#Include('\\begin{lstlisting}\[language=jav
 autocmd FileType tex call SyntaxRange#Include('\\begin{lstlisting}\[language=python', '\\end{lstlisting}', 'python', 'NonText')
 autocmd FileType tex call SyntaxRange#Include('\\begin{lstlisting}\[language=haskell', '\\end{lstlisting}', 'haskell', 'NonText')
 
+autocmd FileType dokuwiki call SyntaxRange#Include('<file c', '</file>', 'c', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<file cpp', '</file>', 'cpp', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<file java', '</file>', 'java', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<file python', '</file>', 'python', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<file haskell', '</file>', 'haskell', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<file php', '</file>', 'php', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<file html', '</file>', 'html', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<php>', '</php>', 'php', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<html>', '</html>', 'html', 'NonText')
+
 "function SafePath(input)
 	"return substitute(a:input, "[]()*# $&\\[]", "\\\\\\\\&", "g")
 "endfunction
