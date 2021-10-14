@@ -1,3 +1,5 @@
+" vimc: novimc:
+"
 " my plugin collections:
 "
 " VundleVim/Vundle.vim
@@ -128,6 +130,32 @@ autocmd BufRead,BufNewFile * packadd matchit
 autocmd BufRead * :loadview
 autocmd BufWrite * :mkview!
 " automat view management
+
+function Handle_zdy_modeline(zdy_modeline)
+	let zdy_mdlpos = matchstrpos(a:zdy_modeline, '\<vimc:\%([^:]\|\\:\)\{-1,}\(\\\)\@<!:')
+	if zdy_mdlpos[1]>=0
+		if zdy_mdlpos[0] =~ '\<novimc\>'
+			return 1
+		endif
+		let zdy_modeline = strpart(zdy_mdlpos[0], 5, len(zdy_mdlpos[0])-6)
+		let zdy_modeline = substitute(zdy_modeline, '\\:', ':', 'g')
+		execute(zdy_modeline)
+	endif
+	return 0
+endfunction
+
+function Scan_zdy_modeline()
+	let zdy_i = 1
+	let zdy_file_len = line('$')
+	while(zdy_i<=zdy_file_len)
+		if Handle_zdy_modeline(getline(zdy_i))==1
+			break
+		endif
+		let zdy_i = zdy_i+1
+	endwhile
+endfunction
+
+autocmd BufReadPost * call Scan_zdy_modeline()
 
 set udf
 
@@ -401,8 +429,8 @@ autocmd FileType markdown call SyntaxRange#Include('```java', '```', 'java', 'No
 autocmd FileType markdown call SyntaxRange#Include('```python', '```', 'python', 'NonText')
 autocmd FileType markdown call SyntaxRange#Include('```haskell', '```', 'haskell', 'NonText')
 
-autocmd FileType markdown call SyntaxRange#Include('\$\$', '\$\$', 'tex')
-autocmd FileType markdown call SyntaxRange#IncludeEx('start=/\$/ skip=/\\\$/ end=/\$/', 'tex')
+autocmd FileType markdown,dokuwiki call SyntaxRange#Include('\$\$', '\$\$', 'tex')
+autocmd FileType markdown,dokuwiki call SyntaxRange#IncludeEx('start=/\$/ skip=/\\\$/ end=/\$/', 'tex')
 
 autocmd FileType tex call SyntaxRange#Include('\\begin{lstlisting}\[language=c', '\\end{lstlisting}', 'c', 'NonText')
 autocmd FileType tex call SyntaxRange#Include('\\begin{lstlisting}\[language=cpp', '\\end{lstlisting}', 'cpp', 'NonText')
