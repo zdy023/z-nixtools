@@ -445,6 +445,13 @@ autocmd FileType dokuwiki call SyntaxRange#Include('<file python', '</file>', 'p
 autocmd FileType dokuwiki call SyntaxRange#Include('<file haskell', '</file>', 'haskell', 'NonText')
 autocmd FileType dokuwiki call SyntaxRange#Include('<file php', '</file>', 'php', 'NonText')
 autocmd FileType dokuwiki call SyntaxRange#Include('<file html', '</file>', 'html', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<code c', '</code>', 'c', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<code cpp', '</code>', 'cpp', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<code java', '</code>', 'java', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<code python', '</code>', 'python', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<code haskell', '</code>', 'haskell', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<code php', '</code>', 'php', 'NonText')
+autocmd FileType dokuwiki call SyntaxRange#Include('<code html', '</code>', 'html', 'NonText')
 autocmd FileType dokuwiki call SyntaxRange#Include('<php>', '</php>', 'php', 'NonText')
 autocmd FileType dokuwiki call SyntaxRange#Include('<html>', '</html>', 'html', 'NonText')
 
