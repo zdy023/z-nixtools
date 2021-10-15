@@ -155,7 +155,7 @@ function Scan_zdy_modeline()
 	endwhile
 endfunction
 
-autocmd BufReadPost * call Scan_zdy_modeline()
+autocmd BufRead * call Scan_zdy_modeline()
 
 set udf
 
@@ -423,6 +423,8 @@ highlight GppMacro term=bold cterm=bold ctermfg=green
 autocmd BufRead,BufNewFile * syn match GppMacro /<#\w\+\|\(<#\w\+\([^>]\|\\>\)*\)\@<=>/
 
 " highlighting configs for SyntaxRange
+autocmd BufRead,BufNewFile * call SyntaxRange#IncludeEx('start=/\<vimc\=:/ skip=/\\:/ end=/\(\\\)\@<!:/', 'vim')
+
 autocmd FileType markdown call SyntaxRange#Include('```c', '```', 'c', 'NonText')
 autocmd FileType markdown call SyntaxRange#Include('```cpp', '```', 'cpp', 'NonText')
 autocmd FileType markdown call SyntaxRange#Include('```java', '```', 'java', 'NonText')
@@ -430,7 +432,7 @@ autocmd FileType markdown call SyntaxRange#Include('```python', '```', 'python',
 autocmd FileType markdown call SyntaxRange#Include('```haskell', '```', 'haskell', 'NonText')
 
 autocmd FileType markdown,dokuwiki call SyntaxRange#Include('\$\$', '\$\$', 'tex')
-autocmd FileType markdown,dokuwiki call SyntaxRange#IncludeEx('start=/\$/ skip=/\\\$/ end=/\$/', 'tex')
+autocmd FileType markdown,dokuwiki call SyntaxRange#IncludeEx('start=/\$/ skip=/\\\$/ end=/\(\\\)\@<!\$/', 'tex')
 
 autocmd FileType tex call SyntaxRange#Include('\\begin{lstlisting}\[language=c', '\\end{lstlisting}', 'c', 'NonText')
 autocmd FileType tex call SyntaxRange#Include('\\begin{lstlisting}\[language=cpp', '\\end{lstlisting}', 'cpp', 'NonText')
