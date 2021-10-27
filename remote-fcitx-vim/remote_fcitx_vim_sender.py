@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+"""
+remote_fcitx_vim_sender
+Author: David Chang
+Last Revision: Aug 27, 2020
+"""
+
 import socket
 import os
 import os.path

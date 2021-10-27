@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+"""
+remote_fcitx_vim_local_machine
+Author: David Chang
+Last Revision: Aug 27, 2020
+"""
+
 import socket
 import signal
 import subprocess

@@ -1,3 +1,9 @@
+"""
+Protocols for remote-fcitx-vim.
+Author: David Chang
+Last Revision: Aug 26, 2020
+"""
+
 import struct
 
 activation_test_message = b'\0'

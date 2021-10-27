@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Automatically Rename Mobile Images to the Correct Extension
+# Author: David Chang
+# Last Rivision: Jul 27, 2019
+
 imgs=($(ls $1 |grep '\.\(jpg\|JPG\|jpeg\|JPEG\)$'))
 for im in ${imgs[@]}; do
 	filetype=$(file $1/$im)

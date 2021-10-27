@@ -1,3 +1,9 @@
+"""
+Utils for remote-fcitx-vim
+Author: David Chang
+Last Rivision: Aug 26, 2020
+"""
+
 import protocols
 
 def existence_handler(signal_number, frame):

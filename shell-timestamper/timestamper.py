@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+"""
+timestamper
+Author: David Chang
+Last Revision: Oct 27, 2020
+"""
+
 import argparse
 import sys
 
@@ -83,7 +89,7 @@ which is derived from the 1989 C Standard and ISO 8601 Standard.""")
 
     exit_code = None
 
-    print("[Start at {:}]".format(datetime.datetime.now().strftime(format_str)))
+    print("[Started at {:}]".format(datetime.datetime.now().strftime(format_str)))
 
     if len(command)>0:
         try:

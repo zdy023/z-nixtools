@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Sogou Input Configs Backup Tool
+# Author: David Chang
+# Last Rivision: Jul 27, 2019
+
 backup_name=~/.sogoubackup/sogoubackup$(date +"%Y%m%d")
 if [[ ! -d $backup_name ]]; then
 	mkdir $backup_name
