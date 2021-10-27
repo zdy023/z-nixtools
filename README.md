@@ -1,3 +1,5 @@
+<!-- vimc: call SyntaxRange#Include("```sh", "```", "sh", "NonText"): -->
+
 # ztools
 
 Several gadgets for Linux.
@@ -131,6 +133,32 @@ For more details w.r.t. the usage of `ssh -L` and `ssh -R`, please refer to the 
 ![Implementation Scheme](remote-fcitx-vim/pipeline-of-remote-fcitx-vim.png)
 
 Note that in the current version, unix domain socket is adopted for "Socket B" on the figure. It could be replaced by an internet socket so as to support the `fcitx` status management of multiple hosts with singular daemon.
+
+## Shell Timestamper
+
+Timestamp your standard output!
+
+### Test Environment
+
++ x86_64 Linux 5.14.7-2-MANJARO
++ GNU bash，版本 5.1.8(1)-release (x86_64-pc-linux-gnu)
++ Python 3.9.7
+
+### Usage
+
+There are two ways to use the shell timestamper. One way is to wrap the target command with the `tstamp` instruction, just like the usage of `time` instruction in bash.
+
+```sh
+tstamp [--format FORMAT] [--buffer-mode BUFFER_MODE] -- command ...
+```
+
+Besides, `tstamp` could be appended behind the target command through a pipe, just like the usage of `tee`.
+
+```sh
+command ... |tstamp [--format FORMAT] [--buffer-mode BUFFER_MODE]
+```
+
+`--format` option could be abbreviated as `-f` and `--buffer-mode` - `-m`. `--format` controls the format of the timestamp. The format string complys the protocol in Python 3 `datetime` module and defaults to `%Y-%m-%d %H:%M:%S.%f`. `--buffer-mode` controls the buffer mode, for which two choices are availabe: `c` and `L`. `c` instructs the stamper to flush the buffer per character, or just say, use no buffer. `L` instructs the stamper to flush the buffer per line, which is the default behaviour for most command line programs. However, the default mode of stamper is set to `c` for the best support to the programs requiring standard inputs. If your program requires no user's input and the standard I/O performance is crucial, it is recommended to use the `L` mode.
 
 ## Other tiny tools
 
