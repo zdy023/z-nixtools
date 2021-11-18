@@ -61,3 +61,26 @@ function _complete_note() {
 }
 
 complete -F _complete_note note
+
+function _test_ipv4_port() {
+	# $1 - protocol, "tcp" or "udp"
+	# $2 - port
+	if [[ $1 == tcp ]]; then
+		protocol_option=t
+	elif [[ $1 == udp ]]; then
+		protocol_option=u
+	fi
+
+	code=$(netstat -a${protocol_option}n |awk 'BEGIN{bound = 0;} $1=="'$1'" && $4~/[[:digit:]]+(\.[[:digit:]]+){3}:'$2'/{bound = 1;} END{print bound;}')
+	echo $code
+}
+function get-random-port() {
+	# $1 - protocol, "tcp" or "udp"
+	while [[ true ]]; do
+		random_port=$(shuf -i 30000-65535 -n1)
+		if [[ $(_test_ipv4_port $1 $random_port)==0 ]]; then
+			break
+		fi
+	done
+	echo $random_port
+}
