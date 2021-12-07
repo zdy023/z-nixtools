@@ -40,7 +40,7 @@ function note() {
 	mkdir -p ~/.note
 	case $1 in
 		ls)
-			notes=($(ls ~/.note))
+			local notes=($(ls ~/.note))
 			echo ${notes[@]%.md};;
 		edit)
 			if [[ ! -e "$HOME/.note/$2.md" ]]; then
@@ -65,6 +65,7 @@ complete -F _complete_note note
 function _test_ipv4_port() {
 	# $1 - protocol, "tcp" or "udp"
 	# $2 - port
+	local protocol_option code
 	if [[ $1 == tcp ]]; then
 		protocol_option=t
 	elif [[ $1 == udp ]]; then
@@ -76,6 +77,7 @@ function _test_ipv4_port() {
 }
 function get-random-port() {
 	# $1 - protocol, "tcp" or "udp"
+	local random_port
 	while [[ true ]]; do
 		random_port=$(shuf -i 30000-65535 -n1)
 		if [[ $(_test_ipv4_port $1 $random_port)==0 ]]; then
@@ -84,3 +86,4 @@ function get-random-port() {
 	done
 	echo $random_port
 }
+export -f get-random-port _test_ipv4_port
