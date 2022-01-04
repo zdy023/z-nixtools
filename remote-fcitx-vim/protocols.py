@@ -16,7 +16,7 @@ import operator
 CHUNK_LENGTH = 512
 _salt = None
 def init_salt():
-    nonlocal _salt
+    global _salt
     _salt = secrets.token_bytes(CHUNK_LENGTH)
 
 @functools.lru_cache(maxsize=256)
