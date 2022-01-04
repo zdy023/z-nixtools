@@ -14,17 +14,20 @@ import itertools
 import operator
 
 CHUNK_LENGTH = 512
-_salt = secrets.token_bytes(CHUNK_LENGTH)
+_salt = None
+def init_salt():
+    nonlocal _salt
+    _salt = secrets.token_bytes(CHUNK_LENGTH)
 
 @functools.lru_cache(maxsize=256)
-def get_hash(file_path):
+def get_hash(file_path_bytes):
     """
-    file_path - str
+    file_path_bytes - bytes
 
     return bytes
     """
 
-    file_path_bytes = file_path.encode("utf-8")
+    #file_path_bytes = file_path.encode("utf-8")
     salted_bytes = bytes(
             itertools.starmap(operator.xor,
                 zip(file_path_bytes,
@@ -48,6 +51,16 @@ _normal_mode_code = "000"
 _insertion_mode_code = "007"
 _closed_mode_code = "063"
 
+def repack_message(message):
+    """
+    mode_code - str, `_normal_mode_code` or `_insertion_mode_code` or `_closed_mode_code`
+    file_path - str, file path
+
+    return bytes
+    """
+
+    return message[:5] + get_hash(message[5:])
+
 def _file_mode_message(mode_code, file_path):
     """
     mode_code - str, `_normal_mode_code` or `_insertion_mode_code` or `_closed_mode_code`
@@ -56,9 +69,7 @@ def _file_mode_message(mode_code, file_path):
     return bytes
     """
 
-    #return "{:}: {:}".format(mode_code, file_path).encode()
-    file_path_hash = get_hash(file_path)
-    return (mode_code + ": ").encode("utf-8") + file_path_hash
+    return "{:}: {:}".format(mode_code, file_path).encode("utf-8")
 
 def normal_mode_message(file_path):
     """

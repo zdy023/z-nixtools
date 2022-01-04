@@ -28,6 +28,8 @@ args = parser.parse_args()
 signal.signal(signal.SIGINT, utils.existence_handler)
 signal.signal(signal.SIGTERM, utils.existence_handler)
 
+protocols.init_salt()
+
 null_status = -1
 normal_status = 0
 insertion_status = 1
@@ -92,7 +94,8 @@ def local_process(socket_file, message_pipe):
             session, _ = daemon_socket.accept()
             session.setblocking(True)
 
-            message = session.recv(64)
+            message = session.recv(512)
+            message = protocols.repack_message(message)
             message_pipe.send(message)
 
             time.sleep(0.1)
