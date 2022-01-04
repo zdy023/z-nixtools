@@ -54,7 +54,7 @@ try:
     session = socket.create_connection((args.address, args.port))
     print("Connected.")
     while True:
-        message = session.recv(500)
+        message = session.recv(64)
         message = bytes(filter((lambda b: b!=0), message))
         if len(message)==0:
             continue

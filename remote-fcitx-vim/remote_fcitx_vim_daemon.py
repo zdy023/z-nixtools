@@ -92,7 +92,7 @@ def local_process(socket_file, message_pipe):
             session, _ = daemon_socket.accept()
             session.setblocking(True)
 
-            message = session.recv(500)
+            message = session.recv(64)
             message_pipe.send(message)
 
             time.sleep(0.1)
