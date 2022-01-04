@@ -4,7 +4,34 @@ Author: David Chang
 Last Revision: Aug 26, 2020
 """
 
-import struct
+#import struct
+import hashlib
+import functools
+import secrets
+import math
+import itertools
+import operator
+
+CHUNK_LENGTH = 512
+_salt = secrets.token_bytes(CHUNK_LENGTH)
+
+@functools.lru_cache(maxsize=256)
+def get_hash(file_path):
+    """
+    file_path - str
+
+    return bytes
+    """
+
+    file_path_bytes = file_path.encode("utf-8")
+    salted_bytes = bytes(
+            itertools.starmap(operator.xor,
+                zip(file_path_bytes,
+                    map(lambda ite: ite[1],
+                        itertools.takewhile(lambda ite: ite[0]<len(file_path_bytes),
+                            enumerate(itertools.cycle(_salt)))))))
+
+    return hashlib.sha256(salted_bytes).digest()
 
 activation_test_message = b'\0'
 def is_activation_test_message(message):
@@ -28,7 +55,9 @@ def _file_mode_message(mode_code, file_path):
     return bytes
     """
 
-    return "{:}: {:}".format(mode_code, file_path).encode()
+    #return "{:}: {:}".format(mode_code, file_path).encode()
+    file_path_hash = get_hash(file_path)
+    return mode_code.encode("utf-8") + file_path_hash
 
 def normal_mode_message(file_path):
     """
@@ -65,7 +94,7 @@ def is_normal_mode_message(message):
     """
 
     if type(message) is bytes:
-        return message[:5]==(_normal_mode_code + ": ").encode()
+        return message[:5]==(_normal_mode_code + ": ").encode("utf-8")
     return False
 
 def is_insertion_mode_message(message):
@@ -76,7 +105,7 @@ def is_insertion_mode_message(message):
     """
 
     if type(message) is bytes:
-        return message[:5]==(_insertion_mode_code + ": ").encode()
+        return message[:5]==(_insertion_mode_code + ": ").encode("utf-8")
     return False
 
 def is_closed_mode_message(message):
@@ -87,7 +116,7 @@ def is_closed_mode_message(message):
     """
 
     if type(message) is bytes:
-        return message[:5]==(_closed_mode_code + ": ").encode()
+        return message[:5]==(_closed_mode_code + ": ").encode("utf-8")
     return False
 
 def extract_file_name_from_mode_message(message):
