@@ -58,7 +58,7 @@ def _file_mode_message(mode_code, file_path):
 
     #return "{:}: {:}".format(mode_code, file_path).encode()
     file_path_hash = get_hash(file_path)
-    return mode_code.encode("utf-8") + file_path_hash
+    return (mode_code + ": ").encode("utf-8") + file_path_hash
 
 def normal_mode_message(file_path):
     """
