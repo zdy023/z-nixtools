@@ -65,7 +65,7 @@ def remote_process(local_address, local_port, message_pipe):
                 while message_pipe.poll():
                     message = message_pipe.recv()
                 if message is not None:
-                    print(str(message, encoding="utf-8"))
+                    print(str(message))
                     session.sendall(message)
 
                 time.sleep(0.1)

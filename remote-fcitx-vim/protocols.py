@@ -6,8 +6,9 @@ Last Revision: Aug 26, 2020
 
 #import struct
 import hashlib
-import functools
 import secrets
+
+import functools
 import math
 import itertools
 import operator
