@@ -127,4 +127,4 @@ def extract_file_name_from_mode_message(message):
     return str as the extracted file name
     """
 
-    return str(message[5:], encoding="utf-8")
+    return message[5:]
