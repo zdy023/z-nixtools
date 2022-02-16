@@ -160,7 +160,7 @@ command ... |tstamp [--format FORMAT] [--buffer-mode BUFFER_MODE]
 
 `--format` option could be abbreviated as `-f` and `--buffer-mode` - `-m`. `--format` controls the format of the timestamp. The format string complys the protocol in Python 3 `datetime` module and defaults to `%Y-%m-%d %H:%M:%S.%f`. `--buffer-mode` controls the buffer mode, for which two choices are availabe: `c` and `L`. `c` instructs the stamper to flush the buffer per character, or just say, use no buffer. `L` instructs the stamper to flush the buffer per line, which is the default behaviour for most command line programs. However, the default mode of stamper is set to `c` for the best support to the programs requiring standard inputs. If your program requires no user's input and the standard I/O performance is crucial, it is recommended to use the `L` mode.
 
-## Other tiny tools
+## Other Tiny Tools
 
 * `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely
 * `convert_file_name` - convert the extension name of the images from the mobile from 'jpeg' to the correct one
@@ -230,7 +230,7 @@ optional arguments:
   --encoding ENCODING   Encoding of decoded string; Default to utf-8
 ```
 
-# Custom config files
+# Custom Config Files
 
 Now such config files as follows are collected in this repo:
 
@@ -250,3 +250,7 @@ Under directory `w3m`:
 Under directory `terminator`:
 
 * `~/.config/terminator/config`
+
+# Custom Service Files
+
+* `~/.config/systemd/user/rem_schedule.service` - for remind daemon
