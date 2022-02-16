@@ -253,4 +253,5 @@ Under directory `terminator`:
 
 # Custom Service Files
 
-* `~/.config/systemd/user/rem_schedule.service` - for remind daemon
+* `~/.config/systemd/user/rem_schedule.service` - for `remind` daemon
+* `~/.config/systemd/user/remote-fcitx-daemon.service` - for `remote-fcitx-vim` daemon
