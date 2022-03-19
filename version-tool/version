@@ -1,0 +1,280 @@
+#!/usr/bin/python3
+
+# vim: set filetype=python:
+
+import argparse
+import os
+import os.path
+import sys
+#import itertools
+#import collections
+import datetime
+import terminaltables
+import shutil
+
+import yaml
+import csv
+
+def main():
+    #  Commandline Arguments {{{ # 
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command")
+
+    init_parser = subparsers.add_parser("init", help="Initiate a version repository.")
+    init_parser.add_argument("author", help="Author name.")
+
+    list_parser = subparsers.add_parser("list", help="List tracked files.")
+
+    check_parser = subparsers.add_parser("check", help="Check the versions of a specific file.")
+    check_parser.add_argument("file", type=str, help="File which versions needs check.")
+
+    commit_parser = subparsers.add_parser("commit", help="Commit a file version.")
+    commit_parser.add_argument("file", type=str, help="File to commit.")
+    commit_parser.add_argument("version", type=str, help="File version.")
+    commit_parser.add_argument("comment", type=str, help="Version comment.")
+
+    checkout_parser = subparsers.add_parser("checkout", help="Checkout a file version")
+    checkout_parser.add_argument("file", type=str, help="File to checkout.")
+    checkout_parser.add_argument("version", type=str, help="Version to checkout.")
+
+    log_parser = subparsers.add_parser("log", help="Print the daily log.")
+    log_parser.add_argument("date", nargs="*", type=int,
+        help="Date which log to be checked. Specify by \"Y M D\", \"M D\", \"M\", or ignore.")
+
+    export_parser = subparsers.add_parser("export", help="Export the version table.")
+    export_parser.add_argument("--file", "-f", type=str, required=False,
+        help="File which version is to be exported.")
+    export_parser.add_argument("--output", "-o", type=str, required=False,
+        help="Markdown/CSV file to output.")
+
+    args = parser.parse_args()
+    #  }}} Commandline Arguments # 
+
+    #  Constants {{{ # 
+    VERSION_FOLDER = "version.folder"
+    IMAGE_FOLDER = "versions"
+    VERSION_INDEX = "version.index.yaml"
+    VERSION_LOG = "version.log.md"
+
+    VERSION_FOLDER_EXISTS_CODE = -1
+    NOT_VERSION_REPOSITORY_CODE = -2
+    DATE_PARSING_CODE = -3
+    FILE_NOT_TRACKED_CODE = -4
+    VERSION_EXISTS_CODE = -5
+    VERSION_NOT_EXISTS_CODE = -6
+    #  }}} Constants # 
+
+    #  Initiation {{{ # 
+    if args.command=="init":
+        if os.path.exists(VERSION_FOLDER):
+            print("Version Folder already initiated!", file=sys.stderr)
+            exit(VERSION_FOLDER_EXISTS_CODE)
+
+        os.makedirs(os.path.join(VERSION_FOLDER, IMAGE_FOLDER))
+        with open(os.path.join(VERSION_FOLDER, "config"), "w") as f:
+            yaml.dump({"author": args.author}, f, yaml.Dumper)
+        with open(os.path.join(VERSION_FOLDER, VERSION_INDEX), "w") as f:
+            yaml.dump(dict(), f, yaml.Dumper)
+        with open(os.path.join(VERSION_FOLDER, VERSION_LOG), "w") as f:
+            f.write("# {:}\n".format(os.path.basename(os.path.abspath("."))))
+
+        exit(0)
+    #  }}} Initiation # 
+
+    basepath = "."
+    while os.path.exists(basepath) and VERSION_FOLDER not in os.listdir(basepath):
+        basepath = os.path.join("..", basepath)
+    if not os.path.exists(basepath):
+        print("This path is not under a version repository yet!", file=sys.stderr)
+        exit(NOT_VERSION_REPOSITORY_CODE)
+
+    if args.command=="list":
+        with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)) as f:
+            filelist = list(sorted(yaml.load(f, yaml.Loader).keys()))
+        for f in filelist:
+            print(f)
+        exit(0)
+
+    #  Log Function {{{ # 
+    if args.command=="log":
+        try:
+            if len(args.date)==0:
+                date = datetime.date.today()
+            if len(args.date)>=3:
+                year, month, day = map(int, args.date[:3])
+                date = datetime.date(year, month, day)
+            elif len(args.date)==2:
+                month, day = map(int, args.date)
+                year = datetime.date.today().year
+                date = datetime.date(year, month, day)
+            elif len(args.date)==1:
+                month = int(args.date[0])
+                today = datetime.date.today()
+                date = datetime.date(today.year, month, today.day)
+        except:
+            print("Date parsing error!", file=sys.stderr)
+            exit(DATE_PARSING_CODE)
+
+        date_str = date.isoformat()
+        with open(os.path.join(basepath, VERSION_FOLDER, VERSION_LOG)) as f:
+            found = False
+            for l in f:
+                l = l.strip()
+                if l.startswith("###"):
+                    if found:
+                        break
+                    if l[4:]==date_str:
+                        found = True
+                if found:
+                    print(l)
+
+        exit(0)
+    #  }}} Log Function # 
+
+    if args.command=="export":
+        file = os.path.relpath(args.file, basepath) if args.file is not None\
+                else None
+        with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)) as f:
+            indices = yaml.load(f, yaml.Loader)
+            if file is not None:
+                if file not in indices:
+                    print("File Not Tracked Yet!", file=sys.stderr)
+                    exit(FILE_NOT_TRACKED_CODE)
+                indices = {file: indices[file]}
+
+        table_data = [["File", "Version", "Date", "Author", "Comment"]]
+        for f in sorted(indices.keys()):
+            for rcd in indices[f]:
+                table_data.append([
+                        f,
+                        rcd["version"],
+                        datetime.date.fromtimestamp(rcd["date"]).isoformat(),
+                        rcd["author"],
+                        rcd["comment"]
+                    ])
+        if args.output is None:
+            table = terminaltables.AsciiTable(table_data)
+            print(table.table)
+        elif args.output.endswith(".md"):
+            with open(args.output, "w") as f:
+                table = terminaltables.GithubFlavoredMarkdownTable(table_data)
+                f.write(table.table)
+                f.write("\n")
+        elif args.output.endswith(".csv"):
+            with open(args.output, "w") as f:
+                writer = csv.writer(f)
+                writer.writerows(table_data)
+
+        exit(0)
+
+    file = os.path.relpath(args.file, basepath)
+
+    if args.command=="check":
+        #  Action check {{{ # 
+        with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)) as f:
+            indices = yaml.load(f, yaml.Loader)
+            if file not in indices:
+                print("File Not Tracked Yet!", file=sys.stderr)
+                exit(FILE_NOT_TRACKED_CODE)
+        table_data = [["File", "Version", "Date", "Author", "Comment"]]
+        table_data += map(lambda rcd: [
+                            file,
+                            rcd["version"],
+                            datetime.date.fromtimestamp(rcd["date"]).isoformat(),
+                            rcd["author"],
+                            rcd["comment"]
+                        ],
+                    indices[file])
+        table = terminaltables.AsciiTable(table_data)
+        print(table.table)
+        #  }}} Action check # 
+    elif args.command=="commit":
+        #  Action commit {{{ # 
+        # 1. update image
+        main_name, extension = os.path.splitext(file)
+        backup_file = os.path.join(basepath, VERSION_FOLDER, IMAGE_FOLDER,
+                "{:}_v{:}{:}".format(
+                    main_name,
+                    args.version,
+                    extension))
+        if os.path.exists(backup_file):
+            print("Version Exists!", file=sys.stderr)
+            exit(VERSION_NOT_EXISTS_CODE)
+        if not os.path.exists(os.path.dirname(backup_file)):
+            os.makedirs(os.path.dirname(backup_file))
+        shutil.copy2(args.file, backup_file)
+
+        # 2. update index
+        index_file = os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)
+        with open(os.path.join(basepath, VERSION_FOLDER, "config")) as f:
+            author = yaml.load(f, yaml.Loader)["author"]
+        with open(index_file) as f:
+            indices = yaml.load(f, yaml.Loader)
+        is_new_file = False
+        if file not in indices:
+            indices[file] = []
+            is_new_file = True
+        indices[file].append({
+                "version": args.version,
+                "date": os.path.getmtime(args.file),
+                "author": author,
+                "comment": args.comment
+            })
+        shutil.copy(index_file, index_file + ".bak")
+        with open(index_file, "w") as f:
+            yaml.dump(indices, f, yaml.Dumper)
+        os.remove(index_file + ".bak")
+
+        # 3. update log
+        today_str = datetime.date.today().isoformat()
+        mdate_str = datetime.date.fromtimestamp(os.path.getmtime(args.file)).isoformat()
+        cdate_str = datetime.date.fromtimestamp(os.path.getctime(args.file)).isoformat()
+        if today_str!=mdate_str:
+            status = "T"
+        elif mdate_str==cdate_str:
+            status = "C"
+        elif is_new_file:
+            status = "A"
+        else:
+            status = "M"
+
+        log_file = os.path.join(basepath, VERSION_FOLDER, VERSION_LOG)
+        bak_file = log_file + ".bak"
+        shutil.copy(log_file, bak_file)
+        with open(bak_file) as r_f,\
+                open(log_file, "w") as wr_f:
+            found_today = False
+            found_file = False
+            previous_statuses = ""
+            for l in r_f:
+                l = l.strip()
+                if found_today and not found_file and l.startswith("*"):
+                    items = l.split()
+                    if items[-1]==file:
+                        found_file = True
+                        previous_statuses = items[1]
+                        continue
+                if l.startswith("###"):
+                    if l[4:]==today_str:
+                        found_today = True
+                wr_f.write(l + "\n")
+            if not found_today:
+                wr_f.write("\n### {:}\n".format(today_str))
+            wr_f.write("* {:}{:} {:}\n".format(previous_statuses, status, file))
+        os.remove(bak_file)
+        #  }}} Action commit # 
+    elif args.command=="checkout":
+        #  Action checkout {{{ # 
+        main_name, extension = os.path.splitext(file)
+        backup_file = os.path.join(basepath, VERSION_FOLDER, IMAGE_FOLDER,
+                "{:}_v{:}{:}".format(main_name, args.version, extension))
+        if not os.path.exists(backup_file):
+            print("Version Not Exists!", file=sys.stderr)
+            exit(VERSION_NOT_EXISTS_CODE)
+        if os.path.exists(args.file):
+            os.remove(args.file)
+        shutil.copy2(backup_file, args.file)
+        #  }}} Action checkout # 
+
+if __name__ == "__main__":
+    main()

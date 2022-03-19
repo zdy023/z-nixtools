@@ -160,6 +160,39 @@ command ... |tstamp [--format FORMAT] [--buffer-mode BUFFER_MODE]
 
 `--format` option could be abbreviated as `-f` and `--buffer-mode` - `-m`. `--format` controls the format of the timestamp. The format string complys the protocol in Python 3 `datetime` module and defaults to `%Y-%m-%d %H:%M:%S.%f`. `--buffer-mode` controls the buffer mode, for which two choices are availabe: `c` and `L`. `c` instructs the stamper to flush the buffer per character, or just say, use no buffer. `L` instructs the stamper to flush the buffer per line, which is the default behaviour for most command line programs. However, the default mode of stamper is set to `c` for the best support to the programs requiring standard inputs. If your program requires no user's input and the standard I/O performance is crucial, it is recommended to use the `L` mode.
 
+## Version Tool
+
+A simple tool helping manual version control.
+
+### Test Environment
+
++ x86_64 Linux 5.15.25-1-MANJARO
++ GNU bash，版本 5.1.16(1)-release (x86_64-pc-linux-gnu)
++ Python 3.10.2
+
+### Usage
+
+```sh
+version --help
+```
+
+```
+usage: version [-h] {init,list,check,commit,checkout,log,export} ...
+
+positional arguments:
+  {init,list,check,commit,checkout,log,export}
+    init                Initiate a version repository.
+    list                List tracked files.
+    check               Check the versions of a specific file.
+    commit              Commit a file version.
+    checkout            Checkout a file version
+    log                 Print the daily log.
+    export              Export the version table.
+
+options:
+  -h, --help            show this help message and exit
+```
+
 ## Other Tiny Tools
 
 * `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely
