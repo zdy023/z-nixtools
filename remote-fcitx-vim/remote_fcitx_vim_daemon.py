@@ -11,6 +11,7 @@ import os
 import os.path
 
 import socket
+import tempfile
 
 import time
 import multiprocessing
@@ -62,15 +63,16 @@ def remote_process(local_address, local_port, message_pipe):
             session.setblocking(True)
             session_active = True
 
-            while utils.is_active(session):
-                message = None
-                while message_pipe.poll():
-                    message = message_pipe.recv()
-                if message is not None:
-                    print(str(message))
-                    session.sendall(message)
+            with tempfile.NamedTemporaryFile(prefix="remote-fcitx-vim-conn-"):
+                while utils.is_active(session):
+                    message = None
+                    while message_pipe.poll():
+                        message = message_pipe.recv()
+                    if message is not None:
+                        print(str(message))
+                        session.sendall(message)
 
-                time.sleep(0.1)
+                    time.sleep(0.1)
     except KeyboardInterrupt:
         if "session" in vars() and utils.is_active(session):
             session.shutdown(socket.SHUT_RDWR)

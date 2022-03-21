@@ -24,6 +24,8 @@ socket_file_not_exists_error_code = 1
 socket_file = "/tmp/remote-fcitx-vim-socket.{:}.{:}".format(socket.gethostname(), os.getuid())
 if not os.path.exists(socket_file):
     exit(socket_file_not_exists_error_code)
+if not any(map(lambda f: f.startswith("remote-fcitx-vim-conn-"), os.listdir("/tmp"))):
+    exit(0)
 session = socket.socket(socket.AF_UNIX)
 session.connect(socket_file)
 session.setblocking(True)
