@@ -142,12 +142,14 @@ def main():
                     exit(FILE_NOT_TRACKED_CODE)
                 indices = {file: indices[file]}
 
-        table_data = [["File", "Version", "Date", "Author", "Comment"]]
+        table_data = [["File", "Version", "Last Version", "Date", "Author", "Comment"]]
         for f in sorted(indices.keys()):
-            for rcd in indices[f]:
+            last_version = indices[f]["last_version"]
+            for rcd in indices[f]["versions"]:
                 table_data.append([
                         f,
                         rcd["version"],
+                        "v" if rcd["version"]==last_version else "",
                         datetime.date.fromtimestamp(rcd["date"]).isoformat(),
                         rcd["author"],
                         rcd["comment"]
@@ -176,15 +178,17 @@ def main():
             if file not in indices:
                 print("File Not Tracked Yet!", file=sys.stderr)
                 exit(FILE_NOT_TRACKED_CODE)
-        table_data = [["File", "Version", "Date", "Author", "Comment"]]
+        table_data = [["File", "Version", "Last Version", "Date", "Author", "Comment"]]
+        last_version = indices[file]["last_version"]
         table_data += map(lambda rcd: [
                             file,
                             rcd["version"],
+                            "v" if rcd["version"]==last_version else "",
                             datetime.date.fromtimestamp(rcd["date"]).isoformat(),
                             rcd["author"],
                             rcd["comment"]
                         ],
-                    indices[file])
+                    indices[file]["versions"])
         table = terminaltables.AsciiTable(table_data)
         print(table.table)
         #  }}} Action check # 
@@ -212,9 +216,13 @@ def main():
             indices = yaml.load(f, yaml.Loader)
         is_new_file = False
         if file not in indices:
-            indices[file] = []
+            indices[file] = {
+                    "last_version": "",
+                    "versions": []
+                }
             is_new_file = True
-        indices[file].append({
+        indices[file]["last_version"] = args.version
+        indices[file]["versions"].append({
                 "version": args.version,
                 "date": os.path.getmtime(args.file),
                 "author": author,
@@ -259,7 +267,7 @@ def main():
                         found_today = True
                 wr_f.write(l + "\n")
             if not found_today:
-                wr_f.write("\n### {:}\n".format(today_str))
+                wr_f.write("\n### {:}\n\n".format(today_str))
             wr_f.write("* {:}{:} {:}\n".format(previous_statuses, status, file))
         os.remove(bak_file)
         #  }}} Action commit # 
@@ -274,6 +282,12 @@ def main():
         if os.path.exists(args.file):
             os.remove(args.file)
         shutil.copy2(backup_file, args.file)
+
+        with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)) as f:
+            indices = yaml.load(f, yaml.Loader)
+        indices[file]["last_version"] = args.version
+        with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX), "w") as f:
+            yaml.dump(indices, f, yaml.Dumper)
         #  }}} Action checkout # 
 
 if __name__ == "__main__":
