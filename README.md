@@ -193,6 +193,18 @@ options:
   -h, --help            show this help message and exit
 ```
 
+### Configuration for Autocompletion
+
+```sh
+function _complete_version() {
+	local subcommands="init list check commit checkout log export"
+	if [[ $COMP_CWORD -le 2 ]]; then
+		COMPREPLY=($(compgen -W "$subcommands" ${COMP_WORDS[$COMP_CWORD]}))
+	fi
+}
+complete -F _complete_version version
+```
+
 ## Other Tiny Tools
 
 * `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely

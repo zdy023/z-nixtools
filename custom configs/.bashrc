@@ -59,8 +59,13 @@ function _complete_note() {
 	fi
 	return 0
 }
-
 complete -F _complete_note note
+
+function _target() {
+	COMPREPLY=($(compgen -W "update edit init select plan ddl list-ddls" ${COMP_WORDS[$COMP_CWORD]}))
+	return 0
+}
+complete -F _target target
 
 function _test_ipv4_port() {
 	# $1 - protocol, "tcp" or "udp"
