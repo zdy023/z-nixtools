@@ -1,0 +1,128 @@
+#!/usr/bin/python3
+
+import argparse
+import re
+import os.path
+import collections
+
+def include(input_file, output_file, states):
+    """
+    input_file - iterable of str
+    output_file - object supporting `write` accepting str
+    states - dict like
+      {
+        "macros": dict like {str: str}
+        "outputing": bool
+      }
+    """
+
+    macros = states["macros"]
+    outputing = states["outputing"]
+
+    for l in input_file:
+        l = l.strip()
+        if l.startswith(prefix) and l.endswith(suffix):
+            candidate = l[len(prefix):-len(suffix)] if len(suffix)>0 else l[len(prefix):]
+            candidate = candidate.strip()
+
+            command = candidate.split(maxsplit=1)
+            if command[0]=="define":
+                arguments = command[1].split(maxsplit=1)
+                macros[arguments[0]] = arguments[1]
+            elif command[0]=="undef":
+                if command[1] in macros:
+                    del macros[command[1]]
+            elif command[0]=="include":
+                with open(os.path.join(path, command[1])) as incl_f:
+                    include(incl_f, output_file,
+                        {
+                            "macros": macros,
+                            "outputing": outputing
+                        })
+            elif command[0]=="ifdef":
+                pass
+            elif command[0]=="ifndef":
+                pass
+            elif command[0]=="ifeq":
+                pass
+            elif command[0]=="ifneq":
+                pass
+            elif command[0]=="elif":
+                pass
+            else command[0]=="else":
+                pass
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--prefix", type=str, help="Prefix for preprocessing commands.")
+    parser.add_argument("--suffix", type=str, help="Suffix for preprocessing commands.")
+    parser.add_argument("--nosuffix", action="store_const", const="", type=str, dest="suffix",
+        help="No suffices is in need.")
+    parser.add_argument("--mode", "-m", default="H", type=str, choices=["H", "T", "C", "J"],
+        help="""H: HTML Comment Mode, e.g., <!-- include a.js -->
+T: TeX Comment Mode, e.g., % define TeX \LaTeX
+C: C Preprocessing Instruction Mode, e.g., #define A_TOY_PREPROCESSOR
+J: Java Comment Mode, e.g., // include class.java""")
+
+    parser.add_argument("--def", action="append", type=str,
+        help="Manually define a macro like \"ABC\" or \"ABC=LSP\", \"=\" in macro name and definitions could be escaped by \"\\\"",
+        dest="macro") 
+
+    parser.add_argument("file", type=str, help="Input file.")
+
+    parser.add_argument("--output", "-o", default="/dev/stdout", type=str,
+        help="Output file")
+
+    args = parser.parse_args()
+
+    mode_dict = {
+            "H": {
+                "prefix": "<!--",
+                "suffix": "-->"
+            },
+            "T": {
+                "prefix": "%",
+                "suffix": ""
+            }
+            "C": {
+                "prefix": "#",
+                "suffix": ""
+            },
+            "J": {
+                "prefix": "//",
+                "suffix": ""
+            }
+        }
+
+    mode_data = mode_dict[args.mode]
+    prefix = mode_data["prefix"]
+    suffix = mode_data["suffix"]
+
+    if args.prefix is not None:
+        prefix = prefix
+    if args.suffix is not None:
+        suffix = suffix
+
+    definition_separator_pattern = re.compile(r"(?<!\\)=")
+    real_equal_mark_pattern = re.compile(r"\\=")
+
+    macros = {}
+    for mcr in args.macro:
+        items = definition_separator_pattern.split(mcr, maxsplit=1)
+        macro_name = real_equal_mark_pattern.sub("=", items[0])
+        macro_value = real_equal_mark_pattern.sub("=", items[1]) if len(items)>1 else ""
+        macros[macro_name] = macro_value
+
+    path = os.path.dirname(args.file)
+
+    with open(args.file) as in_f,\
+            open(args.output) as out_f:
+        include(in_f, out_f,
+            {
+                "macros": macros,
+                "outputing": True
+            })
+
+if __name__ == "__main__":
+    main()
