@@ -5,19 +5,50 @@ import re
 import os.path
 import collections
 
-def include(input_file, output_file, states):
+def parse_include_arguments(command_line):
+    """
+    command_line - str
+
+    return
+    - str or None - prefix
+    - str or None - suffix
+    - str - remaining command line
+    """
+
+    if command_line.startswith("-"):
+        items = command_line.split(maxsplit=1)
+        return items[0][1:], None, items[1]
+    if command_line.startswith("+"):
+        items = command_line.split(maxsplit=1)
+        return None, items[0][1:], items[1]
+    return None, None, command_line
+
+_condition_pattern = re.compile(r"(?P<if>if|elif)(?P<not>n?)(?P<rel>def|eq)")
+def include(input_file, output_file, configs, states, if_stack):
+    #  function `include` {{{ # 
     """
     input_file - iterable of str
     output_file - object supporting `write` accepting str
+    configs - dict like
+      {
+        "prefix": str,
+        "suffix": str,
+        "path": str
+      }
     states - dict like
       {
         "macros": dict like {str: str}
         "outputing": bool
       }
+    if_stack - collections.deque of (bool, bool)
     """
 
     macros = states["macros"]
     outputing = states["outputing"]
+
+    prefix = configs["prefix"]
+    suffix = configs["suffix"]
+    path = configs["path"]
 
     for l in input_file:
         l = l.strip()
@@ -27,37 +58,84 @@ def include(input_file, output_file, states):
 
             command = candidate.split(maxsplit=1)
             if command[0]=="define":
-                arguments = command[1].split(maxsplit=1)
-                macros[arguments[0]] = arguments[1]
+                if if_stack[-1][1]:
+                    arguments = command[1].split(maxsplit=1)
+                    macros[arguments[0]] = arguments[1] if len(arguments)>1 else ""
             elif command[0]=="undef":
-                if command[1] in macros:
-                    del macros[command[1]]
+                if if_stack[-1][1]:
+                    if command[1] in macros:
+                        del macros[command[1]]
+
             elif command[0]=="include":
-                with open(os.path.join(path, command[1])) as incl_f:
-                    include(incl_f, output_file,
-                        {
-                            "macros": macros,
-                            "outputing": outputing
-                        })
-            elif command[0]=="ifdef":
-                pass
-            elif command[0]=="ifndef":
-                pass
-            elif command[0]=="ifeq":
-                pass
-            elif command[0]=="ifneq":
-                pass
-            elif command[0]=="elif":
-                pass
-            else command[0]=="else":
-                pass
+                if if_stack[-1][1]:
+                    in_prefix = prefix
+                    in_suffix = suffix
+                    prefix_, suffix_, remaining = parse_include_arguments(command[1])
+                    while prefix_ is not None or suffix_ is not None:
+                        if prefix_ is not None:
+                            in_prefix = prefix_
+                        elif suffix_ is not None:
+                            in_suffix = suffix_
+
+                        prefix_, suffix_, remaining = parse_include_arguments(remaining)
+
+                    include_file = os.path.join(path, remaining)
+                    in_path = os.path.dirname(include_file)
+
+                    with open(include_file) as incl_f:
+                        include(incl_f, output_file,
+                            configs={
+                                "prefix": in_prefix,
+                                "suffix": in_suffix,
+                                "path": in_path
+                            },
+                            states={
+                                "macros": macros,
+                                "outputing": outputing
+                            },
+                            if_stack=if_stack)
+
+            elif command[0]=="else":
+                if_stack[-1][1] = if_stack[-2][1] and not if_stack[-1][0]
+                if_stack[-1][0] = if_stack[-2][1]
+            elif command[0]=="endif":
+                if_stack.pop()
+            else:
+                match_ = _condition_pattern.match(command[0])
+                if match_ is not None:
+                    if match_["if"]=="if":
+                        if_stack.append([False, False])
+                    if if_stack[-1][0]:
+                        if_stack[-1][1] = False
+                    else:
+                        if not if_stack[-2][1]:
+                            condition = False
+                        else:
+                            if match_["rel"]=="def":
+                                condition = command[1] in macros
+                                mask = condition
+                            elif match_["rel"]=="eq":
+                                macro_name, macro_value = command[1].split(maxsplit=1)
+                                mask = macro_name in macros
+                                condition = mask and macros[macro_name]==macro_value
+
+                            if match_["not"]=="n":
+                                condition = mask and not condition
+                        if_stack[-1] = [condition, condition]
+                else:
+                    if if_stack[-1][1]:
+                        output_file.write(l + "\n")
+        else:
+            if if_stack[-1][1]:
+                output_file.write(l + "\n")
+    #  }}} function `include` # 
 
 def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--prefix", type=str, help="Prefix for preprocessing commands.")
     parser.add_argument("--suffix", type=str, help="Suffix for preprocessing commands.")
-    parser.add_argument("--nosuffix", action="store_const", const="", type=str, dest="suffix",
+    parser.add_argument("--nosuffix", action="store_const", const="", dest="suffix",
         help="No suffices is in need.")
     parser.add_argument("--mode", "-m", default="H", type=str, choices=["H", "T", "C", "J"],
         help="""H: HTML Comment Mode, e.g., <!-- include a.js -->
@@ -67,7 +145,7 @@ J: Java Comment Mode, e.g., // include class.java""")
 
     parser.add_argument("--def", action="append", type=str,
         help="Manually define a macro like \"ABC\" or \"ABC=LSP\", \"=\" in macro name and definitions could be escaped by \"\\\"",
-        dest="macro") 
+        dest="macro")
 
     parser.add_argument("file", type=str, help="Input file.")
 
@@ -79,12 +157,12 @@ J: Java Comment Mode, e.g., // include class.java""")
     mode_dict = {
             "H": {
                 "prefix": "<!--",
-                "suffix": "-->"
+                "suffix": "-->",
             },
             "T": {
-                "prefix": "%",
-                "suffix": ""
-            }
+                "prefix": "<!--",
+                "suffix": "-->"
+            },
             "C": {
                 "prefix": "#",
                 "suffix": ""
@@ -108,21 +186,30 @@ J: Java Comment Mode, e.g., // include class.java""")
     real_equal_mark_pattern = re.compile(r"\\=")
 
     macros = {}
-    for mcr in args.macro:
-        items = definition_separator_pattern.split(mcr, maxsplit=1)
-        macro_name = real_equal_mark_pattern.sub("=", items[0])
-        macro_value = real_equal_mark_pattern.sub("=", items[1]) if len(items)>1 else ""
-        macros[macro_name] = macro_value
+    if args.macro:
+        for mcr in args.macro:
+            items = definition_separator_pattern.split(mcr, maxsplit=1)
+            macro_name = real_equal_mark_pattern.sub("=", items[0])
+            macro_value = real_equal_mark_pattern.sub("=", items[1]) if len(items)>1 else ""
+            macros[macro_name] = macro_value
 
     path = os.path.dirname(args.file)
 
+    if_stack = collections.deque([[True, True]])
+
     with open(args.file) as in_f,\
-            open(args.output) as out_f:
+            open(args.output, "w") as out_f:
         include(in_f, out_f,
-            {
+            configs={
+                "prefix": prefix,
+                "suffix": suffix,
+                "path": path
+            },
+            states={
                 "macros": macros,
                 "outputing": True
-            })
+            },
+            if_stack=if_stack)
 
 if __name__ == "__main__":
     main()
