@@ -121,13 +121,13 @@ def include(input_file, output_file, configs, states, if_stack):
                         if_stack[-1] = [condition, condition]
                 else:
                     if if_stack[-1][1]:
-                        for mcr, mcr_val in macros:
-                            l = re.sub(r"\b" + mcr + r"\b", mcr_val, l)
+                        for mcr, mcr_val in macros.items():
+                            l = re.sub(r"\b" + mcr + r"\b", mcr_val, l, flags=re.ASCII)
                         output_file.write(l + "\n")
         else:
             if if_stack[-1][1]:
-                for mcr, mcr_val in macros:
-                    l = re.sub(r"\b" + mcr + r"\b", mcr_val, l)
+                for mcr, mcr_val in macros.items():
+                    l = re.sub(r"\b" + mcr + r"\b", mcr_val, l, flags=re.ASCII)
                 output_file.write(l + "\n")
     #  }}} function `include` # 
 
@@ -180,9 +180,9 @@ J: Java Comment Mode, e.g., // include class.java""")
     suffix = mode_data["suffix"]
 
     if args.prefix is not None:
-        prefix = prefix
+        prefix = args.prefix
     if args.suffix is not None:
-        suffix = suffix
+        suffix = args.suffix
 
     definition_separator_pattern = re.compile(r"(?<!\\)=")
     real_equal_mark_pattern = re.compile(r"\\=")
