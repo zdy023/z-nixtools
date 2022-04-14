@@ -38,13 +38,11 @@ def include(input_file, output_file, configs, states, if_stack):
     states - dict like
       {
         "macros": dict like {str: str}
-        "outputing": bool
       }
     if_stack - collections.deque of (bool, bool)
     """
 
     macros = states["macros"]
-    outputing = states["outputing"]
 
     prefix = configs["prefix"]
     suffix = configs["suffix"]
@@ -91,7 +89,6 @@ def include(input_file, output_file, configs, states, if_stack):
                             },
                             states={
                                 "macros": macros,
-                                "outputing": outputing
                             },
                             if_stack=if_stack)
 
@@ -124,22 +121,27 @@ def include(input_file, output_file, configs, states, if_stack):
                         if_stack[-1] = [condition, condition]
                 else:
                     if if_stack[-1][1]:
+                        for mcr, mcr_val in macros:
+                            l = re.sub(r"\b" + mcr + r"\b", mcr_val, l)
                         output_file.write(l + "\n")
         else:
             if if_stack[-1][1]:
+                for mcr, mcr_val in macros:
+                    l = re.sub(r"\b" + mcr + r"\b", mcr_val, l)
                 output_file.write(l + "\n")
     #  }}} function `include` # 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument("--prefix", type=str, help="Prefix for preprocessing commands.")
     parser.add_argument("--suffix", type=str, help="Suffix for preprocessing commands.")
     parser.add_argument("--nosuffix", action="store_const", const="", dest="suffix",
         help="No suffices is in need.")
     parser.add_argument("--mode", "-m", default="H", type=str, choices=["H", "T", "C", "J"],
-        help="""H: HTML Comment Mode, e.g., <!-- include a.js -->
-T: TeX Comment Mode, e.g., % define TeX \LaTeX
+        help="""\
+H: HTML Comment Mode, e.g., <!-- include a.js -->
+T: TeX Comment Mode, e.g., %% define TeX \LaTeX
 C: C Preprocessing Instruction Mode, e.g., #define A_TOY_PREPROCESSOR
 J: Java Comment Mode, e.g., // include class.java""")
 
@@ -207,7 +209,6 @@ J: Java Comment Mode, e.g., // include class.java""")
             },
             states={
                 "macros": macros,
-                "outputing": True
             },
             if_stack=if_stack)
 

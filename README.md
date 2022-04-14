@@ -2,7 +2,7 @@
 
 # ztools
 
-Several gadgets for Linux.
+Several gadgets for Linux. No warranties are for the listed tools.
 
 ## `target-pool`
 
@@ -193,6 +193,8 @@ options:
   -h, --help            show this help message and exit
 ```
 
+Check the help output for the subcommands like `version checkout --help` for detailed usage.
+
 ### Configuration for Autocompletion
 
 ```sh
@@ -204,6 +206,92 @@ function _complete_version() {
 }
 complete -F _complete_version version
 ```
+
+## Toy Preprocessor
+
+### Test Environment
+
++ x86_64 Linux 5.15.28-1-MANJARO
++ GNU bash，版本 5.1.16(1)-release (x86_64-pc-linux-gnu)
++ Python 3.10.2
+
+### Usage
+
+#### Command Line Options
+
+```sh
+zpp --help
+```
+
+```
+usage: zpp [-h] [--prefix PREFIX] [--suffix SUFFIX] [--nosuffix] [--mode {H,T,C,J}] [--def MACRO] [--output OUTPUT] file
+
+positional arguments:
+  file                  Input file.
+
+options:
+  -h, --help            show this help message and exit
+  --prefix PREFIX       Prefix for preprocessing commands.
+  --suffix SUFFIX       Suffix for preprocessing commands.
+  --nosuffix            No suffices is in need.
+  --mode {H,T,C,J}, -m {H,T,C,J}
+                        H: HTML Comment Mode, e.g., <!-- include a.js -->
+                        T: TeX Comment Mode, e.g., % define TeX \LaTeX
+                        C: C Preprocessing Instruction Mode, e.g., #define A_TOY_PREPROCESSOR
+                        J: Java Comment Mode, e.g., // include class.java
+  --def MACRO           Manually define a macro like "ABC" or "ABC=LSP", "=" in macro name and definitions could be escaped by "\"
+  --output OUTPUT, -o OUTPUT
+                        Output file
+```
+
+Lines for the preprocessing commands are recognized by the user-specific prefix and suffix. For convenience, the tool offers four predefined modes with specific prefix and suffix.
+
+#### Preprocessing Commands
+
+1. `include`
+
+```
+include [-PREFIX] [+SUFFIX] FILENAME
+```
+
+Inserts the contents from `FILENAME` at the current position. The preprocessing commands in the included file will be handled as well. A Different prefix or suffix could be specified for the included file.
+
+2. `define` and `undef`
+
+```
+define MACRO_NAME [MACRO_VALUE]
+```
+
+Defines a macro which will be replaced in the following contents. If it is omitted, `MACRO_VALUE` will default to an empty string.
+
+```
+undef MACRO_NAME
+```
+
+revokes the definition of an existing macro.
+
+3. if commands
+
+```
+ifdef MACRO_NAME
+ifndef MACRO_NAME
+ifeq MACRO_NAME MACRO_VALUE
+ifneq MACRO_NAME MACRO_VALUE
+elifdef MACRO_NAME
+elifndef MACRO_NAME
+elifeq MACRO_NAME MACRO_VALUE
+elifneq MACRO_NAME MACRO_VALUE
+```
+
+`def` checks if a macro is already defined and `eq` checks if a macro is already defined and if the macro definition equals to the given value. `n` will reverse the check result. However, note that if a macro is not defined, `neq` will leads to false which is the same as `eq`.
+
+`if` commands starts a if block and `elif` commands give another choice.
+
+Also `else` command is supported.
+
+`endif` is used to end an if block.
+
+Embedding if blocks is supported.
 
 ## Other Tiny Tools
 
