@@ -244,7 +244,7 @@ options:
                         Output file
 ```
 
-Lines for the preprocessing commands are recognized by the user-specific prefix and suffix. For convenience, the tool offers four predefined modes with specific prefix and suffix.
+Lines for the preprocessing commands are recognized by the user-specific prefix and suffix. For convenience, the tool offers four predefined modes with specific prefix and suffix. The default mode is `H` - the HTML Comment Mode with prefix `<!--` and suffix `-->`.
 
 #### Preprocessing Commands
 

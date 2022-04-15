@@ -49,6 +49,7 @@ def include(input_file, output_file, configs, states, if_stack):
     path = configs["path"]
 
     for l in input_file:
+        unstripped_line = l[:-1]
         l = l.strip()
         if l.startswith(prefix) and l.endswith(suffix):
             candidate = l[len(prefix):-len(suffix)] if len(suffix)>0 else l[len(prefix):]
@@ -122,13 +123,13 @@ def include(input_file, output_file, configs, states, if_stack):
                 else:
                     if if_stack[-1][1]:
                         for mcr, mcr_val in macros.items():
-                            l = re.sub(r"\b" + mcr + r"\b", mcr_val, l, flags=re.ASCII)
-                        output_file.write(l + "\n")
+                            unstripped_line = re.sub(r"\b" + mcr + r"\b", mcr_val, unstripped_line, flags=re.ASCII)
+                        output_file.write(unstripped_line + "\n")
         else:
             if if_stack[-1][1]:
                 for mcr, mcr_val in macros.items():
-                    l = re.sub(r"\b" + mcr + r"\b", mcr_val, l, flags=re.ASCII)
-                output_file.write(l + "\n")
+                    unstripped_line = re.sub(r"\b" + mcr + r"\b", mcr_val, unstripped_line, flags=re.ASCII)
+                output_file.write(unstripped_line + "\n")
     #  }}} function `include` # 
 
 def main():
