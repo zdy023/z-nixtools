@@ -1,0 +1,47 @@
+#!/bin/bash
+
+BACKUP_DIR=backup-configs
+
+function i() {
+	mkdir $BACKUP_DIR
+	echo $1 >$BACKUP_DIR/config
+	echo $BACKUP_DIR >$BACKUP_DIR/ex.list
+}
+
+function b() {
+	prefix=$1
+	while [[ -d "$prefix" && ! -d "$prefix/$BACKUP_DIR" ]]; do
+		prefix=../$prefix
+	done
+	if [[ ! -d "$prefix" ]]; then
+		echo This path is not under a backup configuration yet.
+		return 1
+	fi
+
+	flags=""
+	if [[ -f "$prefix/$BACKUP_DIR/ex.list" ]]; then
+		flags="$flags"\ --exclude-from="$prefix/$BACKUP_DIR/ex.list"
+	fi
+	if [[ -f "$prefix/$BACKUP_DIR/in.list" ]]; then
+		flags=--include-from="$prefix/$BACKUP_DIR/in.list"\ "$flags"
+	fi
+	if [[ -f "$prefix/$BACKUP_DIR/f.list" ]]; then
+		flags="$flags"\ --files-from="$prefix/$BACKUP_DIR/f.list"
+	fi
+
+	backup_path=$(<"$prefix/$BACKUP_DIR/config")
+	full_backup_path="$prefix/$backup_path/full"
+	incr_backup_path="../incr/$(date +"%Y-%m-%d.%H.%M")"
+	mkdir -p "$full_backup_path"
+	
+	rsync -ruvth --delete --progress --backup --backup-dir="$incr_backup_path/" $flags "$prefix/" "$full_backup_path/"
+}
+
+case $1 in
+	init)
+		echo ${2:?Empty Backup Path!}
+		i $2;;
+	backup)
+		#b ${2:-.};;
+		b .;;
+esac
