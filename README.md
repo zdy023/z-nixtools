@@ -297,6 +297,18 @@ Embedding if blocks is supported.
 
 * `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely
 * `convert_file_name` - convert the extension name of the images from the mobile from 'jpeg' to the correct one
+* `easy-backup-tool` - rsync configuration for directory backup
+
+Corresponding completion configuration:
+
+```sh
+function _complete_backup() {
+	if [[ $COMP_CWORD -le 2 ]]; then
+		COMPREPLY=($(compgen -W "init backup" ${COMP_WORDS[$COMP_CWORD]}))
+	fi
+}
+complete -F _complete_backup bckp
+```
 
 ## Useless Toys
 
