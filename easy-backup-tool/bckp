@@ -30,10 +30,10 @@ function b() {
 	fi
 
 	backup_path=$(<"$prefix/$BACKUP_DIR/config")
-	if [[ $backup_path == ssh:* ]]; then
+	if [[ "$backup_path" == ssh:* ]]; then
 		full_backup_path="${backup_path#ssh:}/full"
-	elif [[ $backup_path == /* ]]; then
-		full_backup_path=$backup_path
+	elif [[ "$backup_path" == /* ]]; then
+		full_backup_path="$backup_path/full"
 		mkdir -p "$full_backup_path"
 	else
 		full_backup_path="$prefix/$backup_path/full"
