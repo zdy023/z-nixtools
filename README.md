@@ -381,6 +381,7 @@ Now such config files as follows are collected in this repo:
 
 * `~/.bashrc`
 * `~/.profile`
+* `~/.inputrc`
 * `~/.vimrc`
 * `~/.tmux.conf`
 * `~/.config/fcitx/data/punc-ng.mb.zh_CN`
