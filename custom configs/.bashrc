@@ -61,11 +61,20 @@ function _complete_note() {
 }
 complete -F _complete_note note
 
-function _target() {
-	COMPREPLY=($(compgen -W "update edit init select plan ddl list-ddls" ${COMP_WORDS[$COMP_CWORD]}))
-	return 0
+function _complete_version() {
+	local subcommands="init list check commit checkout log export"
+	if [[ $COMP_CWORD -le 2 ]]; then
+		COMPREPLY=($(compgen -W "$subcommands" ${COMP_WORDS[$COMP_CWORD]}))
+	fi
 }
-complete -F _target target
+complete -F _complete_version version
+
+function _complete_backup() {
+	if [[ $COMP_CWORD -le 2 ]]; then
+		COMPREPLY=($(compgen -W "init backup" ${COMP_WORDS[$COMP_CWORD]}))
+	fi
+}
+complete -F _complete_backup bckp
 
 function _test_ipv4_port() {
 	# $1 - protocol, "tcp" or "udp"
