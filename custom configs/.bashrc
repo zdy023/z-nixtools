@@ -7,6 +7,8 @@ export LESS=" -R"
 export LESSGLOBALTAGS="global"
 # less configuration
 
+export PS1='\[\033[01;32m\][\u@\h\[\033[01;33m\] \D{%Y/%m/%d} \@\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
+
 #alias pale1="dosbox -c \"mount c PAL1\" -c \"c:\" -c \"pal.exe\" -c \"exit\""
 #alias qq="/opt/deepinwine/apps/Deepin-TIM/run.sh"
 alias ps-exe="ps -eF |grep '\\.exe'"
