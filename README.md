@@ -298,6 +298,7 @@ Embedding if blocks is supported.
 * `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely
 * `convert_file_name` - convert the extension name of the images from the mobile from 'jpeg' to the correct one
 * `easy-backup-tool` - rsync configuration for directory backup
+* `添加元信息.ptsp` - script for picard
 
 Corresponding completion configuration:
 

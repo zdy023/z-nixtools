@@ -1,0 +1,11 @@
+title: "\u6DFB\u52A0\u5143\u4FE1\u606F"
+script_language_version: '1.1'
+script: |
+  $set(_split_pos,$find(%_filename%,-))
+  $set(title,$substr(%_filename%,$add(%_split_pos%,2),))
+  $set(album,%title%)
+  $set(author,$substr(%_filename%,0,$sub(%_split_pos%,1)))
+  $set(author,$replace(%author%,\,,/))
+  $noop($set(_nb_authors,$lenmulti(%author%,\,))
+  $setmulti(author,$slice(%author%,0,%_nb_authors%,\,),/))
+id: e75f7753-5a8d-463f-89a6-ea83aeee2456
