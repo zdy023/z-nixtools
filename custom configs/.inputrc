@@ -1,3 +1,4 @@
 "\es": forward-search-history
 "\eo": "&>>/dev/null &"
 "\ei": "dirs -v\r"
+TAB: menu-complete
