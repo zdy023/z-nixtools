@@ -77,7 +77,7 @@ Plugin 'goerz/jupytext.vim'
 "Plugin 'szymonmaszke/vimpyter'
 Plugin 'inkarkat/vim-SyntaxRange'
 
-Plugin 'lilydjwg/fcitx.vim'
+"Plugin 'lilydjwg/fcitx.vim'
 Plugin 'rhysd/vim-grammarous'
 "Plugin 'vim-scripts/LanguageTool'
 Plugin 'mattn/calendar-vim'
@@ -481,3 +481,23 @@ let g:UltiSnipsJumpBackwardTrigger="<c-l>"
 
 let g:calendar_mark="right"
 let g:calendar_monday=0
+
+"set iminsert=2
+"set imsearch=-1
+"set imcmdline
+nnoremap <localleader>ci :let &iminsert=2-&iminsert<cr>:echo &iminsert<cr>
+nnoremap <localleader>it :echo &iminsert<cr>
+
+set imactivatefunc=ImActivate
+function! ImActivate(active)
+  if a:active
+	call system('fcitx5-remote -o')
+  else
+	call system('fcitx5-remote -c')
+  endif
+endfunction
+
+set imstatusfunc=ImStatus
+function! ImStatus()
+  return system('fcitx5-remote')[0] is# '2'
+endfunction
