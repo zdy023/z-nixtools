@@ -299,6 +299,7 @@ Embedding if blocks is supported.
 * `convert_file_name` - convert the extension name of the images from the mobile from 'jpeg' to the correct one
 * `easy-backup-tool` - rsync configuration for directory backup
 * `添加元信息.ptsp` - script for picard
+* `branch-tool` - snapshot the workspace for multi-branch experiment directory
 
 Corresponding completion configuration:
 

@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Special File:
+#
+# branch_flag
+# branch-config
+# 	|- filelist
+#	|- ignorelist
+# 	|- includelist
+#	|- destpath
+#	|- autodelete
+
+function i() {
+	mkdir branch-config
+	touch branch-config/filelist
+	touch branch-config/ignorelist
+	touch branch-config/includelist
+	echo $1 >branch-config/destpath
+	mkdir -p $1
+	echo $2 >branch-config/autodelete
+}
+
+function r() {
+	branch_name=$(<branch_flag)
+	destpath=$(<branch-config/destpath)
+	mkdir -p $destpath/$branch_name
+	autodelete=$(<branch-config/autodelete)
+
+	rsync -ruvtph --delete --progress\
+		--include-from=branch-config/includelist\
+		--exclude-from=branch-config/ignorelist\
+		--files-from=branch-config/filelist\
+		./ $destpath/$branch_name/
+
+	cd $destpath/$branch_name
+	eval $@
+	returncode=$?
+	cd ~-
+	
+	if [[ $autodelete -ne 0 ]]; then
+		rm -rf $destpath/$branch_name
+	fi
+
+	return $returncode
+}
+
+case $1 in
+	init)
+		i ${2:?Empty destination!} ${3:-0};;
+	run)
+		r ${@:2};;
+esac
