@@ -7,6 +7,7 @@
 # 	|- filelist
 #	|- ignorelist
 # 	|- includelist
+# 	|- symlist
 #	|- destpath
 #	|- autodelete
 
@@ -15,6 +16,7 @@ function i() {
 	touch branch-config/filelist
 	touch branch-config/ignorelist
 	touch branch-config/includelist
+	touch branch-config/symlist
 	echo $1 >branch-config/destpath
 	mkdir -p $1
 	echo $2 >branch-config/autodelete
@@ -31,6 +33,7 @@ function r() {
 		--exclude-from=branch-config/ignorelist\
 		--files-from=branch-config/filelist\
 		./ $destpath/$branch_name/
+	ln -sf $(<branch-config/symlist) $destpath/$branch_name/
 
 	cd $destpath/$branch_name
 	eval $@
