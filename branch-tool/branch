@@ -28,15 +28,18 @@ function r() {
 	mkdir -p $destpath/$branch_name
 	autodelete=$(<branch-config/autodelete)
 
-	rsync -ruvtph --delete --progress\
-		--include-from=branch-config/includelist\
-		--exclude-from=branch-config/ignorelist\
-		--files-from=branch-config/filelist\
-		./ $destpath/$branch_name/
-	ln -sf $PWD/$(<branch-config/symlist) $destpath/$branch_name/
+	if [[ $1 == s ]]; then
+		rsync -ruvtph --delete --progress\
+			--include-from=branch-config/includelist\
+			--exclude-from=branch-config/ignorelist\
+			--files-from=branch-config/filelist\
+			./ $destpath/$branch_name/
+		ln -sf $PWD/$(<branch-config/symlist) $destpath/$branch_name/
+	fi
 
 	cd $destpath/$branch_name
-	eval $@
+	shift 1
+	"$@"
 	returncode=$?
 	cd ~-
 	
@@ -51,5 +54,9 @@ case $1 in
 	init)
 		i ${2:?Empty destination!} ${3:-0};;
 	run)
-		r ${@:2};;
+		shift 1
+		r s "$@";;
+	rep)
+		shift 1
+		r d "$@";;
 esac
