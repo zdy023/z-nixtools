@@ -63,6 +63,7 @@ Plugin 'voldikss/vim-floaterm'
 Plugin 'zdy023/changesPlugin'
 Plugin 'mbbill/undotree'
 Plugin 'chrisbra/NrrwRgn'
+Plugin 'vim-scripts/AnsiEsc.vim'
 
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
