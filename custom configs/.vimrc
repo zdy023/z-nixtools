@@ -295,7 +295,7 @@ autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a~ :norm va~<cr>
 
 autocmd FileType markdown nnoremap <buffer> <localleader>v :AsyncRun typora %<cr>
 autocmd FileType html nnoremap <buffer> <localleader>v :AsyncRun firefox %<cr>
-autocmd FileType html,xml cnoremap <buffer> fmt<tab> %s/\(<[^<>]\+>\)\@<=\ \\|\(>\)\@<!\ \(<\/[^<>]\+>\)\@=/\r/g
+autocmd FileType html,xml cnoremap <buffer> fmt<tab> %s/\(<[^<>]\+>\)\@<=\\|\(>\)\@<!\(<\/[^<>]\+>\)\@=/\r/g
 
 let pattern_cif = '\<if\>:\<else\ if\>:\<else\>'
 let pattern_pif = '\<if\>:\<elif\>:\<else\>'
