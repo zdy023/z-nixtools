@@ -410,6 +410,8 @@ autocmd FileType markdown,html inoremap <buffer> <c-j> <br><CR>
 "autocmd FileType tex inoremap <buffer> <c-j> <space>\\<cr>
 " for spell check and quick newline in several formats
 
+nnoremap <localleader>co :ColorToggle<CR>
+
 highlight TempMark  term=bold,reverse cterm=bold ctermfg=red ctermbg=yellow
 autocmd BufRead,BufNewFile * syn match TempMark /\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=/
 nnoremap <localleader>hl I'<esc>A'<esc>
