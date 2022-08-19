@@ -379,7 +379,7 @@ let g:table_mode_delimiter='\t'
 " for plugin vim-table-mode
 
 let g:user_emmet_install_global=0
-auto FileType html,markdown EmmetInstall
+auto FileType html,markdown,xml EmmetInstall
 let g:user_emmet_leader_key='<c-g>'
 " for emmet
 
