@@ -295,7 +295,7 @@ autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a~ :norm va~<cr>
 
 autocmd FileType markdown nnoremap <buffer> <localleader>v :AsyncRun typora %<cr>
 autocmd FileType html nnoremap <buffer> <localleader>v :AsyncRun firefox %<cr>
-autocmd FileType html,xml cnoremap <buffer> fmt<tab> %s/\(<[^<>]\+>\)\@<=\\|\(>\)\@<!\(<\/[^<>]\+>\)\@=/\r/g
+autocmd FileType html,xml cnoremap <buffer> fmt<tab> %s/\(<[^<>]\+>\)\@<=\|\(>\)\@<!\(<\/[^<>]\+>\)\@=/\r/g
 
 let pattern_cif = '\<if\>:\<else\ if\>:\<else\>'
 let pattern_pif = '\<if\>:\<elif\>:\<else\>'
@@ -323,7 +323,7 @@ autocmd FileType sh let b:match_words=pattern_sh.','.pattern_shif
 autocmd FileType matlab let b:match_words=pattern_matlab
 autocmd FileType vim let b:match_words=pattern_vim.','.pattern_vif
 
-autocmd FileType html let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_zh_cn
+autocmd FileType html,xml let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_zh_cn
 autocmd FileType tex let b:match_words=pattern_tex.','.pattern_zh_cn
 autocmd FileType markdown let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_tex.','.pattern_zh_cn
 autocmd FileType remind let b:match_words=pattern_zh_cn
@@ -402,7 +402,7 @@ set fileencodings=utf-8,gbk,gb2312,gb18030,cp936,big5,utf-16,latin-1
 
 autocmd FileType remind,markdown,tpp set spell
 let g:grammarous#languagetool_cmd="languagetool"
-let g:grammarous#default_comments_only_filetypes={"*": 1, "help": 0, "markdown": 0, "html": 0}
+let g:grammarous#default_comments_only_filetypes={"*": 1, "help": 0, "markdown": 0, "html": 0, "xml": 0}
 let g:grammarous#show_first_error=1
 
 autocmd FileType remind inoremap <buffer> <c-j> <Space>%_\<CR>
