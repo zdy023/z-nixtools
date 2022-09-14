@@ -29,9 +29,9 @@ def main():
     check_parser.add_argument("file", type=str, help="File which versions needs check.")
 
     commit_parser = subparsers.add_parser("commit", help="Commit a file version.")
-    commit_parser.add_argument("file", type=str, help="File to commit.")
-    commit_parser.add_argument("version", type=str, help="File version.")
-    commit_parser.add_argument("comment", type=str, help="Version comment.")
+    commit_parser.add_argument("file", nargs="+", type=str, help="File to commit.")
+    commit_parser.add_argument("--version", "-v", type=str, required=True, help="File version.")
+    commit_parser.add_argument("--comment", "-m", type=str, required=True, help="Version comment.")
 
     checkout_parser = subparsers.add_parser("checkout", help="Checkout a file version")
     checkout_parser.add_argument("file", type=str, help="File to checkout.")
@@ -72,9 +72,9 @@ def main():
 
         os.makedirs(os.path.join(VERSION_FOLDER, IMAGE_FOLDER))
         with open(os.path.join(VERSION_FOLDER, "config"), "w") as f:
-            yaml.dump({"author": args.author}, f, yaml.Dumper)
+            yaml.dump({"author": args.author}, f, yaml.Dumper, allow_unicode=True)
         with open(os.path.join(VERSION_FOLDER, VERSION_INDEX), "w") as f:
-            yaml.dump(dict(), f, yaml.Dumper)
+            yaml.dump(dict(), f, yaml.Dumper, allow_unicode=True)
         with open(os.path.join(VERSION_FOLDER, VERSION_LOG), "w") as f:
             f.write("# {:}\n".format(os.path.basename(os.path.abspath("."))))
 
@@ -132,6 +132,7 @@ def main():
     #  }}} Log Function # 
 
     if args.command=="export":
+        #  Exporting {{{ # 
         file = os.path.relpath(args.file, basepath) if args.file is not None\
                 else None
         with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)) as f:
@@ -168,6 +169,91 @@ def main():
                 writer.writerows(table_data)
 
         exit(0)
+        #  }}} Exporting # 
+
+    if args.command=="commit":
+        #  Action commit {{{ # 
+        for f in args.file:
+            file = os.path.relpath(f, basepath)
+
+            # 1. update image
+            main_name, extension = os.path.splitext(file)
+            backup_file = os.path.join(basepath, VERSION_FOLDER, IMAGE_FOLDER,
+                    "{:}_v{:}{:}".format(
+                        main_name,
+                        args.version,
+                        extension))
+            if os.path.exists(backup_file):
+                print("Version Exists!", file=sys.stderr)
+                exit(VERSION_NOT_EXISTS_CODE)
+            if not os.path.exists(os.path.dirname(backup_file)):
+                os.makedirs(os.path.dirname(backup_file))
+            shutil.copy2(f, backup_file)
+
+            # 2. update index
+            index_file = os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)
+            with open(os.path.join(basepath, VERSION_FOLDER, "config")) as cfg:
+                author = yaml.load(cfg, yaml.Loader)["author"]
+            with open(index_file) as idx:
+                indices = yaml.load(idx, yaml.Loader)
+            is_new_file = False
+            if file not in indices:
+                indices[file] = {
+                        "last_version": "",
+                        "versions": []
+                    }
+                is_new_file = True
+            indices[file]["last_version"] = args.version
+            indices[file]["versions"].append({
+                    "version": args.version,
+                    "date": os.path.getmtime(f),
+                    "author": author,
+                    "comment": args.comment
+                })
+            shutil.copy(index_file, index_file + ".bak")
+            with open(index_file, "w") as idx:
+                yaml.dump(indices, idx, yaml.Dumper, allow_unicode=True)
+            os.remove(index_file + ".bak")
+
+            # 3. update log
+            today_str = datetime.date.today().isoformat()
+            mdate_str = datetime.date.fromtimestamp(os.path.getmtime(f)).isoformat()
+            cdate_str = datetime.date.fromtimestamp(os.path.getctime(f)).isoformat()
+            if today_str!=mdate_str:
+                status = "T"
+            elif mdate_str==cdate_str:
+                status = "C"
+            elif is_new_file:
+                status = "A"
+            else:
+                status = "M"
+
+            log_file = os.path.join(basepath, VERSION_FOLDER, VERSION_LOG)
+            bak_file = log_file + ".bak"
+            shutil.copy(log_file, bak_file)
+            with open(bak_file) as r_f,\
+                    open(log_file, "w") as wr_f:
+                found_today = False
+                found_file = False
+                previous_statuses = ""
+                for l in r_f:
+                    l = l.strip()
+                    if found_today and not found_file and l.startswith("*"):
+                        items = l.split()
+                        if items[-1]==file:
+                            found_file = True
+                            previous_statuses = items[1]
+                            continue
+                    if l.startswith("###"):
+                        if l[4:]==today_str:
+                            found_today = True
+                    wr_f.write(l + "\n")
+                if not found_today:
+                    wr_f.write("\n### {:}\n\n".format(today_str))
+                wr_f.write("* {:}{:} {:}\n".format(previous_statuses, status, file))
+            os.remove(bak_file)
+        exit(0)
+        #  }}} Action commit # 
 
     file = os.path.relpath(args.file, basepath)
 
@@ -192,85 +278,6 @@ def main():
         table = terminaltables.AsciiTable(table_data)
         print(table.table)
         #  }}} Action check # 
-    elif args.command=="commit":
-        #  Action commit {{{ # 
-        # 1. update image
-        main_name, extension = os.path.splitext(file)
-        backup_file = os.path.join(basepath, VERSION_FOLDER, IMAGE_FOLDER,
-                "{:}_v{:}{:}".format(
-                    main_name,
-                    args.version,
-                    extension))
-        if os.path.exists(backup_file):
-            print("Version Exists!", file=sys.stderr)
-            exit(VERSION_NOT_EXISTS_CODE)
-        if not os.path.exists(os.path.dirname(backup_file)):
-            os.makedirs(os.path.dirname(backup_file))
-        shutil.copy2(args.file, backup_file)
-
-        # 2. update index
-        index_file = os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)
-        with open(os.path.join(basepath, VERSION_FOLDER, "config")) as f:
-            author = yaml.load(f, yaml.Loader)["author"]
-        with open(index_file) as f:
-            indices = yaml.load(f, yaml.Loader)
-        is_new_file = False
-        if file not in indices:
-            indices[file] = {
-                    "last_version": "",
-                    "versions": []
-                }
-            is_new_file = True
-        indices[file]["last_version"] = args.version
-        indices[file]["versions"].append({
-                "version": args.version,
-                "date": os.path.getmtime(args.file),
-                "author": author,
-                "comment": args.comment
-            })
-        shutil.copy(index_file, index_file + ".bak")
-        with open(index_file, "w") as f:
-            yaml.dump(indices, f, yaml.Dumper)
-        os.remove(index_file + ".bak")
-
-        # 3. update log
-        today_str = datetime.date.today().isoformat()
-        mdate_str = datetime.date.fromtimestamp(os.path.getmtime(args.file)).isoformat()
-        cdate_str = datetime.date.fromtimestamp(os.path.getctime(args.file)).isoformat()
-        if today_str!=mdate_str:
-            status = "T"
-        elif mdate_str==cdate_str:
-            status = "C"
-        elif is_new_file:
-            status = "A"
-        else:
-            status = "M"
-
-        log_file = os.path.join(basepath, VERSION_FOLDER, VERSION_LOG)
-        bak_file = log_file + ".bak"
-        shutil.copy(log_file, bak_file)
-        with open(bak_file) as r_f,\
-                open(log_file, "w") as wr_f:
-            found_today = False
-            found_file = False
-            previous_statuses = ""
-            for l in r_f:
-                l = l.strip()
-                if found_today and not found_file and l.startswith("*"):
-                    items = l.split()
-                    if items[-1]==file:
-                        found_file = True
-                        previous_statuses = items[1]
-                        continue
-                if l.startswith("###"):
-                    if l[4:]==today_str:
-                        found_today = True
-                wr_f.write(l + "\n")
-            if not found_today:
-                wr_f.write("\n### {:}\n\n".format(today_str))
-            wr_f.write("* {:}{:} {:}\n".format(previous_statuses, status, file))
-        os.remove(bak_file)
-        #  }}} Action commit # 
     elif args.command=="checkout":
         #  Action checkout {{{ # 
         main_name, extension = os.path.splitext(file)
@@ -287,7 +294,7 @@ def main():
             indices = yaml.load(f, yaml.Loader)
         indices[file]["last_version"] = args.version
         with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX), "w") as f:
-            yaml.dump(indices, f, yaml.Dumper)
+            yaml.dump(indices, f, yaml.Dumper, allow_unicode=True)
         #  }}} Action checkout # 
 
 if __name__ == "__main__":
