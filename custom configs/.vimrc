@@ -323,7 +323,7 @@ autocmd FileType sh let b:match_words=pattern_sh.','.pattern_shif
 autocmd FileType matlab let b:match_words=pattern_matlab
 autocmd FileType vim let b:match_words=pattern_vim.','.pattern_vif
 
-autocmd FileType html,xml let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_zh_cn
+autocmd FileType html,xml,vue let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_zh_cn
 autocmd FileType tex let b:match_words=pattern_tex.','.pattern_zh_cn
 autocmd FileType markdown let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_tex.','.pattern_zh_cn
 autocmd FileType remind let b:match_words=pattern_zh_cn
@@ -379,7 +379,7 @@ let g:table_mode_delimiter='\t'
 " for plugin vim-table-mode
 
 let g:user_emmet_install_global=0
-auto FileType html,markdown,xml EmmetInstall
+auto FileType html,markdown,xml,vue EmmetInstall
 let g:user_emmet_leader_key='<c-g>'
 " for emmet
 
