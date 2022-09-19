@@ -306,7 +306,7 @@ let pattern_sh = '\<do\>:\<done\>,\<case\>:\<esac\>'
 let pattern_matlab = '\(^\s*\)\@<=\(while\|for\|function\|if\)\>:\(^\s*\)\@<=end\>'
 let pattern_vim = '\<\(function\|while\|for\)\>:\<end\1\>'
 
-let pattern_html = '<\(\w\+\)\(\s\+.*\)*>:</\1>,<!--:-->'
+let pattern_html = '<\([a-zA-Z0-9_-]\+\)\(\s\+.*\)*>:</\1>,<!--:-->'
 let pattern_tex = '\\begin{\(.\+\)}:\\end{\1},\\left\>:\\right\>'
 
 let pattern_ccmt = '\/\*:\*\/'
