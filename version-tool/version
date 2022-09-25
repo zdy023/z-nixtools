@@ -26,7 +26,8 @@ def main():
     list_parser = subparsers.add_parser("list", help="List tracked files.")
 
     check_parser = subparsers.add_parser("check", help="Check the versions of a specific file.")
-    check_parser.add_argument("file", type=str, help="File which versions needs check.")
+    check_parser.add_argument("--version", "-v", action="store_true", help="Check a version number instead of a file name.")
+    check_parser.add_argument("file", type=str, help="File or version which versions needs check.")
 
     commit_parser = subparsers.add_parser("commit", help="Commit a file version.")
     commit_parser.add_argument("file", nargs="+", type=str, help="File to commit.")
@@ -68,7 +69,7 @@ def main():
     if args.command=="init":
         if os.path.exists(VERSION_FOLDER):
             print("Version Folder already initiated!", file=sys.stderr)
-            exit(VERSION_FOLDER_EXISTS_CODE)
+            return VERSION_FOLDER_EXISTS_CODE
 
         os.makedirs(os.path.join(VERSION_FOLDER, IMAGE_FOLDER))
         with open(os.path.join(VERSION_FOLDER, "config"), "w") as f:
@@ -78,7 +79,7 @@ def main():
         with open(os.path.join(VERSION_FOLDER, VERSION_LOG), "w") as f:
             f.write("# {:}\n".format(os.path.basename(os.path.abspath("."))))
 
-        exit(0)
+        return 0
     #  }}} Initiation # 
 
     basepath = "."
@@ -86,14 +87,14 @@ def main():
         basepath = os.path.join("..", basepath)
     if not os.path.exists(basepath):
         print("This path is not under a version repository yet!", file=sys.stderr)
-        exit(NOT_VERSION_REPOSITORY_CODE)
+        return NOT_VERSION_REPOSITORY_CODE
 
     if args.command=="list":
         with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)) as f:
             filelist = list(sorted(yaml.load(f, yaml.Loader).keys()))
         for f in filelist:
             print(f)
-        exit(0)
+        return 0
 
     #  Log Function {{{ # 
     if args.command=="log":
@@ -113,7 +114,7 @@ def main():
                 date = datetime.date(today.year, month, today.day)
         except:
             print("Date parsing error!", file=sys.stderr)
-            exit(DATE_PARSING_CODE)
+            return DATE_PARSING_CODE
 
         date_str = date.isoformat()
         with open(os.path.join(basepath, VERSION_FOLDER, VERSION_LOG)) as f:
@@ -128,7 +129,7 @@ def main():
                 if found:
                     print(l)
 
-        exit(0)
+        return 0
     #  }}} Log Function # 
 
     if args.command=="export":
@@ -140,7 +141,7 @@ def main():
             if file is not None:
                 if file not in indices:
                     print("File Not Tracked Yet!", file=sys.stderr)
-                    exit(FILE_NOT_TRACKED_CODE)
+                    return FILE_NOT_TRACKED_CODE
                 indices = {file: indices[file]}
 
         table_data = [["File", "Version", "Last Version", "Date", "Author", "Comment"]]
@@ -168,7 +169,7 @@ def main():
                 writer = csv.writer(f)
                 writer.writerows(table_data)
 
-        exit(0)
+        return 0
         #  }}} Exporting # 
 
     if args.command=="commit":
@@ -185,7 +186,7 @@ def main():
                         extension))
             if os.path.exists(backup_file):
                 print("Version Exists!", file=sys.stderr)
-                exit(VERSION_NOT_EXISTS_CODE)
+                return VERSION_NOT_EXISTS_CODE
             if not os.path.exists(os.path.dirname(backup_file)):
                 os.makedirs(os.path.dirname(backup_file))
             shutil.copy2(f, backup_file)
@@ -252,40 +253,59 @@ def main():
                     wr_f.write("\n### {:}\n\n".format(today_str))
                 wr_f.write("* {:}{:} {:}\n".format(previous_statuses, status, file))
             os.remove(bak_file)
-        exit(0)
+        return 0
         #  }}} Action commit # 
-
-    file = os.path.relpath(args.file, basepath)
 
     if args.command=="check":
         #  Action check {{{ # 
         with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)) as f:
             indices = yaml.load(f, yaml.Loader)
+        table_data = [["File", "Version", "Last Version", "Date", "Author", "Comment"]]
+
+        if args.version:
+            for f, vsns in indices.items():
+                last_version = vsns["last_version"]
+                for vsn in vsns["versions"]:
+                    if vsn["version"]==args.file:
+                        table_data.append([ f
+                                          , args.file
+                                          , "v" if args.file==last_version else ""
+                                          , datetime.date.fromtimestamp(vsn["date"]).isoformat()
+                                          , vsn["author"]
+                                          , vsn["comment"]
+                                          ])
+                        break
+        else:
+            file = os.path.relpath(args.file, basepath)
+
             if file not in indices:
                 print("File Not Tracked Yet!", file=sys.stderr)
-                exit(FILE_NOT_TRACKED_CODE)
-        table_data = [["File", "Version", "Last Version", "Date", "Author", "Comment"]]
-        last_version = indices[file]["last_version"]
-        table_data += map(lambda rcd: [
-                            file,
-                            rcd["version"],
-                            "v" if rcd["version"]==last_version else "",
-                            datetime.date.fromtimestamp(rcd["date"]).isoformat(),
-                            rcd["author"],
-                            rcd["comment"]
-                        ],
-                    indices[file]["versions"])
+                return FILE_NOT_TRACKED_CODE
+            last_version = indices[file]["last_version"]
+            table_data += map(lambda rcd: [
+                                file,
+                                rcd["version"],
+                                "v" if rcd["version"]==last_version else "",
+                                datetime.date.fromtimestamp(rcd["date"]).isoformat(),
+                                rcd["author"],
+                                rcd["comment"]
+                            ],
+                        indices[file]["versions"])
+
         table = terminaltables.AsciiTable(table_data)
         print(table.table)
         #  }}} Action check # 
-    elif args.command=="checkout":
+
+
+    if args.command=="checkout":
         #  Action checkout {{{ # 
+        file = os.path.relpath(args.file, basepath)
         main_name, extension = os.path.splitext(file)
         backup_file = os.path.join(basepath, VERSION_FOLDER, IMAGE_FOLDER,
                 "{:}_v{:}{:}".format(main_name, args.version, extension))
         if not os.path.exists(backup_file):
             print("Version Not Exists!", file=sys.stderr)
-            exit(VERSION_NOT_EXISTS_CODE)
+            return VERSION_NOT_EXISTS_CODE
         if os.path.exists(args.file):
             os.remove(args.file)
         shutil.copy2(backup_file, args.file)
@@ -298,4 +318,4 @@ def main():
         #  }}} Action checkout # 
 
 if __name__ == "__main__":
-    main()
+    exit(main())
