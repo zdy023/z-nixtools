@@ -11,6 +11,7 @@ import sys
 import datetime
 import terminaltables
 import shutil
+import subprocess
 
 import yaml
 import csv
@@ -28,6 +29,10 @@ def main():
     check_parser = subparsers.add_parser("check", help="Check the versions of a specific file.")
     check_parser.add_argument("--version", "-v", action="store_true", help="Check a version number instead of a file name.")
     check_parser.add_argument("file", type=str, help="File or version which versions needs check.")
+
+    diff_parser = subparsers.add_parser("diff", help="Check the difference between the current file and a specific version")
+    diff_parser.add_argument("--version", "-v", type=str, help="Version to check.")
+    diff_parser.add_argument("file", type=str, help="File to check.")
 
     commit_parser = subparsers.add_parser("commit", help="Commit a file version.")
     commit_parser.add_argument("file", nargs="+", type=str, help="File to commit.")
@@ -294,8 +299,20 @@ def main():
 
         table = terminaltables.AsciiTable(table_data)
         print(table.table)
+        return 0
         #  }}} Action check # 
 
+    if args.command=="diff":
+        file = os.path.relpath(args.file, basepath)
+        main_name, extension = os.path.splitext(file)
+        backup_file = os.path.join(basepath, VERSION_FOLDER, IMAGE_FOLDER,
+                "{:}_v{:}{:}".format(main_name, args.version, extension))
+        if not os.path.exists(backup_file):
+            print("Version Not Exists!", file=sys.stderr)
+            return VERSION_NOT_EXISTS_CODE
+        result = subprocess.run(["diff", "--color=always", args.file, backup_file], capture_output=True, text=True)
+        print(result.stdout)
+        return 0
 
     if args.command=="checkout":
         #  Action checkout {{{ # 
@@ -315,6 +332,8 @@ def main():
         indices[file]["last_version"] = args.version
         with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX), "w") as f:
             yaml.dump(indices, f, yaml.Dumper, allow_unicode=True)
+
+        return 0
         #  }}} Action checkout # 
 
 if __name__ == "__main__":
