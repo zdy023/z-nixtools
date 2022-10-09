@@ -56,7 +56,12 @@ def include(input_file, output_file, configs, states, if_stack):
             candidate = candidate.strip()
 
             command = candidate.split(maxsplit=1)
-            if command[0]=="define":
+            if len(command)<1:
+                if if_stack[-1][1]:
+                    for mcr, mcr_val in macros.items():
+                        unstripped_line = re.sub(r"\b" + mcr + r"\b", mcr_val, unstripped_line, flags=re.ASCII)
+                    output_file.write(unstripped_line + "\n")
+            elif command[0]=="define":
                 if if_stack[-1][1]:
                     arguments = command[1].split(maxsplit=1)
                     macros[arguments[0]] = arguments[1] if len(arguments)>1 else ""
