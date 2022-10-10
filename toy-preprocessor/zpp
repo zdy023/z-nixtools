@@ -116,7 +116,7 @@ def include(input_file, output_file, configs, states, if_stack):
                         else:
                             if match_["rel"]=="def":
                                 condition = command[1] in macros
-                                mask = condition
+                                mask = True
                             elif match_["rel"]=="eq":
                                 macro_name, macro_value = command[1].split(maxsplit=1)
                                 mask = macro_name in macros
