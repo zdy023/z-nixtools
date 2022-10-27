@@ -332,9 +332,9 @@ autocmd FileType remind let b:match_words=pattern_zh_cn
 
 set tabstop=4
 set shiftwidth=4
-autocmd FileType yaml,haskell,lhaskell set tabstop=2
-autocmd FileType yaml,haskell,lhaskell set shiftwidth=2
-autocmd FileType python,yaml,rust,haskell,lhaskell set expandtab
+autocmd FileType yaml,haskell,lhaskell setl tabstop=2
+autocmd FileType yaml,haskell,lhaskell setl shiftwidth=2
+autocmd FileType python,yaml,rust,haskell,lhaskell setl expandtab
 " tab settings
 
 nnoremap dt ^x
@@ -400,7 +400,7 @@ set termencoding=utf-8
 set fileencodings=utf-8,gbk,gb2312,gb18030,cp936,big5,utf-16,latin-1
 " for encodings
 
-autocmd FileType remind,markdown,tpp set spell
+autocmd FileType remind,markdown,tpp setl spell
 let g:grammarous#languagetool_cmd="languagetool"
 let g:grammarous#default_comments_only_filetypes={"*": 1, "help": 0, "markdown": 0, "html": 0, "xml": 0}
 let g:grammarous#show_first_error=1
