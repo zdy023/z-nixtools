@@ -7,7 +7,15 @@ export LESS=" -R"
 export LESSGLOBALTAGS="global"
 # less configuration
 
-export PS1='\[\033[01;32m\][\u@\h\[\033[01;33m\] \D{%Y/%m/%d} \@\[\033[01;37m\] \W \[\033[01;31m\]$?\[\033[01;32m\]]\$\[\033[00m\] '
+#export EDITOR=vim
+#export AUTOSSH_POLL=30
+#export PS1='\[\033[01;32m\][\u@\h\[\033[01;33m\] \D{%Y/%m/%d} \@\[\033[01;37m\] \W \[\033[01;31m\]$?\[\033[01;32m\]]\$\[\033[00m\] '
+USER_PS='\u@\h'
+TIME_PS='\[\033[01;33m\]\D{%Y/%m/%d} \@'
+PATH_PS='\[\033[01;37m\]\W'
+RSLT_PS='\[\033[0;34m\]$? $(if [[ $? -eq 0 ]]; then echo -n '\''\[\033[0;32m\]'\''\342\234\223; else echo -n '\''\[\033[01;05;31m\]'\''\342\234\227; fi)\[\033[0m\]'
+#CONDA_PS='\[\033[01;37m\]$(if [[ -n $CONDA_DEFAULT_ENV ]]; then echo " (`basename $CONDA_DEFAULT_ENV`)"; fi)'
+export PS1='\[\033[01;32m\]['$USER_PS' '$TIME_PS' '$PATH_PS' '$RSLT_PS'\[\033[01;32m\]]\$\[\033[00m\] '
 
 #alias pale1="dosbox -c \"mount c PAL1\" -c \"c:\" -c \"pal.exe\" -c \"exit\""
 #alias qq="/opt/deepinwine/apps/Deepin-TIM/run.sh"
