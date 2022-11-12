@@ -5,6 +5,9 @@ import re
 import os.path
 import collections
 
+from typing import Iterable, TextIO
+from typing import Dict, Deque, Tuple
+
 def parse_include_arguments(command_line):
     """
     command_line - str
@@ -24,22 +27,32 @@ def parse_include_arguments(command_line):
     return None, None, command_line
 
 _condition_pattern = re.compile(r"(?P<if>if|elif)(?P<not>n?)(?P<rel>def|eq)")
-def include(input_file, output_file, configs, states, if_stack):
+def include( input_file: Iterable[str]
+           , output_file: TextIO
+           , configs: Dict[str, str]
+           , states: Dict[str, Dict[str, str]]
+           , if_stack: Deque[Tuple[bool, bool]]
+           ):
     #  function `include` {{{ # 
     """
-    input_file - iterable of str
-    output_file - object supporting `write` accepting str
-    configs - dict like
-      {
-        "prefix": str,
-        "suffix": str,
-        "path": str
-      }
-    states - dict like
-      {
-        "macros": dict like {str: str}
-      }
-    if_stack - collections.deque of (bool, bool)
+    Args:
+        input_file: iterable of str
+        output_file: object supporting `write` accepting str
+        configs: dict like
+          {
+            "prefix": str,
+            "suffix": str,
+            "path": str
+          }
+        states: dict like
+          {
+            "macros": dict like {str: str}
+          }
+        if_stack: collections.deque of (bool, bool)
+          - the first item indicates whether the current if-block has been
+            matched ever
+          - the second item indicates whether the current if-block is matched
+            right now
     """
 
     macros = states["macros"]
