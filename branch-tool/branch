@@ -34,7 +34,7 @@ function r() {
 			--exclude-from=branch-config/ignorelist\
 			--files-from=branch-config/filelist\
 			./ $destpath/$branch_name/
-		ln -sf $PWD/$(<branch-config/symlist) $destpath/$branch_name/
+		ln -sf $(sed -e 's#^#'$PWD/'#g' branch-config/symlist) $destpath/$branch_name/
 	fi
 
 	cd $destpath/$branch_name

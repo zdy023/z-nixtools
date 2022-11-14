@@ -355,8 +355,8 @@ nnoremap <localleader>dT $daw
 " settings w.r.t. autocompletion
 
 set tags=tags
-nnoremap <localleader>ta :AsyncRun<Space>ctags<Space>-R<Space>.<CR>
-nnoremap <localleader>tc :!ctags<Space>-R<Space>.<CR>
+nnoremap <localleader>ta :AsyncRun ctags -R --options-maybe=tags-opts .<CR>
+nnoremap <localleader>tc :!ctags -R --options-maybe=tags-opts .<CR>
 " for tags (Exuberant Ctags 5.9~svn20110310)
 let g:tagbar_sort=0
 
