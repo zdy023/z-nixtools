@@ -2,3 +2,6 @@
 */__pycache__/*
 __pycache__/*
 gpg.headless
+
+Session.vim
+Session-*.vim
