@@ -19,7 +19,6 @@
     "default_icon": {
       "64": "icons/icon.png"
     },
-    "default_popup": "browserAction/index.html",
     "default_title": "kde-activities-z"
   },
   "browser_specific_settings": {

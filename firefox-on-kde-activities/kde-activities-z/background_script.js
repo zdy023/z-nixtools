@@ -2,10 +2,14 @@
 
 //var port = browser.runtime.connectNative("test_activity");
 
+var on = true;
+
 browser.tabs.onCreated.addListener(onTabCreated);
 //port.onMessage.addListener(onMessage);
+browser.browserAction.onClicked.addListener(() => {on = false;})
 
 function onTabCreated(tab) {
+	console.log(on);
 	setTimeout( () => {
 		//browser.windows.create({tabId: tab.id});
 		checkFocused(tab);
@@ -20,9 +24,11 @@ function onTabCreated(tab) {
 }
 
 async function checkFocused(tab) {
-	let windowList = await browser.windows.getAll();
-	if(windowList.every((elm) => {return !elm.focused;}))
-		browser.windows.create({tabId: tab.id});
+	if(on) {
+		let windowList = await browser.windows.getAll();
+		if(windowList.every((elm) => {return !elm.focused;}))
+			browser.windows.create({tabId: tab.id});
+	}
 }
 
 function onMessage(message) {
