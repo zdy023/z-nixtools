@@ -293,6 +293,43 @@ Also `else` command is supported.
 
 Embedding if blocks is supported.
 
+## `firefox-on-kde-activities`
+
+### Introduction
+
+This extension will move it to the firefox window in the current kde activity
+when a new tab is opened. Currently it only supports on X.
+
+This extension contains a plug-in for firefox and a external Python script. The
+plug-in could be found in [Mozilla extension store](https://addons.mozilla.org)
+by `kde-activities-z`. The external Python should be installed in the user's
+$PATH and a manifest json for the external script is required to be place at
+`~/.mozilla/native-messaging-hosts` and the `path` field in it should be set to
+the path to the installed script. In convenience, a makefile is provided and a
+simple `make` command should install the script to `~/.local/bin` and complete
+the configurations.
+
+### Known Issue
+
+Owing to the limit of the API of firefox, neither the external script can
+obtain the correct *current activity* where there havn't been any firefox
+windows, nor the plug-in js can open a new window in the *current activity*
+without any firefox windows in it. I'v got no ideas for this issue temporarily.
+
+### Implementation
+
+The external script first revokes `wmctrl -lx` to obtain all the opened X
+windows and filters out the firefox instances. Then,
+
+```sh
+qdbus org.kde.ActivityManager /ActivityManager/Activities CurrentActivity
+```
+
+is revoked to get the current activity id. `xprop -id $wid _KDE_NET_WM_ACTIVITIES`
+could be used to check the activity which a specific window is on. By this way,
+the script can determine the correct firefox window to which the new tab should
+be moved.
+
 ## Other Tiny Tools
 
 * `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely
