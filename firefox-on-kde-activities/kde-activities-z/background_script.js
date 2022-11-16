@@ -1,5 +1,6 @@
 // Put all the javascript code here, that you want to execute in background.
 
+var port = browser.runtime.connectNative("test_activity");
 var on = true;
 
 browser.tabs.onCreated.addListener(onTabCreated);
@@ -13,6 +14,7 @@ browser.browserAction.onClicked.addListener(() => {
 								   }
 								 );
 });
+port.onMessage.addListener(onMessage);
 
 async function onTabCreated(tab) {
 	if(on) {
@@ -32,10 +34,11 @@ async function onTabCreated(tab) {
 		console.log(message.tid);
 		console.log(message.wlist);
 		console.log(message.tlist);
-		let response = await browser.runtime.sendNativeMessage( "test_activity"
-														      , message
-														      );
-		onMessage(response);
+		port.postMessage(message);
+		//let response = await browser.runtime.sendNativeMessage( "test_activity"
+														      //, message
+														      //);
+		//onMessage(response);
 	}
 }
 
