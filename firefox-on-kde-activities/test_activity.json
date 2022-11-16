@@ -1,7 +1,7 @@
 {
   "name": "test_activity",
   "description": "Example host for native messaging",
-  "path": "/home/david/Apps/z-nixtools/firefox-on-kde-activities/kde-activities-z/test_firefox_in_activities.py",
+  "path": "/home/david/Apps/z-nixtools/firefox-on-kde-activities/test_firefox_in_activities.py",
   "type": "stdio",
   "allowed_extensions": [ "kde-activities-z@david.xyz" ]
 }
