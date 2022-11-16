@@ -1,7 +1,7 @@
 {
   "name": "test_activity",
   "description": "Find the firefox window on the current kde activity.",
-  "path": "/home/david/.local/bin/test_firefox_in_activities.py",
+  "path": "<home>/.local/bin/test_firefox_in_activities.py",
   "type": "stdio",
   "allowed_extensions": [ "kde-activities-z@david.xyz" ]
 }
