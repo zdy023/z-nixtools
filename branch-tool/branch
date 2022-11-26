@@ -37,8 +37,10 @@ function r() {
 		ln -sf $(sed -e 's#^#'$PWD/'#g' branch-config/symlist) $destpath/$branch_name/
 	fi
 
+	echo $branch_name@$destpath:$autodelete
 	cd $destpath/$branch_name
 	shift 1
+	echo Command: "$@"
 	"$@"
 	returncode=$?
 	cd ~-
