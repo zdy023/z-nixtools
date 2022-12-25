@@ -18,19 +18,23 @@ port.onMessage.addListener(onMessage);
 
 async function onTabCreated(tab) {
 	if(on) {
+		let window_info = await browser.windows.get(tab.windowId);
+		if(!("type" in window_info && window_info.type == "normal"))
+			return null;
+
 		console.log("onTabCreated");
-		let window_list = await browser.windows.getAll();
-		window_id_list = window_list.map((elm) => {
+		let window_list = await browser.windows.getAll({"windowTypes": ["normal"]});
+		let window_id_list = window_list.map((elm) => {
 			return elm.id;
 		});
-		window_title_list = window_list.map((elm) => {
+		let window_title_list = window_list.map((elm) => {
 			return elm.title;
 		});
-		message = { "tid": tab.id
-				  , "wid": tab.windowId
-				  , "wlist": window_id_list
-				  , "tlist": window_title_list
-				  }
+		let message = { "tid": tab.id
+				      , "wid": tab.windowId
+				      , "wlist": window_id_list
+				      , "tlist": window_title_list
+				      }
 		console.log(message.tid);
 		console.log(message.wlist);
 		console.log(message.tlist);
