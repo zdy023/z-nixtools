@@ -52,6 +52,26 @@ function r() {
 	return $returncode
 }
 
+function h() {
+	cat <<"eof"
+子命令：
+  * init path {1|0} - 初始化项目，第一个参数指定创建快照路径，第二个参数可选，默认
+    为0，表示每次执行完后是否自动删除快照
+  * run command - 在当前分支的快照下执行命令，执行命令前更新快照
+  * rep command - 在当前分支的快照下执行命令，执行命令前不更新快照
+  * help - 打印本帮助
+特殊文件：
+  * branch_flag - 记录当前分支
+  branch-config目录下
+  * filelist - 用于rsync的--files-from选项
+  * ignorelist - 用于rsync的--exlcude-from选项
+  * includelist - 用于rsync的--include-from选项
+  * symlist - 指定需使用ln建立软链接的文件
+  * destpath - 记录创建快照的路径
+  * autodelete - 记录每次执行完后是否自动删除快照
+eof
+}
+
 case $1 in
 	init)
 		i ${2:?Empty destination!} ${3:-0};;
@@ -61,4 +81,6 @@ case $1 in
 	rep)
 		shift 1
 		r d "$@";;
+	help)
+		h;;
 esac

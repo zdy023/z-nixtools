@@ -44,6 +44,23 @@ function b() {
 	rsync -aruvth --delete --progress --backup --backup-dir="$incr_backup_path/" $flags "$prefix/" "$full_backup_path/"
 }
 
+function h() {
+	cat <<"eof"
+子命令：
+  * init path - 初始化仓库并指定备份路径，远程路径需加前缀"ssh:"
+  * backup - 备份一次
+  * help - 打印本帮助
+特殊文件：
+  特殊文件均在backup-configs文件夹下
+  * config - 路径配置文件
+  * ex.list - 用于rsync的--exclude-from选项
+  * in.list - 用于rsync的--include-from选项
+  * f.list - 用于rsync的--files-from选项
+附录：
+  rsync选项：-aruvth --delete --progress --backup
+eof
+}
+
 case $1 in
 	init)
 		echo ${2:?Empty Backup Path!}
@@ -51,4 +68,6 @@ case $1 in
 	backup)
 		#b ${2:-.};;
 		b .;;
+	help)
+		h;;
 esac
