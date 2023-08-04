@@ -50,6 +50,7 @@ Plugin 'VundleVim/Vundle.vim'
 Plugin 'skywind3000/asyncrun.vim'
 Plugin 'terryma/vim-expand-region'
 Plugin 'Yggdroot/indentLine'
+Plugin 'easymotion/vim-easymotion'
 Plugin 'vim-scripts/Mark'
 Plugin 'tpope/vim-fugitive'
 Plugin 'SirVer/ultisnips'
@@ -80,7 +81,7 @@ Plugin 'goerz/jupytext.vim'
 Plugin 'inkarkat/vim-SyntaxRange'
 
 "Plugin 'lilydjwg/fcitx.vim'
-Plugin 'rhysd/vim-grammarous'
+"Plugin 'rhysd/vim-grammarous'
 "Plugin 'vim-scripts/LanguageTool'
 Plugin 'mattn/calendar-vim'
 "Plugin 'vim-scripts/dokuwiki'
@@ -115,6 +116,7 @@ set ruler!
 
 syntax on
 set hls
+set is
 "set cursorline
 set nocursorline
 
@@ -163,6 +165,29 @@ set udf
 
 set ttimeoutlen=100
 
+" <Leader>f{char} to move to {char}
+map  <Leader><Leader>f <Plug>(easymotion-bd-f)
+nmap <Leader><Leader>f <Plug>(easymotion-overwin-f)
+
+" s{char}{char} to move to {char}{char}
+nmap <Leader><Leader>s <Plug>(easymotion-overwin-f2)
+
+" Move to line
+map <Leader><Leader>L <Plug>(easymotion-bd-jk)
+nmap <Leader><Leader>L <Plug>(easymotion-overwin-line)
+
+" Move to word
+map  <Leader><Leader>w <Plug>(easymotion-bd-w)
+nmap <Leader><Leader>w <Plug>(easymotion-overwin-w)
+
+" Gif config
+map <Leader><Leader>l <Plug>(easymotion-lineforward)
+map <Leader><Leader>j <Plug>(easymotion-j)
+map <Leader><Leader>k <Plug>(easymotion-k)
+map <Leader><Leader>h <Plug>(easymotion-linebackward)
+
+let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
+
 "tnoremap ;; <c-w>:tabn<CR>
 "tnoremap ,, <c-w>:tabN<CR>
 " convenient tab switch under terminal mode
@@ -177,6 +202,7 @@ let g:floaterm_keymap_toggle = '<Leader>ft'
 "cnoremap flt<tab> FloatermNew 
 
 cnoremap vsb<tab> vertical sb 
+cnoremap vsf<tab> vertical sf
 cnoremap vt<tab> vertical terminal 
 cnoremap vds<tab> vertical diffsplit 
 cnoremap vsts<tab> vertical sts 
