@@ -295,7 +295,7 @@ Embedding if blocks is supported.
 
 ## `firefox-on-kde-activities`
 
-## Test Environment
+### Test Environment
 
 * Manjaro 22.0.0 Sikaris
 * KDE 5.98.0 / Plasma 5.25.5
