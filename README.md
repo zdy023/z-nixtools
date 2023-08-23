@@ -291,7 +291,7 @@ Also `else` command is supported.
 
 `endif` is used to end an if block.
 
-Embedding if blocks is supported.
+Embedding `if` blocks is supported.
 
 ## `firefox-on-kde-activities`
 
