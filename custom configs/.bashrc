@@ -74,7 +74,7 @@ function _complete_note() {
 complete -F _complete_note note
 
 function _complete_version() {
-	local subcommands="init list check commit checkout log export"
+	local subcommands="init list check commit checkout log export diff status"
 	if [[ $COMP_CWORD -le 2 ]]; then
 		COMPREPLY=($(compgen -W "$subcommands" ${COMP_WORDS[$COMP_CWORD]}))
 	fi

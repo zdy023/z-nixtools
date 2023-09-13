@@ -16,6 +16,9 @@ import subprocess
 import yaml
 import csv
 
+from typing import Optional, Any
+from typing import Dict
+
 def main():
     #  Commandline Arguments {{{ # 
     parser = argparse.ArgumentParser()
@@ -30,9 +33,12 @@ def main():
     check_parser.add_argument("--version", "-v", action="store_true", help="Check a version number instead of a file name.")
     check_parser.add_argument("file", type=str, help="File or version which versions needs check.")
 
-    diff_parser = subparsers.add_parser("diff", help="Check the difference between the current file and a specific version")
-    diff_parser.add_argument("--version", "-v", type=str, help="Version to check.")
+    diff_parser = subparsers.add_parser("diff", help="Check the difference between two versions. If version b is ignored, the current workspace file is compared.")
+    diff_parser.add_argument("--versiona", "-a", type=str, help="Version to compare.")
+    diff_parser.add_argument("--versionb", "-b", type=str, help="Version to compare.")
     diff_parser.add_argument("file", type=str, help="File to check.")
+
+    status_parser = subparsers.add_parser("status", help="Check all the differences of tracked files.")
 
     commit_parser = subparsers.add_parser("commit", help="Commit a file version.")
     commit_parser.add_argument("file", nargs="+", type=str, help="File to commit.")
@@ -59,6 +65,7 @@ def main():
     #  Constants {{{ # 
     VERSION_FOLDER = "version.folder"
     IMAGE_FOLDER = "versions"
+    IMAGE_TEMPLATE = "{:}_v{:}{:}"
     VERSION_INDEX = "version.index.yaml"
     VERSION_LOG = "version.log.md"
 
@@ -94,15 +101,67 @@ def main():
         print("This path is not under a version repository yet!", file=sys.stderr)
         return NOT_VERSION_REPOSITORY_CODE
 
+    #  Public Functions {{{ # 
+    def diff( arg_file: str
+            , versiona: Optional[str], versionb: Optional[str] = None
+            , prints_name: bool = False
+            ) -> int:
+        """
+        Args:
+            arg_file (str): path to target file, relative to the working path
+              (not base path)
+            versiona (Optional[str]): the first version to compare, None for
+              the last version
+            versionb (Optional[str]): the second version to compare, None for
+              the workspace version
+            prints_name (bool): if the file name should be print
+
+        Returns:
+            int: status code
+        """
+
+        file: str = os.path.relpath(arg_file, basepath)
+        main_name: str
+        extension: str
+        main_name, extension = os.path.splitext(file)
+
+        if not versiona:
+            with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)) as f:
+                indices: Dict[str, Any] = yaml.load(f, yaml.Loader)
+            if file not in indices:
+                print("File Not Tracked Yet!", file=sys.stderr)
+                return FILE_NOT_TRACKED_CODE
+            versiona: str = indices[file]["last_version"]
+        filea: str = os.path.join( basepath, VERSION_FOLDER, IMAGE_FOLDER
+                                 , IMAGE_TEMPLATE.format(main_name, versiona, extension)
+                                 )
+
+        fileb: str = os.path.join( basepath, VERSION_FOLDER, IMAGE_FOLDER
+                                 , IMAGE_TEMPLATE.format(main_name, versionb, extension)
+                                 ) if versionb\
+                                 else arg_file
+        if not os.path.exists(filea) or not os.path.exists(fileb):
+            print("Version Not Exists!", file=sys.stderr)
+            return VERSION_NOT_EXISTS_CODE
+        result: subprocess.CompletedProcess = subprocess.run(["diff", "--color=always", filea, fileb], capture_output=True, text=True)
+        if len(result.stdout)>0:
+            if prints_name:
+                print("{:}: {:} vs {:}".format(file, versiona, versionb or "WORKSPACE"))
+            print(result.stdout)
+        return 0
+    #  }}} Public Functions # 
+
     if args.command=="list":
+        #  List Command {{{ # 
         with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)) as f:
             filelist = list(sorted(yaml.load(f, yaml.Loader).keys()))
         for f in filelist:
             print(f)
         return 0
+        #  }}} List Command # 
 
-    #  Log Function {{{ # 
     if args.command=="log":
+        #  Log Function {{{ # 
         try:
             if len(args.date)==0:
                 date = datetime.date.today()
@@ -135,7 +194,7 @@ def main():
                     print(l)
 
         return 0
-    #  }}} Log Function # 
+        #  }}} Log Function # 
 
     if args.command=="export":
         #  Exporting {{{ # 
@@ -184,11 +243,12 @@ def main():
 
             # 1. update image
             main_name, extension = os.path.splitext(file)
-            backup_file = os.path.join(basepath, VERSION_FOLDER, IMAGE_FOLDER,
-                    "{:}_v{:}{:}".format(
-                        main_name,
-                        args.version,
-                        extension))
+            backup_file = os.path.join( basepath, VERSION_FOLDER, IMAGE_FOLDER
+                                      , IMAGE_TEMPLATE.format( main_name
+                                                             , args.version
+                                                             , extension
+                                                             )
+                                      )
             if os.path.exists(backup_file):
                 print("Version Exists!", file=sys.stderr)
                 return VERSION_NOT_EXISTS_CODE
@@ -303,23 +363,26 @@ def main():
         #  }}} Action check # 
 
     if args.command=="diff":
-        file = os.path.relpath(args.file, basepath)
-        main_name, extension = os.path.splitext(file)
-        backup_file = os.path.join(basepath, VERSION_FOLDER, IMAGE_FOLDER,
-                "{:}_v{:}{:}".format(main_name, args.version, extension))
-        if not os.path.exists(backup_file):
-            print("Version Not Exists!", file=sys.stderr)
-            return VERSION_NOT_EXISTS_CODE
-        result = subprocess.run(["diff", "--color=always", args.file, backup_file], capture_output=True, text=True)
-        print(result.stdout)
+        return diff(args.file, args.versiona, args.versionb)
+
+    if args.command=="status":
+        #  Status Command {{{ # 
+        with open(os.path.join(basepath, VERSION_FOLDER, VERSION_INDEX)) as f:
+            indices: Dict[str, Any] = yaml.load(f, yaml.Loader)
+
+        for f in indices:
+            diff(os.path.join(basepath, f), None, prints_name=True)
+
         return 0
+        #  }}} Status Command # 
 
     if args.command=="checkout":
         #  Action checkout {{{ # 
         file = os.path.relpath(args.file, basepath)
         main_name, extension = os.path.splitext(file)
-        backup_file = os.path.join(basepath, VERSION_FOLDER, IMAGE_FOLDER,
-                "{:}_v{:}{:}".format(main_name, args.version, extension))
+        backup_file = os.path.join( basepath, VERSION_FOLDER, IMAGE_FOLDER
+                                  , IMAGE_TEMPLATE.format(main_name, args.version, extension)
+                                  )
         if not os.path.exists(backup_file):
             print("Version Not Exists!", file=sys.stderr)
             return VERSION_NOT_EXISTS_CODE
