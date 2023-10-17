@@ -186,6 +186,10 @@ map <Leader><Leader>j <Plug>(easymotion-j)
 map <Leader><Leader>k <Plug>(easymotion-k)
 map <Leader><Leader>h <Plug>(easymotion-linebackward)
 
+map <space>; <Plug>(easymotion-repeat)
+map <Leader><Leader>n <Plug>(easymotion-next)
+map <Leader><Leader>N <Plug>(easymotion-prev)
+
 let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
 
 "tnoremap ;; <c-w>:tabn<CR>
@@ -202,7 +206,7 @@ let g:floaterm_keymap_toggle = '<Leader>ft'
 "cnoremap flt<tab> FloatermNew 
 
 cnoremap vsb<tab> vertical sb 
-cnoremap vsf<tab> vertical sf
+cnoremap vsf<tab> vertical sf 
 cnoremap vt<tab> vertical terminal 
 cnoremap vds<tab> vertical diffsplit 
 cnoremap vsts<tab> vertical sts 
