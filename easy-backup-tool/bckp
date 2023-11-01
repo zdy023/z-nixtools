@@ -4,7 +4,7 @@ BACKUP_DIR=backup-configs
 
 function i() {
 	mkdir $BACKUP_DIR
-	echo $1 >$BACKUP_DIR/config
+	echo "$1" >$BACKUP_DIR/config
 	echo $BACKUP_DIR >$BACKUP_DIR/ex.list
 }
 
@@ -20,13 +20,13 @@ function b() {
 
 	flags=""
 	if [[ -f "$prefix/$BACKUP_DIR/ex.list" ]]; then
-		flags="$flags"\ --exclude-from="$prefix/$BACKUP_DIR/ex.list"
+		flags="$flags --exclude-from=$prefix/$BACKUP_DIR/ex.list"
 	fi
 	if [[ -f "$prefix/$BACKUP_DIR/in.list" ]]; then
-		flags=--include-from="$prefix/$BACKUP_DIR/in.list"\ "$flags"
+		flags=--include-from="$prefix/$BACKUP_DIR/in.list $flags"
 	fi
 	if [[ -f "$prefix/$BACKUP_DIR/f.list" ]]; then
-		flags="$flags"\ --files-from="$prefix/$BACKUP_DIR/f.list"
+		flags="$flags --files-from=$prefix/$BACKUP_DIR/f.list"
 	fi
 
 	backup_path=$(<"$prefix/$BACKUP_DIR/config")
@@ -39,16 +39,16 @@ function b() {
 		full_backup_path="$prefix/$backup_path/full"
 		mkdir -p "$full_backup_path"
 	fi
-	incr_backup_path="../incr/$(date +"%Y-%m-%d.%H.%M")"
+	incr_backup_path="../incr/$(date +"%Y-%m-%d.%H.%M").$2"
 	
-	rsync -aruvth --delete --progress --backup --backup-dir="$incr_backup_path/" $flags "$prefix/" "$full_backup_path/"
+	rsync -aruvth --delete --progress --backup --backup-dir="$incr_backup_path/" "$flags" "$prefix/" "$full_backup_path/"
 }
 
 function h() {
 	cat <<"eof"
 子命令：
   * init path - 初始化仓库并指定备份路径，远程路径需加前缀"ssh:"
-  * backup - 备份一次
+  * backup comment - 备份一次
   * help - 打印本帮助
 特殊文件：
   特殊文件均在backup-configs文件夹下
@@ -63,11 +63,11 @@ eof
 
 case $1 in
 	init)
-		echo ${2:?Empty Backup Path!}
-		i $2;;
+		echo "${2:?Empty Backup Path!}"
+		i "$2";;
 	backup)
 		#b ${2:-.};;
-		b .;;
+		b . "${2:-default}";;
 	help)
 		h;;
 esac
