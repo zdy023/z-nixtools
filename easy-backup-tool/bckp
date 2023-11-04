@@ -41,7 +41,7 @@ function b() {
 	fi
 	incr_backup_path="../incr/$(date +"%Y-%m-%d.%H.%M").$2"
 	
-	rsync -aruvth --delete --progress --backup --backup-dir="$incr_backup_path/" "$flags" "$prefix/" "$full_backup_path/"
+	rsync -aruvth --delete --progress --backup --backup-dir="$incr_backup_path/" $flags "$prefix/" "$full_backup_path/"
 }
 
 function h() {
