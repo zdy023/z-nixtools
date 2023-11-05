@@ -344,6 +344,7 @@ be moved.
 * `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely
 * `convert_file_name` - convert the extension name of the images from the mobile from 'jpeg' to the correct one
 * `easy-backup-tool` - rsync configuration for directory backup
+* `easy-snapshots` - rsync configuration for directory snapshots
 * `添加元信息.ptsp` - script for picard
 * `branch-tool` - snapshot the workspace for multi-branch experiment directory
 
@@ -356,6 +357,7 @@ function _complete_backup() {
 	fi
 }
 complete -F _complete_backup bckp
+complete -F _complete_backup zsnap
 ```
 
 ## Useless Toys

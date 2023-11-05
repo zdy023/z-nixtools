@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BACKUP_DIR=backup-configs
+BACKUP_DIR=snap-configs
 
 function i() {
 	mkdir $BACKUP_DIR
@@ -31,20 +31,19 @@ function b() {
 
 	backup_path=$(<"$prefix/$BACKUP_DIR/config")
 	if [[ "$backup_path" == ssh:* ]]; then
-		full_backup_path="${backup_path#ssh:}/full"
+		full_backup_path="${backup_path#ssh:}/snap"
 	elif [[ "$backup_path" == /* ]]; then
-		full_backup_path="$backup_path/full"
+		full_backup_path="$backup_path/snap"
 		mkdir -p "$full_backup_path"
 	else
-		full_backup_path="$prefix/$backup_path/full"
+		full_backup_path="$prefix/$backup_path/snap"
 		mkdir -p "$full_backup_path"
 	fi
-	date_str=$(date +"%Y-%m-%d.%H.%M")
-	incr_backup_path="../incr/$date_str.$2"
-
-	echo "$date_str: $2" >>"$full_backup_path/../comments"
+	#incr_backup_path="../incr/$(date +"%Y-%m-%d.%H.%M").$2"
+	new_snap="snap.$(date +"%Y-%m-%d.%H.%M").$2"
 	
-	rsync -aruvth --delete --progress --backup --backup-dir="$incr_backup_path/" $flags "$prefix/" "$full_backup_path/"
+	rsync -aruvth --delete --progress --ignore-existing --link-dest="../last/" $flags "$prefix/" "$full_backup_path/$new_snap/"
+	ln -sf "$new_snap" "$full_backup_path/last"
 }
 
 function h() {
@@ -60,7 +59,7 @@ function h() {
   * in.list - 用于rsync的--include-from选项
   * f.list - 用于rsync的--files-from选项
 附录：
-  rsync选项：-aruvth --delete --progress --backup
+  rsync选项：-aruvth --delete --progress --ignore-existing
 eof
 }
 
