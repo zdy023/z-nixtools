@@ -33,6 +33,7 @@ function r() {
 			--include-from=branch-config/includelist\
 			--exclude-from=branch-config/ignorelist\
 			--files-from=branch-config/filelist\
+			--safe-links\
 			./ $destpath/$branch_name/
 		ln -sf $(sed -e 's#^#'$PWD/'#g' branch-config/symlist) $destpath/$branch_name/
 	fi
