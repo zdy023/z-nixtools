@@ -163,6 +163,8 @@ autocmd BufRead * call Scan_zdy_modeline()
 
 set udf
 autocmd BufEnter * set conceallevel=0
+nnoremap <localleader>+ set conceallevel+=1
+nnoremap <localleader>- set conceallevel-=1
 
 set ttimeoutlen=100
 
