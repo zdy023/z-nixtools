@@ -162,6 +162,7 @@ endfunction
 autocmd BufRead * call Scan_zdy_modeline()
 
 set udf
+autocmd BufEnter * set conceallevel=0
 
 set ttimeoutlen=100
 
@@ -355,7 +356,7 @@ autocmd FileType vim let b:match_words=pattern_vim.','.pattern_vif
 
 autocmd FileType html,xml,vue let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_zh_cn
 autocmd FileType tex let b:match_words=pattern_tex.','.pattern_zh_cn
-autocmd FileType markdown let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_tex.','.pattern_zh_cn
+autocmd FileType markdown,dokuwiki let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_tex.','.pattern_zh_cn
 autocmd FileType remind let b:match_words=pattern_zh_cn
 
 "autocmd FileType tex nnoremap <buffer> \<tab> /<+\(\w\\|\ \)*+><cr>gn
