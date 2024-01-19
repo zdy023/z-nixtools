@@ -7,7 +7,7 @@ export INPUT_METHOD=fcitx5
 
 target update
 #lunar
-ccal -u
+#ccal -u
 echo
 remind $HOME/.timetable.rem
 #remind_checker=$(ps -eF |grep 'remind\ -z\ .\+')
