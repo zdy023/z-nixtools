@@ -32,19 +32,24 @@ function b() {
 	backup_path=$(<"$prefix/$BACKUP_DIR/config")
 	if [[ "$backup_path" == ssh:* ]]; then
 		full_backup_path="${backup_path#ssh:}/full"
+		log_flags=""
 	elif [[ "$backup_path" == /* ]]; then
 		full_backup_path="$backup_path/full"
-		mkdir -p "$full_backup_path"
+		log_path="$backup_path/logs"
+		mkdir -p "$full_backup_path" "$log_path"
+		echo "$date_str: $2" >>"$full_backup_path/../comments"
+		log_flags="--log-file=$log_path/log-$date_str.log"
 	else
 		full_backup_path="$prefix/$backup_path/full"
+		log_path="$backup_path/logs"
 		mkdir -p "$full_backup_path"
+		echo "$date_str: $2" >>"$full_backup_path/../comments"
+		log_flags="--log-file=$log_path/log-$date_str.log"
 	fi
 	date_str=$(date +"%Y-%m-%d.%H.%M")
 	incr_backup_path="../incr/$date_str.$2"
-
-	echo "$date_str: $2" >>"$full_backup_path/../comments"
 	
-	rsync -aruvth --delete --progress --backup --backup-dir="$incr_backup_path/" $flags "$prefix/" "$full_backup_path/"
+	rsync -aruvtch --delete --progress --backup --backup-dir="$incr_backup_path/" $log_flags $flags "$prefix/" "$full_backup_path/"
 }
 
 function h() {
@@ -60,7 +65,7 @@ function h() {
   * in.list - 用于rsync的--include-from选项
   * f.list - 用于rsync的--files-from选项
 附录：
-  rsync选项：-aruvth --delete --progress --backup
+  rsync选项：-aruvtch --delete --progress --backup
 eof
 }
 
