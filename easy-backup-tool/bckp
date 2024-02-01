@@ -42,8 +42,8 @@ function b() {
 		log_flags="--log-file=$log_path/log-$date_str.log"
 	else
 		full_backup_path="$prefix/$backup_path/full"
-		log_path="$backup_path/logs"
-		mkdir -p "$full_backup_path"
+		log_path="$prefix/$backup_path/logs"
+		mkdir -p "$full_backup_path" "$log_path"
 		echo "$date_str: $2" >>"$full_backup_path/../comments"
 		log_flags="--log-file=$log_path/log-$date_str.log"
 	fi
