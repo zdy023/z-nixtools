@@ -29,6 +29,7 @@ function b() {
 		flags="$flags --files-from=$prefix/$BACKUP_DIR/f.list"
 	fi
 
+	date_str=$(date +"%Y-%m-%d.%H.%M")
 	backup_path=$(<"$prefix/$BACKUP_DIR/config")
 	if [[ "$backup_path" == ssh:* ]]; then
 		full_backup_path="${backup_path#ssh:}/full"
@@ -46,7 +47,6 @@ function b() {
 		echo "$date_str: $2" >>"$full_backup_path/../comments"
 		log_flags="--log-file=$log_path/log-$date_str.log"
 	fi
-	date_str=$(date +"%Y-%m-%d.%H.%M")
 	incr_backup_path="../incr/$date_str.$2"
 	
 	rsync -aruvtch --delete --progress --backup --backup-dir="$incr_backup_path/" $log_flags $flags "$prefix/" "$full_backup_path/"
