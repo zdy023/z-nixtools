@@ -313,14 +313,14 @@ autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a@ lF“ohf”
 autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i~ lT‘oht’
 autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a~ lF‘ohf’
 
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i) :norm vi)<cr> 
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a) :norm va)<cr> 
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i] :norm vi]<cr> 
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a] :norm va]<cr> 
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i} :norm vi}<cr> 
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a} :norm va}<cr> 
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i> :norm vi><cr> 
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a> :norm va><cr> 
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i) :norm vi)<cr>
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a) :norm va)<cr>
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i] :norm vi]<cr>
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a] :norm va]<cr>
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i} :norm vi}<cr>
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a} :norm va}<cr>
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i> :norm vi><cr>
+autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a> :norm va><cr>
 autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i@ :norm vi@<cr>
 autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a@ :norm va@<cr>
 autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i~ :norm vi~<cr>
