@@ -6,6 +6,7 @@ function i() {
 	mkdir $BACKUP_DIR
 	echo "$1" >$BACKUP_DIR/config
 	echo $BACKUP_DIR >$BACKUP_DIR/ex.list
+	touch $BACKUP_DIR/checksum
 }
 
 function b() {
@@ -49,7 +50,12 @@ function b() {
 	fi
 	incr_backup_path="../incr/$date_str.$2"
 	
-	rsync -aruvtch --delete --progress --backup --backup-dir="$incr_backup_path/" $log_flags $flags "$prefix/" "$full_backup_path/"
+	if [[ -f "$prefix/$BACKUP_DIR/checksum" ]]; then
+		c=$(<"$prefix/$BACKUP_DIR/checksum")
+	else
+		c=""
+	fi
+	rsync -aruvt"$c"h --delete --progress --backup --backup-dir="$incr_backup_path/" $log_flags $flags "$prefix/" "$full_backup_path/"
 }
 
 function h() {
@@ -64,6 +70,7 @@ function h() {
   * ex.list - 用于rsync的--exclude-from选项
   * in.list - 用于rsync的--include-from选项
   * f.list - 用于rsync的--files-from选项
+  * checksum - 是否计算校验和（调用rsync时加否c选项）（默认否）
 附录：
   rsync选项：-aruvtch --delete --progress --backup
 eof
