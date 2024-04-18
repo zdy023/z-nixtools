@@ -433,6 +433,8 @@ Now such config files as follows are collected in this repo:
 * `~/.profile`
 * `~/.inputrc`
 * `~/.vimrc`
+* `~/.vim/ftdetect`
+* `~/.vim/syntax`
 * `~/.tmux.conf`
 * `~/.config/fcitx/data/punc-ng.mb.zh_CN`
 * `~/.local/share/fcitx5/data/QuickPhrase.mb`(`~/.config/fcitx/data/QuickPhrase.mb`)

@@ -230,12 +230,6 @@ cnoremap +<tab> set isk+=
 cnoremap -<tab> set isk-=
 
 cnoremap TT<tab> TagbarToggle
-autocmd FileType markdown cnoremap <buffer> Vp<tab> Voom pandoc
-"autocmd FileType tex cnoremap <buffer> Vlt<tab> Voom latex
-autocmd FileType dokuwiki cnoremap <buffer> Vd<tab> Voom dokuwiki
-
-autocmd BufRead,BufNewFile *.bnf set filetype=bnf
-autocmd BufRead,BufNewFile *.ebnf set filetype=ebnf
 
 "nnoremap <c-o> a<CR><Esc>
 "nnoremap <localleader><space> i <esc>la <esc>h
@@ -245,130 +239,14 @@ nnoremap U vU
 inoremap <nowait> jj <Esc>
 " basic edit settings
 
-nnoremap cj I//<Esc>
-nnoremap cbc I#<Esc>
-nnoremap cbt I#<Space><Esc>
-" common comments
-
-autocmd FileType c,cpp,go,javascript,java,css,verilog,php nnoremap <buffer> cic I/*<Esc>
-autocmd FileType java,php nnoremap <buffer> cij I/**<Esc>
-autocmd FileType c,cpp,go,javascript,java,css,verilog,php nnoremap <buffer> cac A*/<Esc>
-" C-like comments
-
-autocmd FileType python nnoremap <buffer> cic I"""<Esc>
-autocmd FileType python nnoremap <buffer> cac A"""<Esc>
-" python comment
-
-autocmd FileType vim nnoremap <buffer> <localleader>ct I"<Space><Esc>
-autocmd FileType vim nnoremap <buffer> <localleader>cc I"<Esc>
-" vim comment
-
-autocmd FileType tex,matlab,prolog nnoremap <buffer> <localleader>cc I%<Esc>
-autocmd FileType sql,vhdl,haskell nnoremap <buffer> <localleader>cc I--<Space><Esc>
-autocmd FileType haskell nnoremap <buffer> cic I{- <esc>
-autocmd FileType haskell nnoremap <buffer> cac A -}<esc>
-autocmd FileType lhaskell nnoremap <buffer> <localleader>cc 0i> <esc>
-autocmd FileType lisp,asm nnoremap <buffer> <localleader>cc I;<Space><Esc>
-" other comments
-
 nnoremap <localleader>cfa :set formatoptions+=a<cr>
 nnoremap <localleader>cfA :set formatoptions-=a<cr>
 nnoremap <localleader>cfc :set formatoptions+=mM<cr>
 nnoremap <localleader>cfC :set formatoptions-=mM<cr>
 
-xnoremap <localleader>( s(<c-r>")<esc>
-xnoremap <localleader>[ s[<c-r>"]<esc>
-xnoremap <localleader>< s<<c-r>"><esc>
-xnoremap <localleader>{ s{<c-r>"}<esc>
-xnoremap <localleader>" s"<c-r>""<esc>
-xnoremap <localleader>' s'<c-r>"'<esc>
-xnoremap <localleader>` s`<c-r>"`<esc>
-
-autocmd FileType tex xnoremap <buffer> <localleader>` s`<c-r>"'<esc>
-autocmd FileType tex xnoremap <buffer> <localleader>! s``<c-r>"''<esc>
-autocmd FileType markdown xnoremap <buffer> <localleader>b s**<c-r>"**<esc>
-autocmd FileType markdown xnoremap <buffer> <localleader>i s*<c-r>"*<esc>
-autocmd FileType markdown xnoremap <buffer> <localleader>e s***<c-r>"***<esc>
-autocmd FileType tex xnoremap <buffer> <localleader>b s\textbf{<c-r>"}<esc>
-autocmd FileType tex xnoremap <buffer> <localleader>i s\textit{<c-r>"}<esc>
-autocmd FileType dokuwiki xnoremap <buffer> <localleader>b s**<c-r>"**<esc>
-autocmd FileType dokuwiki xnoremap <buffer> <localleader>i s//<c-r>"//<esc>
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> <localleader>) s（<c-r>"）<esc>
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> <localleader>] s〔<c-r>"〕<esc>
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> <localleader>} s【<c-r>"】<esc>
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> <localleader>> s《<c-r>"》<esc>
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> <localleader>@ s“<c-r>"”<esc>
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> <localleader>~ s‘<c-r>"’<esc>
-
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i) lT（oht）
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a) lF（ohf）
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i] lT〔oht〕
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a] lF〔ohf〕
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i} lT【oht】
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a} lF【ohf】
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i> lT《oht》
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a> lF《ohf》
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i@ lT“oht”
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a@ lF“ohf”
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> i~ lT‘oht’
-autocmd FileType markdown,tex,dokuwiki xnoremap <buffer> a~ lF‘ohf’
-
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i) :norm vi)<cr>
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a) :norm va)<cr>
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i] :norm vi]<cr>
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a] :norm va]<cr>
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i} :norm vi}<cr>
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a} :norm va}<cr>
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i> :norm vi><cr>
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a> :norm va><cr>
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i@ :norm vi@<cr>
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a@ :norm va@<cr>
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> i~ :norm vi~<cr>
-autocmd FileType markdown,tex,dokuwiki onoremap <buffer> a~ :norm va~<cr>
-
-autocmd FileType markdown nnoremap <buffer> <localleader>v :AsyncRun typora %<cr>
-autocmd FileType html nnoremap <buffer> <localleader>v :AsyncRun firefox %<cr>
+"autocmd FileType markdown nnoremap <buffer> <localleader>v :AsyncRun typora %<cr>
+"autocmd FileType html nnoremap <buffer> <localleader>v :AsyncRun firefox %<cr>
 autocmd FileType html,xml cnoremap <buffer> fmt<tab> %s/\(<[^<>]\+>\)\@<=\\|\(>\)\@<!\(<\/[^<>]\+>\)\@=/\r/g
-
-let pattern_cif = '\<if\>:\<else\ if\>:\<else\>'
-let pattern_pif = '\<if\>:\<elif\>:\<else\>'
-let pattern_shif = '\<if\>:\<else\ if\>\|\<elif\>:\<else\>:\<fi\>'
-let pattern_vif = '\<if\>:\<elseif\>:\<else\>:\<endif\>'
-
-let pattern_sh = '\<do\>:\<done\>,\<case\>:\<esac\>'
-let pattern_matlab = '\(^\s*\)\@<=\(while\|for\|function\|if\)\>:\(^\s*\)\@<=end\>'
-let pattern_vim = '\<\(function\|while\|for\)\>:\<end\1\>'
-
-let pattern_html = '<\([a-zA-Z0-9_-]\+\)\(\s\+.*\)*>:</\1>,<!--:-->'
-let pattern_tex = '\\begin{\(.\+\)}:\\end{\1},\\left\>:\\right\>'
-
-let pattern_ccmt = '\/\*:\*\/'
-let pattern_jcmt = '\/\*\*:\*\/'
-
-let pattern_hgpp = '<#:\(\\\)\@<!>'
-
-let pattern_zh_cn = '（:）,【:】,‘:’,“:”,〔:〕,《:》'
-
-autocmd FileType c,cpp let b:match_words=pattern_cif.','.pattern_ccmt
-autocmd FileType java let b:match_words=pattern_cif.','.pattern_ccmt.','.pattern_jcmt
-autocmd FileType python let b:match_words=pattern_pif
-autocmd FileType sh let b:match_words=pattern_sh.','.pattern_shif
-autocmd FileType matlab let b:match_words=pattern_matlab
-autocmd FileType vim let b:match_words=pattern_vim.','.pattern_vif
-
-autocmd FileType html,xml,vue let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_zh_cn
-autocmd FileType tex let b:match_words=pattern_tex.','.pattern_zh_cn
-autocmd FileType markdown,dokuwiki let b:match_words=pattern_html.','.pattern_hgpp.','.pattern_tex.','.pattern_zh_cn
-autocmd FileType remind let b:match_words=pattern_zh_cn
-
-"autocmd FileType tex nnoremap <buffer> \<tab> /<+\(\w\\|\ \)*+><cr>gn
-
-set tabstop=4
-set shiftwidth=4
-autocmd FileType yaml,haskell,lhaskell setl tabstop=2
-autocmd FileType yaml,haskell,lhaskell setl shiftwidth=2
-autocmd FileType python,yaml,rust,haskell,lhaskell setl expandtab
-" tab settings
 
 nnoremap dt ^x
 nnoremap d2t ^xx
@@ -461,38 +339,6 @@ autocmd BufRead,BufNewFile * syn match GppMacro /<#\w\+\|\(<#\w\+\([^>]\|\\>\)*\
 
 " highlighting configs for SyntaxRange
 "autocmd BufRead,BufNewFile * call SyntaxRange#IncludeEx('start=/\<vimc\=:/ skip=/\\:/ end=/\(\\\)\@<!:/', 'vim')
-
-autocmd FileType markdown call SyntaxRange#Include('```c', '```', 'c', 'NonText')
-autocmd FileType markdown call SyntaxRange#Include('```cpp', '```', 'cpp', 'NonText')
-autocmd FileType markdown call SyntaxRange#Include('```java', '```', 'java', 'NonText')
-autocmd FileType markdown call SyntaxRange#Include('```python', '```', 'python', 'NonText')
-autocmd FileType markdown call SyntaxRange#Include('```haskell', '```', 'haskell', 'NonText')
-
-autocmd FileType markdown,dokuwiki call SyntaxRange#Include('\$\$', '\$\$', 'tex')
-"autocmd FileType markdown,dokuwiki call SyntaxRange#IncludeEx('start=/\$/ skip=/\\\$/ end=/\(\\\)\@<!\$/', 'tex')
-
-autocmd FileType tex call SyntaxRange#Include('\\begin{lstlisting}\[language=c', '\\end{lstlisting}', 'c', 'NonText')
-autocmd FileType tex call SyntaxRange#Include('\\begin{lstlisting}\[language=cpp', '\\end{lstlisting}', 'cpp', 'NonText')
-autocmd FileType tex call SyntaxRange#Include('\\begin{lstlisting}\[language=java', '\\end{lstlisting}', 'java', 'NonText')
-autocmd FileType tex call SyntaxRange#Include('\\begin{lstlisting}\[language=python', '\\end{lstlisting}', 'python', 'NonText')
-autocmd FileType tex call SyntaxRange#Include('\\begin{lstlisting}\[language=haskell', '\\end{lstlisting}', 'haskell', 'NonText')
-
-autocmd FileType dokuwiki call SyntaxRange#Include('<file c', '</file>', 'c', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<file cpp', '</file>', 'cpp', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<file java', '</file>', 'java', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<file python', '</file>', 'python', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<file haskell', '</file>', 'haskell', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<file php', '</file>', 'php', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<file html', '</file>', 'html', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<code c', '</code>', 'c', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<code cpp', '</code>', 'cpp', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<code java', '</code>', 'java', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<code python', '</code>', 'python', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<code haskell', '</code>', 'haskell', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<code php', '</code>', 'php', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<code html', '</code>', 'html', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<php>', '</php>', 'php', 'NonText')
-autocmd FileType dokuwiki call SyntaxRange#Include('<html>', '</html>', 'html', 'NonText')
 
 "function SafePath(input)
 	"return substitute(a:input, "[]()*# $&\\[]", "\\\\\\\\&", "g")
