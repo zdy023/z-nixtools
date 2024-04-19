@@ -1,0 +1,49 @@
+% This is an example file of the prompt file format
+% Lines leading with a % are considered comments
+
+% gives the target model type, usually chat/instruct
+%%% chat
+
+``` input
+% Also can defines several reusable segments
+% use ${xxx} to define template slots
+% use ${image_xxx} to define image slots
+% use ${imagef:xxx:w:h} to define constant image input from files
+The task is ${task}. You're currently at ${position}. You can see ${image_view}.
+
+Please give me several advices about my next action.
+```
+
+``` action
+According the environment, I think ${thoughts}. Thus, I advise ${advice}.
+```
+
+---system
+% use --- to define roles
+You're a helpful assistant. Now I'm in a dungeon. Please give me several action advices according to my situation.
+
+\\\---
+% Here, we want to insert a markdown style horizontal line, but --- is confused
+% with the role marks. Don't worry, use \\\ to mark a literal line. The
+% contents behind \\\ are not deemed special.
+
+Let's have a look of the entire environment of the dungeon.
+${imagef:dungeon.jpg:768:512}
+% if the width and height are ignored, the image should be considered the original size.
+
+\\\---
+
+I will give you several examples. You can give me advices imitating the examples.
+---user
+% Use === to insert a defined segment. Remember to specify an identifier to
+% distinguish this instance from others. This identifier will be appended to
+% the original slot names, e.g., given identifier eg1:
+% ${xxx} -> ${xxx_eg1}
+% ${image_xxx} -> ${image_xxx_eg1}
+% ${imagef:xxx.png:64:64} -> ${imagef:xxx_eg1.png:64:64}
+=== input eg1
+---assistant
+=== action eg1
+---user
+% After examples, give the current problem and expect the answers!
+=== input current

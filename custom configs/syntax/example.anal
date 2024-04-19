@@ -1,0 +1,46 @@
+# vim: set filetype=anal:
+# This is an example file of analysis format
+# Lines leading with a # are considered comments
+
+# Example Analysis
+
+# So let's appoint several special letters:
+# F: refer to a file
+# P: the experiment phenomenon
+# R: the conclusion of reason
+# S: reference website
+# Note you can use any letter if you want
+
+|1. This is section title.
+
+Remember the sections should be numbered.
+
+Maybe we can refer to a file:
+F: support.file
+
+|2. Another section
+
+F: results2.log
+P: description of the phenomenon
+TODO: check the reason of this wired phenomenon
+I: Lookup some information from Google
+S: Google
+F: theorems.pdf
+# Use TODO or I to mark the action instruction
+
+|3. Further phenomena
+
+F: results3.log
+P: phenomenon 1
+P: phenomenon 2
+I: Work out the reason ✓
+R: reason
+# use ✓ or ✗ or i at the end of line to mark a line or action
+
+|4. A code section
+
+vimc: call SyntaxRange#Include('```sh', '```', 'sh', 'NonText'):
+
+```sh
+echo "Hello, World!"
+```

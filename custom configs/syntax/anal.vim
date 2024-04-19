@@ -1,3 +1,4 @@
+" vimc: novimc:
 syn match AnalSecTitle /^|\d\+\.\ .*$/
 syn match Comment /^#.*$/
 syn match AnalMetaInfo /^[A-Z]:\ /
