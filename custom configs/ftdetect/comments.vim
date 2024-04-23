@@ -17,6 +17,7 @@ autocmd FileType vim nnoremap <buffer> <localleader>cc I"<Esc>
 " vim comment
 
 autocmd FileType tex,matlab,prolog nnoremap <buffer> <localleader>cc I%<Esc>
+autocmd FileType tex,matlab,prolog,prompt nnoremap <buffer> <localleader>ct I%<Space><Esc>
 autocmd FileType sql,vhdl,haskell nnoremap <buffer> <localleader>cc I--<Space><Esc>
 autocmd FileType haskell nnoremap <buffer> cic I{- <esc>
 autocmd FileType haskell nnoremap <buffer> cac A -}<esc>
