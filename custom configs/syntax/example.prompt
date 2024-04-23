@@ -18,6 +18,16 @@ Please give me several advices about my next action.
 According the environment, I think ${thoughts}. Thus, I advise ${advice}.
 ```
 
+% we can give several default/demo values for the slots
+% here the last '\n' of the value will be trimmed
+### task
+to put two cards in the bed
+###
+
+### position
+the middle of room
+###
+
 ---system
 % use --- to define roles
 You're a helpful assistant. Now I'm in a dungeon. Please give me several action advices according to my situation.

@@ -1,8 +1,9 @@
-syn match PromptMark /^\(%%%\|---\|```\|===\)/ contained
+syn match PromptMark /^\(%%%\|---\|```\|===\|###\)/ contained
 syn match PromptMeta /^%%% *\w*$/ contains=PromptMark " instruct/chat model
 syn match PromptRole /^--- *\w*$/ contains=PromptMark " system/user/assistant
 
 syn match PromptSegDef /^```\( \w\+\)\=$/ contains=PromptMark " define reusable segments
+syn match PromptValDef /^###\( \w\+\)\=$/ contains=PromptMark " define default values for slots
 " instantiate a reusable segments, the given suffix will be appended to slot
 " names (or main name of image file names) to distinguish different instances
 syn match PromptSegIns /^=== \w\+ \w\+$/ contains=PromptMark
@@ -24,6 +25,7 @@ hi PromptMeta term=underline cterm=bold ctermfg=red
 hi PromptRole term=italic cterm=italic ctermfg=magenta
 
 hi PromptSegDef term=bold cterm=bold ctermfg=cyan
+hi PromptValDef term=bold cterm=bold ctermfg=green
 hi PromptSegIns term=bold cterm=bold ctermfg=blue
 
 hi link PromptEscapeLine Normal
