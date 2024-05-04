@@ -66,6 +66,7 @@ Plugin 'mbbill/undotree'
 Plugin 'chrisbra/NrrwRgn'
 "Plugin 'vim-scripts/AnsiEsc.vim'
 Plugin 'chrisbra/Colorizer'
+Plugin 'junegunn/vim-easy-align'
 
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
@@ -194,6 +195,9 @@ map <Leader><Leader>n <Plug>(easymotion-next)
 map <Leader><Leader>N <Plug>(easymotion-prev)
 
 let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
+
+xmap ga <Plug>(EasyAlign)
+nmap ga <Plug>(EasyAlign)
 
 "tnoremap ;; <c-w>:tabn<CR>
 "tnoremap ,, <c-w>:tabN<CR>
