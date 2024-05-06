@@ -170,25 +170,30 @@ nnoremap <localleader>- :set conceallevel-=1<cr>
 set ttimeoutlen=100
 
 " <Leader>f{char} to move to {char}
-map  <Leader><Leader>f <Plug>(easymotion-bd-f)
-nmap <Leader><Leader>f <Plug>(easymotion-overwin-f)
+"map  <Leader><Leader>f <Plug>(easymotion-bd-f)
+"nmap <Leader><Leader>f <Plug>(easymotion-overwin-f)
+map t <Plug>(easymotion-bd-f)
+map T <Plug>(easymotion-bd-F)
 
 " s{char}{char} to move to {char}{char}
 nmap <Leader><Leader>s <Plug>(easymotion-overwin-f2)
 
 " Move to line
-map <Leader><Leader>L <Plug>(easymotion-bd-jk)
-nmap <Leader><Leader>L <Plug>(easymotion-overwin-line)
+"map <Leader><Leader>L <Plug>(easymotion-bd-jk)
+"nmap <Leader><Leader>L <Plug>(easymotion-overwin-line)
+map K <Plug>(easymotion-bd-jk)
 
 " Move to word
-map  <Leader><Leader>w <Plug>(easymotion-bd-w)
-nmap <Leader><Leader>w <Plug>(easymotion-overwin-w)
+"map  <Leader><Leader>w <Plug>(easymotion-bd-w)
+"nmap <Leader><Leader>w <Plug>(easymotion-overwin-w)
 
 " Gif config
-map <Leader><Leader>l <Plug>(easymotion-lineforward)
+"map <Leader><Leader>l <Plug>(easymotion-lineforward)
+"map <Leader><Leader>h <Plug>(easymotion-linebackward)
+map w <Plug>(easymotion-lineforward)
+map b <Plug>(easymotion-linebackward)
 map <Leader><Leader>j <Plug>(easymotion-j)
 map <Leader><Leader>k <Plug>(easymotion-k)
-map <Leader><Leader>h <Plug>(easymotion-linebackward)
 
 map <space>; <Plug>(easymotion-repeat)
 map <Leader><Leader>n <Plug>(easymotion-next)
