@@ -251,10 +251,16 @@ Lines for the preprocessing commands are recognized by the user-specific prefix 
 1. `include`
 
 ```
-include [-PREFIX] [+SUFFIX] FILENAME
+include [-PREFIX] [+SUFFIX] [<LINEPREFIX<] [>LINESUFFIX>] [/PATTERN/SUBSTITUTION/] FILENAME
 ```
 
-Inserts the contents from `FILENAME` at the current position. The preprocessing commands in the included file will be handled as well. A Different prefix or suffix could be specified for the included file.
+Inserts the contents from `FILENAME` at the current position. The preprocessing
+commands in the included file will be handled as well. A Different prefix or
+suffix could be specified for the included file. The command also supports to
+specify a prefix and a suffix for all the included lines, *i.e.*, the included
+lines will be prepended or appended with the specified line prefix/suffix when
+inserting into the referencing file. Also text substituion is allowed when
+processing file including.
 
 2. `define` and `undef`
 

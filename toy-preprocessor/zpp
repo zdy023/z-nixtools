@@ -5,26 +5,53 @@ import re
 import os.path
 import collections
 
-from typing import Iterable, TextIO
-from typing import Dict, Deque, Tuple
+from typing import Iterable, TextIO, Optional, Union
+from typing import Dict, Deque, Tuple, Pattern, List
 
-def parse_include_arguments(command_line):
+line_prefix_mark_pattern: Pattern[str] = re.compile(r"(?<!\\)<")
+line_suffix_mark_pattern: Pattern[str] = re.compile(r"(?<!\\)>")
+line_subs_mark_pattern: Pattern[str] = re.compile(r"(?<!\\)/")
+def parse_include_arguments(command_line: str) ->\
+        Tuple[ Optional[str], Optional[str]
+             , Optional[str], Optional[str]
+             , Optional[str], str
+             ]:
     """
-    command_line - str
+    Args:
+        command_line (str): the remaining arguments to parse
 
-    return
-    - str or None - prefix
-    - str or None - suffix
-    - str - remaining command line
+    Returns:
+        Optional[str]: prefix definition
+        Optional[str]: suffix definition
+        Optional[str]: line prefix to prepend
+        Optional[str]: line suffix to append
+        Optional[str]: line substitution rule
+        str: remaining command line
     """
 
     if command_line.startswith("-"):
         items = command_line.split(maxsplit=1)
-        return items[0][1:], None, items[1]
+        return items[0][1:], None, None, None, None, items[1]
     if command_line.startswith("+"):
         items = command_line.split(maxsplit=1)
-        return None, items[0][1:], items[1]
-    return None, None, command_line
+        return None, items[0][1:], None, None, None, items[1]
+    if command_line.startswith("<"):
+        endposition: int = line_prefix_mark_pattern.search(command_line, 1).end()
+        return None, None\
+             , command_line[1:endposition-1].replace(r'\<', '<'), None\
+             , None, command_line[endposition:].strip()
+    if command_line.startswith(">"):
+        endposition: int = line_suffix_mark_pattern.search(command_line, 1).end()
+        return None, None\
+             , None, command_line[1:endposition-1].replace(r'\>', '>')\
+             , None, command_line[endposition:].strip()
+    if command_line.startswith("/"):
+        endposition1: int = line_subs_mark_pattern.search(command_line, 1).end()
+        endposition2: int = line_subs_mark_pattern.search(command_line, endposition1).end()
+        return None, None, None, None\
+             , (command_line[1:endposition1-1], command_line[endposition1:endposition2-1])\
+             , command_line[endposition2:].strip()
+    return None, None, None, None, None, command_line
 
 _condition_pattern = re.compile(r"(?P<if>if|elif)(?P<not>n?)(?P<rel>def|eq)")
 def include( input_file: Iterable[str]
@@ -32,6 +59,7 @@ def include( input_file: Iterable[str]
            , configs: Dict[str, str]
            , states: Dict[str, Dict[str, str]]
            , if_stack: Deque[Tuple[bool, bool]]
+           , modifications: Dict[str, Union[str, List[Tuple[str, str]]]]
            ):
     #  function `include` {{{ # 
     """
@@ -53,6 +81,12 @@ def include( input_file: Iterable[str]
             matched ever
           - the second item indicates whether the current if-block is matched
             right now
+        modifications (Dict[str, Union[str, List[Tuple[str, str]]]]): dict like
+          {
+            "line_prefix": str
+            "line_suffix": str
+            "line_subs": list of tuple like (str, str)
+          }
     """
 
     macros = states["macros"]
@@ -60,6 +94,10 @@ def include( input_file: Iterable[str]
     prefix = configs["prefix"]
     suffix = configs["suffix"]
     path = configs["path"]
+
+    line_prefix: str = modifications.get("line_prefix", "")
+    line_suffix: str = modifications.get("line_suffix", "")
+    line_subs: List[Tuple[str, str]] = modifications.get("line_subs", [])
 
     for l in input_file:
         unstripped_line = l[:-1]
@@ -87,29 +125,44 @@ def include( input_file: Iterable[str]
                 if if_stack[-1][1]:
                     in_prefix = prefix
                     in_suffix = suffix
-                    prefix_, suffix_, remaining = parse_include_arguments(command[1])
-                    while prefix_ is not None or suffix_ is not None:
+                    in_line_prefix = ""
+                    in_line_suffix = ""
+                    in_line_subs: List[Tuple[str, str]] = []
+
+                    prefix_, suffix_, line_prefix_, line_suffix_, new_line_sub, remaining = parse_include_arguments(command[1])
+                    # parse the arguments iteratively
+                    while True:
                         if prefix_ is not None:
                             in_prefix = prefix_
                         elif suffix_ is not None:
                             in_suffix = suffix_
+                        elif line_prefix_ is not None:
+                            in_line_prefix = line_prefix_
+                        elif line_suffix_ is not None:
+                            in_line_suffix = line_suffix_
+                        elif new_line_sub is not None:
+                            in_line_subs.append(new_line_sub)
+                        else:
+                            break
 
-                        prefix_, suffix_, remaining = parse_include_arguments(remaining)
+                        prefix_, suffix_, line_prefix_, line_suffix_, new_line_sub, remaining = parse_include_arguments(remaining)
 
                     include_file = os.path.join(path, remaining)
                     in_path = os.path.dirname(include_file)
 
                     with open(include_file) as incl_f:
-                        include(incl_f, output_file,
-                            configs={
-                                "prefix": in_prefix,
-                                "suffix": in_suffix,
-                                "path": in_path
-                            },
-                            states={
-                                "macros": macros,
-                            },
-                            if_stack=if_stack)
+                        include( incl_f, output_file
+                               , configs={ "prefix": in_prefix
+                                         , "suffix": in_suffix
+                                         , "path": in_path
+                                         }
+                               , states={"macros": macros}
+                               , if_stack=if_stack
+                               , modifications={ "line_prefix": line_prefix + in_line_prefix
+                                               , "line_suffix": line_suffix + in_line_suffix
+                                               , "line_subs": line_subs + in_line_subs
+                                               }
+                               )
 
             elif command[0]=="else":
                 if_stack[-1][1] = if_stack[-2][1] and not if_stack[-1][0]
@@ -142,12 +195,16 @@ def include( input_file: Iterable[str]
                     if if_stack[-1][1]:
                         for mcr, mcr_val in macros.items():
                             unstripped_line = re.sub(r"\b" + mcr + r"\b", mcr_val, unstripped_line, flags=re.ASCII)
-                        output_file.write(unstripped_line + "\n")
+                        for ptn, sstt in line_subs:
+                            unstripped_line = re.sub(ptn, sstt, unstripped_line)
+                        output_file.write(line_prefix + unstripped_line + line_suffix + "\n")
         else:
             if if_stack[-1][1]:
                 for mcr, mcr_val in macros.items():
                     unstripped_line = re.sub(r"\b" + mcr + r"\b", mcr_val, unstripped_line, flags=re.ASCII)
-                output_file.write(unstripped_line + "\n")
+                for ptn, sstt in line_subs:
+                    unstripped_line = re.sub(ptn, sstt, unstripped_line)
+                output_file.write(line_prefix + unstripped_line + line_suffix + "\n")
     #  }}} function `include` # 
 
 def main():
@@ -220,16 +277,15 @@ J: Java Comment Mode, e.g., // include class.java""")
 
     with open(args.file) as in_f,\
             open(args.output, "w") as out_f:
-        include(in_f, out_f,
-            configs={
-                "prefix": prefix,
-                "suffix": suffix,
-                "path": path
-            },
-            states={
-                "macros": macros,
-            },
-            if_stack=if_stack)
+        include( in_f, out_f
+               , configs={ "prefix": prefix
+                         , "suffix": suffix
+                         , "path": path
+                         }
+               , states={"macros": macros}
+               , if_stack=if_stack
+               , modifications={}
+               )
 
 if __name__ == "__main__":
     main()
