@@ -190,8 +190,10 @@ map K <Plug>(easymotion-bd-jk)
 " Gif config
 "map <Leader><Leader>l <Plug>(easymotion-lineforward)
 "map <Leader><Leader>h <Plug>(easymotion-linebackward)
-map w <Plug>(easymotion-lineforward)
-map b <Plug>(easymotion-linebackward)
+nmap w <Plug>(easymotion-lineforward)
+nmap b <Plug>(easymotion-linebackward)
+xmap w <Plug>(easymotion-lineforward)
+xmap b <Plug>(easymotion-linebackward)
 map <Leader><Leader>j <Plug>(easymotion-j)
 map <Leader><Leader>k <Plug>(easymotion-k)
 
