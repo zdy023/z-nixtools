@@ -251,16 +251,45 @@ Lines for the preprocessing commands are recognized by the user-specific prefix 
 1. `include`
 
 ```
-include [-PREFIX] [+SUFFIX] [<LINEPREFIX<] [>LINESUFFIX>] [/PATTERN/SUBSTITUTION/] FILENAME
+include [-PREFIX] [+SUFFIX] [<LINEPREFIX<] [>LINESUFFIX>] [/REGEX/SUBSTITUTION/] FILENAME
 ```
 
 Inserts the contents from `FILENAME` at the current position. The preprocessing
-commands in the included file will be handled as well. A Different prefix or
-suffix could be specified for the included file. The command also supports to
-specify a prefix and a suffix for all the included lines, *i.e.*, the included
-lines will be prepended or appended with the specified line prefix/suffix when
-inserting into the referencing file. Also text substituion is allowed when
-processing file including.
+commands in the included file will be handled as well.
+
+A different command prefix or suffix could be specified for the included file.
+For example, the main file is preprocessed under `H` mode, *i.e.*, with prefix
+`<!--` and suffix `-->`. Now I want to include a file `foo.ctxt` with C-style
+preprocessing command prefix, I can use `include` command as:
+
+```
+<!-- include -# + foo.ctxt -->
+```
+
+The command also supports to specify a prefix and a suffix for all the included
+lines, *i.e.*, the included lines will be prepended or appended with the
+specified line prefix/suffix when inserting into the referencing file. For
+instance, I'm writing a README in markdown. I want to include the contents from
+another file `b.md` and make the included contents into quotations, I can use
+`include` command as:
+
+```
+<!-- include <> < b.md -->
+```
+
+Then, all the inserted contents will be prefixed a `> ` so that they will be
+rendered as quotations.
+
+Also text substituion is allowed when processing file including. The regex
+syntax follows [`re`](https://docs.python.org/3/library/re.html) module of
+Python 3.
+
+Normally, a relative path is expected. However, you can also specify an
+absolute path by prefixing `FILENAME` with a `#`. For instance,
+
+```
+% include /None/?/ #/home/foo/some/project/some/file
+```
 
 2. `define` and `undef`
 

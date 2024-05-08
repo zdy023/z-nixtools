@@ -147,7 +147,10 @@ def include( input_file: Iterable[str]
 
                         prefix_, suffix_, line_prefix_, line_suffix_, new_line_sub, remaining = parse_include_arguments(remaining)
 
-                    include_file = os.path.join(path, remaining)
+                    if remaining.startswith("#"):
+                        include_file: str = remaining.lstrip("#") # use "#" to distinguish an absolute path from the replacement rules
+                    else:
+                        include_file: str = os.path.join(path, remaining)
                     in_path = os.path.dirname(include_file)
 
                     with open(include_file) as incl_f:
