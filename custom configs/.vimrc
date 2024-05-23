@@ -172,11 +172,13 @@ set ttimeoutlen=100
 " <Leader>f{char} to move to {char}
 "map  <Leader><Leader>f <Plug>(easymotion-bd-f)
 "nmap <Leader><Leader>f <Plug>(easymotion-overwin-f)
-map t <Plug>(easymotion-bd-f)
-map T <Plug>(easymotion-bd-F)
+nmap t <Plug>(easymotion-fl)
+nmap T <Plug>(easymotion-Fl)
+xmap t <Plug>(easymotion-fl)
+xmap T <Plug>(easymotion-Fl)
 
 " s{char}{char} to move to {char}{char}
-nmap <Leader><Leader>s <Plug>(easymotion-overwin-f2)
+nmap <Leader><Leader>s <Plug>(easymotion-bd-fl2)
 
 " Move to line
 "map <Leader><Leader>L <Plug>(easymotion-bd-jk)
