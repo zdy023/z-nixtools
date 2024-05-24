@@ -218,9 +218,9 @@ def main():
     parser.add_argument("--nosuffix", action="store_const", const="", dest="suffix",
         help="No suffices is in need.")
     parser.add_argument("--mode", "-m", default="H", type=str, choices=["H", "T", "C", "J"],
-        help="""
+        help="""\
 H: HTML Comment Mode, e.g., <!-- include a.js -->
-T: TeX Comment Mode, e.g., %% define TeX \LaTeX
+T: TeX Comment Mode, e.g., %% define TeX \\LaTeX
 C: C Preprocessing Instruction Mode, e.g., #define A_TOY_PREPROCESSOR
 J: Java Comment Mode, e.g., // include class.java""")
 
