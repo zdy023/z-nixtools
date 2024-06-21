@@ -312,13 +312,23 @@ ifdef MACRO_NAME
 ifndef MACRO_NAME
 ifeq MACRO_NAME MACRO_VALUE
 ifneq MACRO_NAME MACRO_VALUE
+ifeqn MACRO_NAME MACRO_VALUE
+ifneqn MACRO_NAME MACRO_VALUE
+ifge MACRO_NAME MACRO_VALUE
+ifnge MACRO_NAME MACRO_VALUE
+ifle MACRO_NAME MACRO_VALUE
+ifnle MACRO_NAME MACRO_VALUE
+ifgt MACRO_NAME MACRO_VALUE
+ifngt MACRO_NAME MACRO_VALUE
+iflt MACRO_NAME MACRO_VALUE
+ifnlt MACRO_NAME MACRO_VALUE
 elifdef MACRO_NAME
 elifndef MACRO_NAME
 elifeq MACRO_NAME MACRO_VALUE
 elifneq MACRO_NAME MACRO_VALUE
 ```
 
-`def` checks if a macro is already defined and `eq` checks if a macro is already defined and if the macro definition equals to the given value. `n` will reverse the check result. However, note that if a macro is not defined, `neq` will leads to false which is the same as `eq`.
+`def` checks if a macro is already defined and `eq` checks if a macro is already defined and if the macro definition equals to the given value. `eqn`, `ge`, `le`, `gt`, and `lt` will compare the values in number. `n` will reverse the check result. However, note that if a macro is not defined, `neq` and `neqn` will lead to false which is the same as `eq` and `eqn`.
 
 `if` commands starts a if block and `elif` commands give another choice.
 
