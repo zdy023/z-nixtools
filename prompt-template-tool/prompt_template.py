@@ -503,7 +503,7 @@ class TemplateGroup:
         for l in prompt.splitlines():
             if l.startswith("% ")\
                     or l[:3] in { "%%%", "---", "\\\\\\"
-                                , "111", "###", "==="
+                                , "```", "###", "==="
                                 }:
                 escaped_lines.append("\\\\\\" + l)
             else:
