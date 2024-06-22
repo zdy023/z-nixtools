@@ -264,6 +264,24 @@ def preprocess( input_file: Iterable[str], output_file: TextIO
               , configs: Dict[str, str]
               , states: Dict[str, Dict[str, str]]
               ):
+    """
+    Args:
+        input_file (Iterable[str]): input file as line sequence
+        output_file (TextIO): output file
+        configs (Dict[str, str]): dict like
+          {
+            "prefix": str,
+            "suffix": str,
+            "path": str
+          }
+          configuring the prefix, suffix, and working path
+        states (Dict[str, Dict[str, str]): dict like
+          {
+            "macros": dict like {str: str}
+          }
+          defining macros
+    """
+
     if_stack = collections.deque([[True, True]])
     include(input_file, output_file, configs, states, if_stack, {})
 
