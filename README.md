@@ -384,6 +384,162 @@ could be used to check the activity which a specific window is on. By this way,
 the script can determine the correct firefox window to which the new tab should
 be moved.
 
+## Prompt Template Tool
+
+This is a template tool to work with LLM prompts. It utilize `zpp` for text
+preprocessing.
+
+### Typical Usage
+
+```python
+from prompt_template import TemplateGroup, PromptGroupT
+from PIL import Image
+import openai
+
+template: TemplateGroup = TemplateGroup.parse("main.prompt")
+prompt: PromptGroupT = template.safe_substitute( text_mapping={"slot": "value"}
+                                               , img_mapping={"slot": Image.open("a.png")}
+                                               )
+completor = openai.OpenAI(api_key="sk-xxx")
+completion = completor.chat.completions.create( model="gpt-3.5-turbo-1106"
+                                              , messages=prompt
+                                              )
+```
+
+### Prompt Template Syntax
+
+#### Placeholders
+
+This tool supports the same format of placeholders as the default format of
+Python's `string.Template`. You can use `$slot` or `${slot}` to specify a text
+placeholder and use `$$` to specify a literal `$`.
+
+This tool also supports image placeholders. You can use `$image_slot` or
+`${image_slot}` to specify a image placeholder. Note the placeholder is
+supposed to reference to in `img_mapping` argument of `safe_substitute` method
+without the `image_` prefix, *i.e.*, you should use `slot` to reference to
+placeholder `$image_slot`. You can also use `${imagef:const.jpg}` to specify an
+image constant. Optional resizing can be declared by specifying the new width
+and height `${imagef:const.jpg:1080:1920}`.
+
+#### Meta Commands
+
+##### Basic Commands
+
+```
+%%% chat
+```
+
+declares the target prompt format, typically chat completion (`chat`) or text
+completion (`instruct`).
+
+```
+---system
+```
+
+specifies the role of the following contents until meeting the next `---role`.
+The roles used by OpenAI commands are `system`, `user`, and `assistant`.
+
+```
+### slot
+Contents
+###
+```
+
+defines an optional default value for text placeholders. Note that the last
+`\n` of `Contents` (*i.e.*, before the ending `###`) is ignored during
+substituion.
+
+```
+### image_slot
+${imagef:default.png:300:500}
+###
+```
+
+defines optional default image for image placeholders.
+
+```
+% comments
+```
+
+Such lines are considered comments.
+
+```
+\\\%%% NOTE! This is a literal line
+```
+
+When you want to use several lines which will be confused with the special meta
+lines in the prompt, you can precede the line with `\\\` to escapte it.
+
+##### Snippet Definitions
+
+	``` snippet_name
+	snippet contents
+	```
+
+declares a snippet that can be re-used.
+
+```
+=== snippet_name instance_id
+```
+
+instantiate a declared snippet. To distinguish the placeholders in different
+instances of a snippet, you can reference the placeholder by the name declared
+in the snippet suffixing the `instance_id`, both in `safe_substitute` method
+and `###` default value declaration, both for text and image plachoders. For
+instance, the following snippet defines two placeholders: `${slot}` and
+`${image_slot}`:
+
+	``` snippet
+	Text placeholder: ${slot}
+	Image placeholder: ${image_slot}
+	```
+
+And we create an instance:
+
+```
+=== snippet id
+```
+
+Then you can use following commands to declare default value for this instance
+
+```
+### slot_id
+default text
+###
+
+### image_slot_id
+${imagef:default_image.png}
+###
+```
+
+or substitue placeholders by
+
+```python
+template.safe_substitute( text_mapping={"slot_id": "running text"}
+                        , img_mapping={"slot_id": running_image}
+                        )
+```
+
+If you don't want to declare default values for each instance separately, you
+can also declare a common default value like:
+
+```
+### slot
+common default text
+###
+```
+
+### Zpp preprocessing
+
+[Zpp](#toy-preprocessor) preprocessing commands like `include`, `define`,
+`ifdef`, *etc.* are also supported. This tool adopts the TeX mode by default.
+
+### Example and Highlighting
+
+An example and a syntax Highlighting file for vim is offered under `custom
+configs/syntax`.
+
 ## Other Tiny Tools
 
 * `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely
