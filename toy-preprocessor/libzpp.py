@@ -20,7 +20,7 @@ line_subs_mark_pattern: Pattern[str] = re.compile(r"(?<!\\)/")
 def parse_include_arguments(command_line: str) ->\
         Tuple[ Optional[str], Optional[str]
              , Optional[str], Optional[str]
-             , Optional[str], str
+             , Optional[Tuple[str, str]], str
              ]:
     """
     Args:
@@ -31,7 +31,7 @@ def parse_include_arguments(command_line: str) ->\
         Optional[str]: suffix definition
         Optional[str]: line prefix to prepend
         Optional[str]: line suffix to append
-        Optional[str]: line substitution rule
+        Optional[Tuple[str, str]]: line substitution rule
         str: remaining command line
     """
 
@@ -55,7 +55,7 @@ def parse_include_arguments(command_line: str) ->\
         endposition1: int = line_subs_mark_pattern.search(command_line, 1).end()
         endposition2: int = line_subs_mark_pattern.search(command_line, endposition1).end()
         return None, None, None, None\
-             , (command_line[1:endposition1-1], command_line[endposition1:endposition2-1])\
+             , (command_line[1:endposition1-1].replace(r'\/', '/'), command_line[endposition1:endposition2-1].replace(r'\/', '/'))\
              , command_line[endposition2:].strip()
     return None, None, None, None, None, command_line
 
@@ -72,6 +72,17 @@ def parse_number(number_str: str) -> Union[None, int, float]:
         pass
     logger.warning("%s is neither interger nor float.", number_str)
     return None
+
+def _print_plainline( line: str, macros: Dict[str, str], line_subs: List[Tuple[str, str]]
+                    , line_prefix: str, line_suffix: str
+                    ) -> str:
+    #  function _print_plainline {{{ # 
+    for mcr, mcr_val in macros.items():
+        line = re.sub(r"\b" + mcr + r"\b", mcr_val, line, flags=re.ASCII)
+    for ptn, sstt in line_subs:
+        line = re.sub(ptn, sstt, line)
+    return line_prefix + line + line_suffix + "\n"
+    #  }}} function _print_plainline # 
 
 _condition_pattern = re.compile(r"(?P<if>if|elif)(?P<not>n?)(?P<rel>def|eqn?|[lg][et])")
 def include( input_file: Iterable[str]
@@ -129,9 +140,7 @@ def include( input_file: Iterable[str]
             command = candidate.split(maxsplit=1)
             if len(command)<1:
                 if if_stack[-1][1]:
-                    for mcr, mcr_val in macros.items():
-                        unstripped_line = re.sub(r"\b" + mcr + r"\b", mcr_val, unstripped_line, flags=re.ASCII)
-                    output_file.write(unstripped_line + "\n")
+                    output_file.write(_print_plainline(unstripped_line, macros, line_subs, line_prefix, line_suffix))
             elif command[0]=="define":
                 if if_stack[-1][1]:
                     arguments = command[1].split(maxsplit=1)
@@ -227,18 +236,10 @@ def include( input_file: Iterable[str]
                         if_stack[-1] = [condition, condition]
                 else:
                     if if_stack[-1][1]:
-                        for mcr, mcr_val in macros.items():
-                            unstripped_line = re.sub(r"\b" + mcr + r"\b", mcr_val, unstripped_line, flags=re.ASCII)
-                        for ptn, sstt in line_subs:
-                            unstripped_line = re.sub(ptn, sstt, unstripped_line)
-                        output_file.write(line_prefix + unstripped_line + line_suffix + "\n")
+                        output_file.write(_print_plainline(unstripped_line, macros, line_subs, line_prefix, line_suffix))
         else:
             if if_stack[-1][1]:
-                for mcr, mcr_val in macros.items():
-                    unstripped_line = re.sub(r"\b" + mcr + r"\b", mcr_val, unstripped_line, flags=re.ASCII)
-                for ptn, sstt in line_subs:
-                    unstripped_line = re.sub(ptn, sstt, unstripped_line)
-                output_file.write(line_prefix + unstripped_line + line_suffix + "\n")
+                output_file.write(_print_plainline(unstripped_line, macros, line_subs, line_prefix, line_suffix))
     #  }}} function `include` # 
 
 MODE_DICT = {
