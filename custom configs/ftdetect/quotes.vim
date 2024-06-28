@@ -43,6 +43,7 @@ autocmd FileType tex xnoremap <buffer> <localleader>! s``<c-r>"''<esc>
 autocmd FileType markdown xnoremap <buffer> <localleader>b s**<c-r>"**<esc>
 autocmd FileType markdown xnoremap <buffer> <localleader>i s*<c-r>"*<esc>
 autocmd FileType markdown xnoremap <buffer> <localleader>e s***<c-r>"***<esc>
+autocmd FileType markdown xnoremap <buffer> <localleader>d s~~<c-r>"~~<esc>
 autocmd FileType tex xnoremap <buffer> <localleader>b s\textbf{<c-r>"}<esc>
 autocmd FileType tex xnoremap <buffer> <localleader>B s{\bf <c-r>"}<esc>
 autocmd FileType tex xnoremap <buffer> <localleader>i s\textit{<c-r>"}<esc>
