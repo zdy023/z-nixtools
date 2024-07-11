@@ -323,13 +323,18 @@ class TemplateGroup:
 
     @classmethod
     def instantiate_snippet( cls, snippet: str, slot_id_suffix: str
-                           , default_values: Dict[str, str]
-                           , default_images: Dict[str, Image.Image]
+                           , default_values: Dict[str, str] = None
+                           , default_images: Dict[str, Image.Image] = None
                            ) -> str:
         #  method instantiate_snippet {{{ # 
         """
         This functions will update default_values.
         """
+
+        if default_values is None:
+            default_values = {}
+        if default_images is None:
+            default_images = {}
 
         def replacer(m: Match[str]) -> str:
             if m.group("imgfpref") is not None:
