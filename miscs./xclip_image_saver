@@ -1,0 +1,15 @@
+#!/bin/bash
+
+file_name=$1
+xclip -o -sel clip >"$file_name"
+
+# data:image/png;base64,
+image_format=$(awk '//{start = index($0, "/"); end = index($0, ";"); print substr($0, start+1, end-start-1);}' "$file_name")
+if [[ $image_format == png ]]; then
+	image_extension=png
+elif [[ $image_format == jpeg ]]; then
+	image_extension=jpg
+fi
+
+awk '//{comma = index($0, ","); print substr($0, comma+1);}' "$file_name" |base64 -d >"$file_name"."$image_extension"
+rm "$file_name"
