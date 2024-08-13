@@ -1,7 +1,7 @@
 from typing import List, Dict, Pattern, Match, Tuple
 from typing import Union, ClassVar, Optional, cast, TypeVar, TextIO
 import string
-import libzpp
+from . import libzpp
 
 from PIL import Image
 import re
@@ -198,10 +198,12 @@ PromptGroupT = MessageGroupT[GeneralMessage]
 class TemplateGroup:
     #  class TemplateGroup {{{ # 
     _slot_regex: ClassVar[Pattern[str]] =\
-            re.compile( r""" (?P<imgfpref>\$\{imagef:) # image file leading
-                             (?P<imgfn>[^:}]+) # image file name
-                             (?P<imgfsuff>(?::(?:\d+):(?:\d+))?\}) # resizing
-                           | (?P<prefix>\$\{?)(?P<slotid>[_a-z0-9]+\b)(?P<suffix>\}?) # slot/image id
+            re.compile( r""" (?P<cpref>(?:^|[^$])(?:\$\$)*) # handle with escaped $
+                             (?: (?P<imgfpref>\$\{imagef:) # image file leading
+                                 (?P<imgfn>[^:}]+) # image file name
+                                 (?P<imgfsuff>(?::(?:\d+):(?:\d+))?\}) # resizing
+                               | (?P<prefix>\$\{?)(?P<slotid>[_a-z0-9]+\b)(?P<suffix>\}?) # slot/image id
+                               )
                          """
                       , re.ASCII | re.VERBOSE
                       )
@@ -341,8 +343,9 @@ class TemplateGroup:
                 main_name: str
                 ext_name: str
                 main_name, ext_name = os.path.splitext(m.group("imgfn"))
-                return "{:}{:}_{:}{:}{:}"\
-                            .format( m.group("imgfpref")
+                return "{:}{:}{:}_{:}{:}{:}"\
+                            .format( m.group("cpref")
+                                   , m.group("imgfpref")
                                    , main_name
                                    , slot_id_suffix
                                    , ext_name
@@ -356,8 +359,9 @@ class TemplateGroup:
                         and m.group("slotid")[6:] in default_images\
                         and new_slot_id[6:] not in default_images:
                     default_images[new_slot_id[6:]] = default_images[m.group("slotid")[6:]]
-                return "{:}{:}{:}"\
-                            .format( m.group("prefix")
+                return "{:}{:}{:}{:}"\
+                            .format( m.group("cpref")
+                                   , m.group("prefix")
                                    , new_slot_id
                                    , m.group("suffix")
                                    )
