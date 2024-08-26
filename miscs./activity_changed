@@ -1,0 +1,25 @@
+#!/bin/bash
+
+changed=false
+script_dir=~/.autoactions/currentActivityChanged
+current_activity_name="$(qdbus org.kde.ActivityManager /ActivityManager/Activities CurrentActivity)"
+echo "$current_activity_name"
+dbus-monitor --session --monitor "type='signal',interface='org.kde.ActivityManager.Activities',member='CurrentActivityChanged'" |
+	while read -r line; do
+		if [[ "$line" == *CurrentActivityChanged ]]; then
+			changed=true
+		elif [[ $changed == true ]]; then
+			activity_name="$(echo "$line" |awk '//{print substr($2, 2, length($2)-2);}')"
+			echo "$activity_name"
+			if [[ -x $script_dir/exit="$current_activity_name" ]]; then
+				$script_dir/"exit=$current_activity_name"
+			fi
+			if [[ -x $script_dir/"$activity_name" ]]; then
+				$script_dir/"$activity_name"
+			fi
+			changed=false
+			current_activity_name="$activity_name"
+		else
+			changed=false
+		fi
+	done

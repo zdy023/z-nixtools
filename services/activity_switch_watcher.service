@@ -1,12 +1,14 @@
 # vim: set filetype=systemd:
 
 [Unit]
-Description=Remote Fcitx-Vim Daemon
+Description=Watch Activity Switch
 StartLimitIntervalSec=60
 StartLimitBurst=4
+After=plasma-kactivitymanagerd.service
+Requires=plasma-kactivitymanagerd.service
 
 [Service]
-ExecStart=%h/.local/bin/remote_fcitx_vim_daemon.py
+ExecStart=%h/.local/bin/activity_changed
 Restart=on-failure
 RestartSec=1
 

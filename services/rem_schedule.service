@@ -1,3 +1,5 @@
+# vim: set filetype=systemd
+
 [Unit]
 Description=Remind My Schedules
 StartLimitIntervalSec=60

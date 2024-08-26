@@ -540,6 +540,38 @@ common default text
 An example and a syntax Highlighting file for vim is offered under `custom
 configs/syntax`.
 
+## KDE Activity Switch Watcher
+
+This tool uses dbus-monitor to monitor the activity switch on KDE Plasma
+desktops and execute scripts automatically.
+
+### Test Environment
+
+* Manjaro 24.0.7 Wynsdey
+* KDE 6.5.0 / Plasma 6.0.5
+* X.Org version: 21.1.13
+* Kernel: x86\_64 Linux 6.6.46-1-MANJARO
+* dbus-broker 36
+* dbus 1.14.10
+* qt5-tools 5.15.14+kde+r4
+* bash 5.2.32
+* GNU Awk 5.3.0, API 4.0, PMA Avon 8-g1, (GNU MPFR 4.2.1, GNU MP 6.3.0)
+* systemd 256.4
+
+### Usage
+
+The scripts to be executed are supposed to be stored under
+`~/.autoactions/currentActivityChanged`. When an activity is left, suppose its
+id is "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", the tool will automatically
+invokes
+`~/.autoactions/currentActivityChanged/exit=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+if it exists and is executable. When an activity is entered, suppose its id is
+"yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy", the tool will automatically invokes
+`~/.autoactions/currentActivityChanged/exit=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy`
+if it exists and is executable.
+
+A service file `activity-switch-watcher.service` is provided in `services`.
+
 ## Other Tiny Tools
 
 * `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely
@@ -548,6 +580,7 @@ configs/syntax`.
 * `easy-snapshots` - rsync configuration for directory snapshots
 * `添加元信息.ptsp` - script for picard
 * `branch-tool` - snapshot the workspace for multi-branch experiment directory
+* `xclip_image_saver` - quick save the image base64 in clipboard to an image file
 
 Corresponding completion configuration:
 
@@ -654,3 +687,4 @@ Under directory `terminator`:
 
 * `~/.config/systemd/user/rem_schedule.service` - for `remind` daemon
 * `~/.config/systemd/user/remote-fcitx-daemon.service` - for `remote-fcitx-vim` daemon
+* `~/.config/systemd/user/activity_switch_watcher.service` - watching KDE activity switch and do actions
