@@ -7,7 +7,11 @@ echo "$current_activity_name"
 dbus-monitor --session --monitor "type='signal',interface='org.kde.ActivityManager.Activities',member='CurrentActivityChanged'" |
 	while read -r line; do
 		if [[ "$line" == *CurrentActivityChanged ]]; then
-			changed=true
+			if [[ -f ~/activity.lock ]]; then
+				qdbus org.kde.ActivityManager /ActivityManager/Activities SetCurrentActivity "$current_activity_name"
+			else
+				changed=true
+			fi
 		elif [[ $changed == true ]]; then
 			activity_name="$(echo "$line" |awk '//{print substr($2, 2, length($2)-2);}')"
 			echo "$activity_name"
