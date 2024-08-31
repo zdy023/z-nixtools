@@ -570,7 +570,11 @@ if it exists and is executable. When an activity is entered, suppose its id is
 `~/.autoactions/currentActivityChanged/exit=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy`
 if it exists and is executable.
 
-A service file `activity-switch-watcher.service` is provided in `services`.
+The entering and exiting scripts can also be specified by activity name like
+`name=workspace` and `exit-name=workspace`.
+
+<!-- A service file `activity-switch-watcher.service` is provided in
+`services`. -->
 
 ## Other Tiny Tools
 

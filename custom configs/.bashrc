@@ -34,7 +34,7 @@ alias gotop="gotop -l .gotop/layout"
 
 alias timetable="vim $HOME/.timetable.rem"
 alias schedule="vim $HOME/.schedule.rem"
-alias showtodo="remind $HOME/.timetable.rem"
+alias showtodo="remind $HOME/.timetable.rem; remind $HOME/.random_sched/hidden_sched.rem"
 # quick alias of schedule management with help of remind
 
 #alias d="dict"

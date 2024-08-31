@@ -2,26 +2,35 @@
 
 changed=false
 script_dir=~/.autoactions/currentActivityChanged
-current_activity_name="$(qdbus org.kde.ActivityManager /ActivityManager/Activities CurrentActivity)"
-echo "$current_activity_name"
+current_activity_id="$(qdbus org.kde.ActivityManager /ActivityManager/Activities CurrentActivity)"
+current_activity_name="$(qdbus org.kde.ActivityManager /ActivityManager/Activities ActivityName "$current_activity_id")"
+echo "$current_activity_id"
 dbus-monitor --session --monitor "type='signal',interface='org.kde.ActivityManager.Activities',member='CurrentActivityChanged'" |
 	while read -r line; do
 		if [[ "$line" == *CurrentActivityChanged ]]; then
 			if [[ -f ~/activity.lock ]]; then
-				qdbus org.kde.ActivityManager /ActivityManager/Activities SetCurrentActivity "$current_activity_name"
+				qdbus org.kde.ActivityManager /ActivityManager/Activities SetCurrentActivity "$current_activity_id"
 			else
 				changed=true
 			fi
 		elif [[ $changed == true ]]; then
-			activity_name="$(echo "$line" |awk '//{print substr($2, 2, length($2)-2);}')"
-			echo "$activity_name"
-			if [[ -x $script_dir/exit="$current_activity_name" ]]; then
-				$script_dir/"exit=$current_activity_name"
+			activity_id="$(echo "$line" |awk '//{print substr($2, 2, length($2)-2);}')"
+			activity_name="$(qdbus org.kde.ActivityManager /ActivityManager/Activities ActivityName "$activity_id")"
+			echo "$activity_id" "$activity_name"
+			if [[ -x $script_dir/exit="$current_activity_id" ]]; then
+				$script_dir/"exit=$current_activity_id"
 			fi
-			if [[ -x $script_dir/"$activity_name" ]]; then
-				$script_dir/"$activity_name"
+			if [[ -x $script_dir/exit-name="$current_activity_name" ]]; then
+				$script_dir/"exit-name=$current_activity_name"
+			fi
+			if [[ -x $script_dir/"$activity_id" ]]; then
+				$script_dir/"$activity_id"
+			fi
+			if [[ -x $script_dir/name="$activity_name" ]]; then
+				$script_dir/"name=$activity_name"
 			fi
 			changed=false
+			current_activity_id="$activity_id"
 			current_activity_name="$activity_name"
 		else
 			changed=false
