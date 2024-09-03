@@ -5,7 +5,10 @@ import json
 import struct
 import subprocess
 
-#f = open("/home/david/Apps/z-nixtools/firefox-on-kde-activities/local.log", "a")
+from pathlib import Path
+from typing import TextIO
+
+log_file: TextIO = (Path(__file__).parent/"local.log").open("a")
 
 while True:
     message_length = sys.stdin.buffer.read(4)
@@ -13,14 +16,10 @@ while True:
     message = sys.stdin.buffer.read(message_length).decode("utf-8")
     message_object = json.loads(message)
 
-    #f.write("1\n")
-    #f.flush()
-
     firefox_window_list = message_object["wlist"]
     firefox_window_list.sort()
 
-    #f.write("2{:}\n".format(firefox_window_list))
-    #f.flush()
+    print("FF WLIST: {:}".format(str(firefox_window_list)), file=log_file)
 
     wmctrl = subprocess.run(["wmctrl", "-lx"], capture_output=True, text=True)
     window_list = []
@@ -30,8 +29,7 @@ while True:
             window_list.append(fields[0])
     window_list.sort()
 
-    #f.write("3{:}\n".format(window_list))
-    #f.flush()
+    print("KDE WLIST: {:}".format(str(window_list)), file=log_file)
 
     current_activity = subprocess.run( [ "qdbus"
                                        , "org.kde.ActivityManager"
@@ -43,8 +41,7 @@ while True:
                                      )
     current_activity = current_activity.stdout.strip()
 
-    #f.write("4{:}\n".format(current_activity))
-    #f.flush()
+    print("KDE ACT: {:}".format(current_activity), file=log_file)
 
     target_ff_wid = None
     for wid, ff_wid in zip(window_list, firefox_window_list):
@@ -53,12 +50,13 @@ while True:
                               , text=True
                               )
         activity_id = xprop.stdout.strip().split()[2][1:-1]
+        print("WIN ACT: {:} {:} {:}".format(wid, ff_wid, activity_id), file=log_file)
         if activity_id==current_activity:
             target_ff_wid = ff_wid
             break
 
-    #f.write("5{:}\n".format(target_ff_wid))
-    #f.flush()
+    print("TAR FF WIN: {:}".format(target_ff_wid), file=log_file)
+    log_file.flush()
 
     if target_ff_wid is None:
         response_object = { "act": "new"
@@ -71,9 +69,6 @@ while True:
                           }
     else:
         response_object = {"act": "none"}
-
-    #f.write("6\n")
-    #f.flush()
 
     response = json.dumps(response_object).encode("utf-8")
     response_length = len(response)
