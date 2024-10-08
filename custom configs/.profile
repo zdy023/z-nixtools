@@ -9,9 +9,9 @@ target update
 #lunar
 #ccal -u
 current_activity=$(qdbus org.kde.ActivityManager /ActivityManager/Activities CurrentActivity)
-current_activity_name=$(qdbus org.kde.ActivityManager /ActivityManager/Activities ActivityName $current_activity)
+current_activity_name=$(qdbus org.kde.ActivityManager /ActivityManager/Activities ActivityName "$current_activity")
 if [[ $current_activity_name != 开会 ]]; then
 	echo
-	remind $HOME/.timetable.rem
+	remind "$HOME"/.timetable.rem
 	target list-ddls
 fi

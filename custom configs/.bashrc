@@ -13,6 +13,7 @@ export LESSGLOBALTAGS="global"
 USER_PS='\u@\h'
 TIME_PS='\[\033[01;33m\]\D{%Y/%m/%d} \@'
 PATH_PS='\[\033[01;37m\]\W'
+# shellcheck disable=SC2016
 RSLT_PS='\[\033[0;34m\]$? $(if [[ $? -eq 0 ]]; then echo -n '\''\[\033[0;32m\]'\''\342\234\223; else echo -n '\''\[\033[01;05;31m\]'\''\342\234\227; fi)\[\033[0m\]'
 #CONDA_PS='\[\033[01;37m\]$(if [[ -n $CONDA_DEFAULT_ENV ]]; then echo " (`basename $CONDA_DEFAULT_ENV`)"; fi)'
 #BRANCH_PS='\[\033[01;34m\]$(if [[ -f branch_flag ]]; then echo -n " <$(<branch_flag)>"; fi)'
@@ -32,9 +33,9 @@ function kill-ps() {
 #alias kill-youdao-dict="kill-ps youdao-dict"
 alias gotop="gotop -l .gotop/layout"
 
-alias timetable="vim $HOME/.timetable.rem"
-alias schedule="vim $HOME/.schedule.rem"
-alias showtodo="remind $HOME/.timetable.rem; remind $HOME/.random_sched/hidden_sched.rem"
+alias timetable='vim $HOME/.timetable.rem'
+alias schedule='vim $HOME/.schedule.rem'
+alias showtodo='remind $HOME/.timetable.rem; remind $HOME/.plan.rem; remind $HOME/.random_sched/hidden_sched.rem'
 # quick alias of schedule management with help of remind
 
 #alias d="dict"
@@ -43,7 +44,7 @@ alias showtodo="remind $HOME/.timetable.rem; remind $HOME/.random_sched/hidden_s
 # quick alias for dictionaries
 
 function _target() {
-	COMPREPLY=($(compgen -W "update edit init select plan ddl list-ddls" ${COMP_WORDS[$COMP_CWORD]}))
+	mapfile COMPREPLY < <(compgen -W "update edit init select plan ddl list-ddls" "${COMP_WORDS[$COMP_CWORD]}")
 	return 0
 }
 complete -F _target target
@@ -52,8 +53,8 @@ function note() {
 	mkdir -p ~/.note
 	case $1 in
 		ls)
-			local notes=($(ls ~/.note))
-			echo ${notes[@]%.md};;
+			mapfile notes < <(ls ~/.note)
+			echo "${notes[@]%.md}";;
 		edit)
 			if [[ ! -e "$HOME/.note/$2.md" ]]; then
 				echo "# $2" >"$HOME/.note/$2.md";
@@ -65,9 +66,9 @@ function note() {
 }
 function _complete_note() {
 	if [[ $COMP_CWORD -eq 1 || ( ${COMP_WORDS[1]} != edit && ${COMP_WORDS[1]} != ls && ${COMP_WORDS[1]} != rm ) ]]; then
-		COMPREPLY=($(compgen -W "ls edit rm" ${COMP_WORDS[$COMP_CWORD]}));
+		mapfile COMPREPLY < <(compgen -W "ls edit rm" "${COMP_WORDS[$COMP_CWORD]}")
 	elif [[ ${COMP_WORDS[1]} == edit || ${COMP_WORDS[1]} == rm ]]; then
-		COMPREPLY=($(compgen -W "$(note ls)" ${COMP_WORDS[$COMP_CWORD]}));
+		mapfile COMPREPLY < <(compgen -W "$(note ls)" "${COMP_WORDS[$COMP_CWORD]}")
 	fi
 	return 0
 }
@@ -76,14 +77,14 @@ complete -F _complete_note note
 function _complete_version() {
 	local subcommands="init list check commit checkout log export diff status"
 	if [[ $COMP_CWORD -le 2 ]]; then
-		COMPREPLY=($(compgen -W "$subcommands" ${COMP_WORDS[$COMP_CWORD]}))
+		mapfile COMPREPLY < <(compgen -W "$subcommands" "${COMP_WORDS[$COMP_CWORD]}")
 	fi
 }
 complete -F _complete_version version
 
 function _complete_backup() {
 	if [[ $COMP_CWORD -le 2 ]]; then
-		COMPREPLY=($(compgen -W "init backup" ${COMP_WORDS[$COMP_CWORD]}))
+		mapfile COMPREPLY < <(compgen -W "init backup" "${COMP_WORDS[$COMP_CWORD]}")
 	fi
 }
 complete -F _complete_backup bckp
@@ -98,18 +99,18 @@ function _test_ipv4_port() {
 		protocol_option=u
 	fi
 
-	code=$(netstat -a${protocol_option}n |awk 'BEGIN{bound = 0;} $1=="'$1'" && $4~/[[:digit:]]+(\.[[:digit:]]+){3}:'$2'/{bound = 1;} END{print bound;}')
-	echo $code
+	code=$(netstat -a${protocol_option}n |awk 'BEGIN{bound = 0;} $1=="'"$1"'" && $4~/[[:digit:]]+(\.[[:digit:]]+){3}:'"$2"'/{bound = 1;} END{print bound;}')
+	echo "$code"
 }
 function get-random-port() {
 	# $1 - protocol, "tcp" or "udp"
 	local random_port
-	while [[ true ]]; do
+	while true; do
 		random_port=$(shuf -i 30000-65535 -n1)
-		if [[ $(_test_ipv4_port $1 $random_port)==0 ]]; then
+		if [[ $(_test_ipv4_port "$1" "$random_port") == 0 ]]; then
 			break
 		fi
 	done
-	echo $random_port
+	echo "$random_port"
 }
 export -f get-random-port _test_ipv4_port
