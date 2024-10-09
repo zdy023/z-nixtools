@@ -44,7 +44,7 @@ alias showtodo='remind $HOME/.timetable.rem; remind $HOME/.plan.rem; remind $HOM
 # quick alias for dictionaries
 
 function _target() {
-	mapfile COMPREPLY < <(compgen -W "update edit init select plan ddl list-ddls" "${COMP_WORDS[$COMP_CWORD]}")
+	mapfile -t COMPREPLY < <(compgen -W "update edit init select plan ddl list-ddls" "${COMP_WORDS[$COMP_CWORD]}")
 	return 0
 }
 complete -F _target target
@@ -53,7 +53,7 @@ function note() {
 	mkdir -p ~/.note
 	case $1 in
 		ls)
-			mapfile notes < <(ls ~/.note)
+			mapfile -t notes < <(ls ~/.note)
 			echo "${notes[@]%.md}";;
 		edit)
 			if [[ ! -e "$HOME/.note/$2.md" ]]; then
@@ -66,9 +66,9 @@ function note() {
 }
 function _complete_note() {
 	if [[ $COMP_CWORD -eq 1 || ( ${COMP_WORDS[1]} != edit && ${COMP_WORDS[1]} != ls && ${COMP_WORDS[1]} != rm ) ]]; then
-		mapfile COMPREPLY < <(compgen -W "ls edit rm" "${COMP_WORDS[$COMP_CWORD]}")
+		mapfile -t COMPREPLY < <(compgen -W "ls edit rm" "${COMP_WORDS[$COMP_CWORD]}")
 	elif [[ ${COMP_WORDS[1]} == edit || ${COMP_WORDS[1]} == rm ]]; then
-		mapfile COMPREPLY < <(compgen -W "$(note ls)" "${COMP_WORDS[$COMP_CWORD]}")
+		mapfile -t COMPREPLY < <(compgen -W "$(note ls)" "${COMP_WORDS[$COMP_CWORD]}")
 	fi
 	return 0
 }
@@ -77,14 +77,14 @@ complete -F _complete_note note
 function _complete_version() {
 	local subcommands="init list check commit checkout log export diff status"
 	if [[ $COMP_CWORD -le 2 ]]; then
-		mapfile COMPREPLY < <(compgen -W "$subcommands" "${COMP_WORDS[$COMP_CWORD]}")
+		mapfile -t COMPREPLY < <(compgen -W "$subcommands" "${COMP_WORDS[$COMP_CWORD]}")
 	fi
 }
 complete -F _complete_version version
 
 function _complete_backup() {
 	if [[ $COMP_CWORD -le 2 ]]; then
-		mapfile COMPREPLY < <(compgen -W "init backup" "${COMP_WORDS[$COMP_CWORD]}")
+		mapfile -t COMPREPLY < <(compgen -W "init backup" "${COMP_WORDS[$COMP_CWORD]}")
 	fi
 }
 complete -F _complete_backup bckp
