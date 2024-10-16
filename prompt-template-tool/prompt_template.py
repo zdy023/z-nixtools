@@ -232,6 +232,8 @@ class TemplateGroup:
                        , fidelity_option: Dict[str, str] = {}
                        , strip_white_spaces: bool = False
                        , squeeze_empty: bool = True
+                       , role_key: str = "role"
+                       , content_key: str = "content"
                        ) -> Union[PromptGroupT, List[GeneralMessage]]:
         #  method safe_substitute {{{ # 
         """
@@ -263,6 +265,9 @@ class TemplateGroup:
               are to stripped
             squeeze_empty (bool): if the empty segments/messages should be
               removed
+
+            role_key (str): key for "role" in ChatML, e.g., "from"
+            content_key (str): key for "content" in ChatML, e.g., "value"
 
         Returns:
             Union[PromptGroupT, GeneralMessage]: instantiated
@@ -308,14 +313,14 @@ class TemplateGroup:
                     content: VisionMessage = [sgm for sgm in content if sgm["type"]!="text" or len(sgm["text"])>0]
                 if len(content)==0:
                     continue
-            messages.append( { "role": tmpl["role"] or "user"
-                             , "content": content
+            messages.append( { role_key: tmpl["role"] or "user"
+                             , content_key: content
                              }
                            )
         if style=="chat":
             return messages
         elif style=="instruct":
-            messages: List[GeneralMessage] = [m["content"] for m in messages]
+            messages: List[GeneralMessage] = [m[content_key] for m in messages]
             return messages
         raise NotImplementedError()
         #  }}} method safe_substitute # 
