@@ -81,6 +81,7 @@ Plugin 'goerz/jupytext.vim'
 "Plugin 'anosillus/vim-ipynb'
 "Plugin 'szymonmaszke/vimpyter'
 Plugin 'inkarkat/vim-SyntaxRange'
+Plugin 'actionshrimp/vim-xpath'
 
 "Plugin 'lilydjwg/fcitx.vim'
 "Plugin 'rhysd/vim-grammarous'
