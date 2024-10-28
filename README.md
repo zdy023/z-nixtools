@@ -530,6 +530,9 @@ common default text
 ###
 ```
 
+Snippet instances can be used in common templates or in other latter snippet
+definitions. Recursive instantiation is not supported.
+
 ### Zpp preprocessing
 
 [Zpp](#toy-preprocessor) preprocessing commands like `include`, `define`,

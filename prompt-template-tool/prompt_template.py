@@ -1,13 +1,16 @@
 from typing import List, Dict, Pattern, Match, Tuple
-from typing import Union, ClassVar, Optional, cast, TypeVar, TextIO
+from typing import Union, ClassVar, Optional, cast, TypeVar, TextIO, Mapping
 import string
-from . import libzpp
+#from . import libzpp
+import libzpp
+import copy
 
 from PIL import Image
 import re
 import io
 import base64
 import os.path
+import numpy as np
 
 # [
 #      {
@@ -210,17 +213,21 @@ class TemplateGroup:
 
     def __init__( self
                 , templates: TemplateGroupT, style: str = "chat"
-                , snippets: Dict[str, str] = {}
+                , snippets: Dict[str, List[str]] = {}
                 , default_text_mappings: Optional[Dict[str, str]] = None
                 , default_img_mappings: Optional[Dict[str, Image.Image]] = None
                 ):
         #  method __init__ {{{ # 
         self._templates: TemplateGroupT = templates
         self._style: str = style
-        self._snippets: Dict[str, str] = snippets
+        self._snippets: Dict[str, List[str]] = snippets
         self._default_text_mappings: Dict[str, str] = default_text_mappings or {}
         self._default_img_mappings: Dict[str, str] = default_img_mappings or {}
+        self._rng: np.random.Generator = np.random.default_rng()
         #  }}} method __init__ # 
+
+    def set_random_generator(self, rng: np.random.Generator):
+        self._rng = rng
 
     def safe_substitute( self
                        , text_mapping: Optional[Dict[str, str]] = None
@@ -234,6 +241,7 @@ class TemplateGroup:
                        , squeeze_empty: bool = True
                        , role_key: str = "role"
                        , content_key: str = "content"
+                       , fix_snippet_choice: Optional[Union[int, Mapping[str, Union[int, str]]]] = None
                        ) -> Union[PromptGroupT, List[GeneralMessage]]:
         #  method safe_substitute {{{ # 
         """
@@ -269,22 +277,40 @@ class TemplateGroup:
             role_key (str): key for "role" in ChatML, e.g., "from"
             content_key (str): key for "content" in ChatML, e.g., "value"
 
+            fix_snippet_choice (Optional[Union[int, Mapping[str, Optional[int]]]]):
+              by default, the snippet placeholder will be instantiated with a
+              random choice; if a single interger $i$ is given to this
+              parameter, all the snippet placeholder will be instantiated with
+              the $i$-th choice (if it has such many choices, otherwise it will
+              be instantiated with the last choice); if a dict is given, then
+              the placeholder of snippet `x` will be instantiated with the
+              `fix_snippet_choice[x]`-th choice; if `fix_snippet_choice[x]` is
+              not present, then 0 is deemed default; if `fix_snippet_choice[x]`
+              is "random", then it will still be replaced randomly; if
+              `fix_snippet_choice[x]` is `unified_random`, then all the
+              placeholders of `x` will be replaced with the same random choice.
+
         Returns:
             Union[PromptGroupT, GeneralMessage]: instantiated
               template
         """
 
+        templates: TemplateGroupT
+        default_text_mappings: Dict[str, str]
+        default_img_mappings: Dict[str, str]
+        templates, default_text_mappings, default_img_mappings = self._substitute_snippets(fix_snippet_choice)
+
         text_mapping = text_mapping or {}
-        for k, val in self._default_text_mappings.items():
+        for k, val in default_text_mappings.items():
             text_mapping.setdefault(k, val)
         img_mapping = img_mapping or {}
-        for k, val in self._default_img_mappings.items():
+        for k, val in default_img_mappings.items():
             img_mapping.setdefault(k, val)
 
         style: str = style or self._style
 
         messages: PromptGroupT = []
-        for tmpl in self._templates:
+        for tmpl in templates:
             content: GeneralMessage = tmpl["content"]\
                                         .safe_substitute( text_mapping=text_mapping
                                                         , img_mapping=img_mapping
@@ -374,6 +400,104 @@ class TemplateGroup:
         return snippet_text
         #  }}} method instantiate_snippet # 
 
+    def _substitute_snippets( self
+                            , fix_snippet_choice: Optional[Union[int, Mapping[str, Union[int, str]]]] = None
+                            ) -> Tuple[ TemplateGroupT
+                                      , Dict[str, str]
+                                      , Dict[str, str]
+                                      ]:
+        #  method _substitute_snippets {{{ # 
+        """
+        Args:
+            fix_snippet_choice (Optional[Union[int, Mapping[str, Optional[int]]]]):
+              by default, the snippet placeholder will be instantiated with a
+              random choice; if a single interger $i$ is given to this
+              parameter, all the snippet placeholder will be instantiated with
+              the $i$-th choice (if it has such many choices, otherwise it will
+              be instantiated with the last choice); if a dict is given, then
+              the placeholder of snippet `x` will be instantiated with the
+              `fix_snippet_choice[x]`-th choice; if `fix_snippet_choice[x]` is
+              not present, then 0 is deemed default; if `fix_snippet_choice[x]`
+              is "random", then it will still be replaced randomly; if
+              `fix_snippet_choice[x]` is `unified_random`, then all the
+              placeholders of `x` will be replaced with the same random choice.
+
+        Returns:
+            TemplateGroupT: replace templates
+            Dict[str, str]: updated default_values
+            Dict[str, str]: updated default_images
+        """
+
+        template: TemplateGroupT = copy.deepcopy(self._templates)
+        default_text_mappings: Dict[str, str] = copy.deepcopy(self._default_text_mappings)
+        default_img_mappings: Dict[str, str] = copy.deepcopy(self._default_img_mappings)
+
+        runtime_snippets: Dict[str, Union[str, List[str]]] = {}
+        if isinstance(fix_snippet_choice, int):
+            runtime_snippets = { snpp: ch[min(fix_snippet_choice, len(ch)-1)]
+                             for snpp, ch in self._snippets.items()
+                               }
+        elif isinstance(fix_snippet_choice, dict):
+            for snpp, ch in self._snippets.items():
+                if isinstance(fix_snippet_choice.get(snpp, 0), int):
+                    runtime_snippets[snpp] = ch[fix_snippet_choice.get(snpp, 0)]
+                elif fix_snippet_choice[snpp]=="unified_random":
+                    runtime_snippets[snpp] = self._rng.choice(ch)
+                else:
+                    runtime_snippets[snpp] = ch
+        else:
+            runtime_snippets = copy.deepcopy(self._snippets)
+
+        def _replace_snippets(to_replace: str) -> str:
+            #  function _replace_snippets {{{ # 
+            lines: List[str] = to_replace.splitlines()
+            new_lines: List[str] = []
+            #has_equal_lines = False
+            for l in lines:
+                if l.startswith("=== "):
+                    fields: List[str] = l.strip().split()
+                    snippet_name: str = fields[1]
+                    slot_id_suffix: str = fields[2]
+
+                    snippet_template: Union[str, List[str]] = runtime_snippets[snippet_name]
+                    if isinstance(snippet_template, list):
+                        snippet_template: str = self._rng.choice(snippet_template)
+                    snippet_template: str = _replace_snippets(snippet_template)
+                    snippet_text: str = self.instantiate_snippet( snippet_template
+                                                                , slot_id_suffix
+                                                                , default_text_mappings
+                                                                , default_img_mappings
+                                                                )
+
+                    new_lines.append(snippet_text)
+                    #has_equal_lines = True
+                else:
+                    new_lines.append(l + "\n")
+
+            new_lines: str = "".join(new_lines)
+            #if has_equal_lines:
+                #return _replace_snippets(new_lines)
+            #else:
+            return new_lines
+            #  }}} function _replace_snippets # 
+
+        def _escape(to_escape: str) -> str:
+            #  function _escape {{{ # 
+            lines: List[str] = to_escape.splitlines()
+            new_lines: List[str] = []
+            for l in lines:
+                if l.startswith("\\\\\\"):
+                    new_lines.append(l[3:] + "\n")
+                else:
+                    new_lines.append(l + "\n")
+            return "".join(new_lines)
+            #  }}} function _escape # 
+
+        for tmpl in template:
+            tmpl["content"] = VisionTemplate(_escape(_replace_snippets(tmpl["content"])))
+        return template, default_text_mappings, default_img_mappings
+        #  }}} method _substitute_snippets # 
+
     @classmethod
     def parse( cls, template_file: str
              , flag_macros: Optional[List[str]] = None
@@ -386,7 +510,7 @@ class TemplateGroup:
         for mcr in flag_macros:
             if mcr not in value_macros:
                 value_macros[mcr] = ""
-            
+
         preprocessed_file: TextIO = io.StringIO()
         config_dict: Dict[str, str] = libzpp.MODE_DICT["T"]
         config_dict["path"] = os.path.dirname(template_file)
@@ -405,7 +529,7 @@ class TemplateGroup:
         current_role: str = ""
 
         recording_snippet: bool = False
-        snippets: Dict[str, str] = {}
+        snippets: Dict[str, List[str]] = {}
         current_snippet_strs: List[str] = []
         current_snippet_name: str = ""
 
@@ -422,22 +546,27 @@ class TemplateGroup:
             elif l.startswith("%%%"): # meta
                 style = l[3:].strip()
             elif l.startswith("---"): # role
-                if recording:
-                    templates.append(
-                            { "role": current_role
-                            , "content": VisionTemplate("".join(current_template_strs))
-                            }
-                          )
-                current_role: str = l[3:].strip()
-                recording = True
-                current_template_strs = []
+                if recording_snippet:
+                    snippets.setdefault(current_snippet_name, []).append("".join(current_snippet_strs))
+                    current_snippet_strs = []
+                else:
+                    if recording:
+                        templates.append(
+                                { "role": current_role
+                                #, "content": VisionTemplate("".join(current_template_strs))
+                                , "content": "".join(current_template_strs)
+                                }
+                              )
+                    current_role: str = l[3:].strip()
+                    recording = True
+                    current_template_strs = []
 
             elif l.startswith("``` "): # snippet def
                 current_snippet_name = l[4:].strip()
                 recording_snippet = True
                 current_snippet_strs = []
             elif l.strip()==("```"): # snippet def end
-                snippets[current_snippet_name] = "".join(current_snippet_strs)
+                snippets.setdefault(current_snippet_name, []).append("".join(current_snippet_strs))
                 recording_snippet = False
             elif l.startswith("### "): # value def
                 current_value_name = l[4:].strip()
@@ -457,30 +586,30 @@ class TemplateGroup:
                 else:
                     default_values[current_value_name] = "".join(current_value_strs)[:-1]
                 recording_value = False
-            elif l.startswith("=== "): # snippet invocation
-                fields: List[str] = l.strip().split()
-                snippet_name: str = fields[1]
-                slot_id_suffix: str = fields[2]
-
-                snippet_text = cls.instantiate_snippet( snippets[snippet_name]
-                                                      , slot_id_suffix
-                                                      , default_values
-                                                      , default_images
-                                                      )
-                if recording_value:
-                    current_value_strs.append(snippet_text)
-                elif recording_snippet:
-                    current_snippet_strs.append(snippet_text)
-                elif recording:
-                    current_template_strs.append(snippet_text)
-            elif l.startswith("\\\\\\"): # escaping
-                literal_line: str = l[3:]
-                if recording_value:
-                    current_value_strs.append(literal_line)
-                elif recording_snippet:
-                    current_snippet_strs.append(literal_line)
-                elif recording:
-                    current_template_strs.append(literal_line)
+            #elif l.startswith("=== "): # snippet invocation
+                #fields: List[str] = l.strip().split()
+                #snippet_name: str = fields[1]
+                #slot_id_suffix: str = fields[2]
+#
+                #snippet_text = cls.instantiate_snippet( snippets[snippet_name]
+                                                      #, slot_id_suffix
+                                                      #, default_values
+                                                      #, default_images
+                                                      #)
+                #if recording_value:
+                    #current_value_strs.append(snippet_text)
+                #elif recording_snippet:
+                    #current_snippet_strs.append(snippet_text)
+                #elif recording:
+                    #current_template_strs.append(snippet_text)
+            #elif l.startswith("\\\\\\"): # escaping
+                #literal_line: str = l[3:]
+                #if recording_value:
+                    #current_value_strs.append(literal_line)
+                #elif recording_snippet:
+                    #current_snippet_strs.append(literal_line)
+                #elif recording:
+                    #current_template_strs.append(literal_line)
             else: # plain texts
                 if recording_value:
                     current_value_strs.append(l)
@@ -491,7 +620,8 @@ class TemplateGroup:
         if recording:
             templates.append(
                     { "role": current_role
-                    , "content": VisionTemplate("".join(current_template_strs))
+                    #, "content": VisionTemplate("".join(current_template_strs))
+                    , "content": "".join(current_template_strs)
                     }
                   )
         return cls( templates, style=style, snippets=snippets
@@ -504,9 +634,13 @@ class TemplateGroup:
         #  method __str__ {{{ # 
         lines: List[str] = []
         lines.append("%%% {:}\n".format(self._style))
+        for snpp, ch in self._snippets.items():
+            lines.append("``` {:}\n".format(snpp))
+            lines.append("---\n".join(ch))
+            lines.append("```\n")
         for tmpl in self._templates:
             lines.append("---{:}\n".format(tmpl["role"]))
-            lines.append(tmpl["content"].template)
+            lines.append(tmpl["content"])
         return "".join(lines)
         #  }}} method __str__ # 
 
@@ -522,7 +656,7 @@ class TemplateGroup:
                 escaped_lines.append("\\\\\\" + l)
             else:
                 escaped_lines.append(l)
-        return "\n".join(escaped_lines)
+        return "\n".join(escaped_lines) + "\n"
         #  }}} function escape_prompt # 
     #  }}} class TemplateGroup # 
 
@@ -555,3 +689,19 @@ def display_prompt_group(prompt: PromptGroupT) -> str:
             lines.append(display_vision_message(msg["content"]))
     return "".join(lines)
     #  }}} function display_prompt_group # 
+
+if __name__ == "__main__":
+    template: TemplateGroup = TemplateGroup.parse("a.prompt")
+    print(str(template))
+    print("\x1b[42m   \x1b[0m")
+    print( display_prompt_group( template.safe_substitute( text_mapping={ "vara_1": "a1"
+                                                                        , "varb_1": "b1"
+                                                                        , "vara3_1": "a31"
+                                                                        , "vara3_ib_1": "a3ib1"
+                                                                        }
+                                                         , fix_snippet_choice={ "a": "unified_random"
+                                                                              , "b": 0
+                                                                              }
+                                                         )
+                               )
+         )

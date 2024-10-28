@@ -1,0 +1,30 @@
+%%% chat
+
+``` a
+a1 ${vara}
+\\\=== a 1
+---
+a2 ${vara}
+---
+a3 ${vara3}
+33333
+```
+
+``` b
+b1 ${varb}
+=== a ib
+\\\=== a 2
+---
+b2 NOTHING
+```
+
+### vara_ib
+def_vara
+###
+
+--- user
+\\\=== a 1
+=== a 1
+--- assistant
+\\\=== b 1
+=== b 1
