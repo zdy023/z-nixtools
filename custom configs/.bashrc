@@ -17,7 +17,7 @@ PATH_PS='\[\033[01;37m\]\W'
 RSLT_PS='\[\033[0;34m\]$? $(if [[ $? -eq 0 ]]; then echo -n '\''\[\033[0;32m\]'\''\342\234\223; else echo -n '\''\[\033[01;05;31m\]'\''\342\234\227; fi)\[\033[0m\]'
 #CONDA_PS='\[\033[01;37m\]$(if [[ -n $CONDA_DEFAULT_ENV ]]; then echo " (`basename $CONDA_DEFAULT_ENV`)"; fi)'
 #BRANCH_PS='\[\033[01;34m\]$(if [[ -f branch_flag ]]; then echo -n " <$(<branch_flag)>"; fi)'
-#GIT_PS='\[\033[0;32m\]$(if git status &>/dev/null; then echo -n " |$(git branch --show-current)|"; fi)'
+#GIT_PS='\[\033[0;32m\]$(if git status -uno &>/dev/null; then echo -n " |$(git branch --show-current)|"; fi)'
 export PS1='\[\033[01;32m\]['$USER_PS' '$TIME_PS' '$PATH_PS' '$RSLT_PS'\[\033[01;32m\]]\$\[\033[00m\] '
 
 #alias pale1="dosbox -c \"mount c PAL1\" -c \"c:\" -c \"pal.exe\" -c \"exit\""
