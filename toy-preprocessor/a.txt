@@ -1,0 +1,8 @@
+ABC is ABC
+% define ABC def
+
+ABC function(abc: int):
+	### 321 ###
+	### 456 ###
+	### 789 ###
+	return c

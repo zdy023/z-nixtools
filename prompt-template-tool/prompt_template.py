@@ -1,3 +1,8 @@
+"""
+Composed by Danyang Zhang
+Last Revision: Dec 2024
+"""
+
 from typing import List, Dict, Pattern, Match, Tuple
 from typing import Union, ClassVar, Optional, cast, TypeVar, TextIO, Mapping
 import string

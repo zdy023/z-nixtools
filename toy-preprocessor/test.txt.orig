@@ -1,0 +1,14 @@
+#ifdef ABC
+#include <> < /###/***/ -% a.txt
+#endif
+
+#define FOO bcr
+#defineR BAR /✓/ x
+
+I got a FOO.
+边界FOO边界
+* [✓] x
+
+#iflt NUM 3
+print(3)
+#endif

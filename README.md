@@ -244,7 +244,10 @@ options:
                         Output file
 ```
 
-Lines for the preprocessing commands are recognized by the user-specific prefix and suffix. For convenience, the tool offers four predefined modes with specific prefix and suffix. The default mode is `H` - the HTML Comment Mode with prefix `<!--` and suffix `-->`.
+Lines for the preprocessing commands are recognized by the user-specific prefix
+and suffix. For convenience, the tool offers four predefined modes with
+specific prefix and suffix. The default mode is `H` - the HTML Comment Mode
+with prefix `<!--` and suffix `-->`.
 
 #### Preprocessing Commands
 
@@ -288,7 +291,7 @@ Normally, a relative path is expected. However, you can also specify an
 absolute path by prefixing `FILENAME` with a `#`. For instance,
 
 ```
-% include /None/?/ #/home/foo/some/project/some/file
+% include /None/\?/ #/home/foo/some/project/some/file
 ```
 
 2. `define` and `undef`
@@ -297,7 +300,27 @@ absolute path by prefixing `FILENAME` with a `#`. For instance,
 define MACRO_NAME [MACRO_VALUE]
 ```
 
-Defines a macro which will be replaced in the following contents. If it is omitted, `MACRO_VALUE` will default to an empty string.
+Defines a macro which will be replaced in the following contents. If it is
+omitted, `MACRO_VALUE` will default to an empty string. During substitution,
+the `MACRO_NAME` is matched with ASCII word boundaries.
+
+If more sophiscated `MACRO_NAME` match is expected, the following command
+should be used:
+
+```
+defineR MACRO_NAME /REGEX/[FLAGS] SUBSTITUTION
+```
+
+`MACRO_NAME` can be used in if commands and `SUBSTITUTION` is considered the
+original `MACRO_VALUE`. Regex flags are optional. If present, each flag should
+comprise only one letter.
+
+Macros can also be defined through command line arguments, the syntax is:
+
+
+```sh
+zpp --def MACRO_NAME1=MACRO_VALUE --def MACRO_NAME2=/REGEX/SUBSTITUTION/ input -o output
+```
 
 ```
 undef MACRO_NAME
@@ -328,7 +351,12 @@ elifeq MACRO_NAME MACRO_VALUE
 elifneq MACRO_NAME MACRO_VALUE
 ```
 
-`def` checks if a macro is already defined and `eq` checks if a macro is already defined and if the macro definition equals to the given value. `eqn`, `ge`, `le`, `gt`, and `lt` will compare the values in number. `n` will reverse the check result. However, note that if a macro is not defined, `neq` and `neqn` will lead to false which is the same as `eq` and `eqn`.
+`def` checks if a macro is already defined and `eq` checks if a macro is
+already defined and if the macro definition equals to the given value. `eqn`,
+`ge`, `le`, `gt`, and `lt` will compare the values in number. `n` will reverse
+the check result. However, note that if a macro is not defined, the `n*`
+(*i.e.*, `neq`, `neqn`, `nge`, *etc*) will lead to false which is the same as
+`eq` and `eqn`.
 
 `if` commands starts a if block and `elif` commands give another choice.
 
@@ -477,7 +505,11 @@ lines in the prompt, you can precede the line with `\\\` to escapte it.
 	snippet contents
 	```
 
-declares a snippet that can be re-used.
+declares a snippet that can be re-used. Multiple candidates can be declared for
+a snippet seperated by a line containing literally `---`. You can control which
+candidate to be used in instantiation by `fix_snippet_choice` parameter of
+`safe_substitute` method. By default, a random candidate is sampled for each
+instantiation.
 
 ```
 === snippet_name instance_id

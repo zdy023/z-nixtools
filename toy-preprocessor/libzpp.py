@@ -1,5 +1,19 @@
 #!/usr/bin/python3
 
+"""
+Composed by Danyang Zhang
+Last Revision: Dec 2024
+"""
+
+# Test:
+# ./zpp -m C test.txt.orig -o output.txt
+# ./zpp -m C --def ABC test.txt.orig -o output.txt
+# ./zpp -m C --def got=获得 test.txt.orig -o output.txt
+# ./zpp -m C --def ABC=321 test.txt.orig -o output.txt
+# ./zpp -m C --def 'ABC=/(?<!^)ABC/321/' test.txt.orig -o output.txt
+# ./zpp -m C --def 'ABC=/(?<!^)ABC/321/' --def NUM=2 test.txt.orig -o output.txt
+# ./zpp -m C --def 'ABC=/(?<!^)ABC/321/' --def NUM=3 test.txt.orig -o output.txt
+
 import argparse
 import re
 import os.path
@@ -73,12 +87,18 @@ def parse_number(number_str: str) -> Union[None, int, float]:
     logger.warning("%s is neither interger nor float.", number_str)
     return None
 
-def _print_plainline( line: str, macros: Dict[str, str], line_subs: List[Tuple[str, str]]
+def _print_plainline( line: str, macros: Dict[str, Union[str, Tuple[str, str, str]]], line_subs: List[Tuple[str, str]]
                     , line_prefix: str, line_suffix: str
                     ) -> str:
     #  function _print_plainline {{{ # 
     for mcr, mcr_val in macros.items():
-        line = re.sub(r"\b" + mcr + r"\b", mcr_val, line, flags=re.ASCII)
+        if isinstance(mcr_val, str):
+            line = re.sub(r"\b" + mcr + r"\b", mcr_val, line, flags=re.ASCII)
+        else:
+            # mcr_val[0]: regex
+            # mcr_val[1]: substitution
+            # mcr_val[2]: regex flags, one letter per flag
+            line = re.sub(mcr_val[0], mcr_val[1], line, flags=all(getattr(re, fl) for fl in mcr_val[2]))
     for ptn, sstt in line_subs:
         line = re.sub(ptn, sstt, line)
     return line_prefix + line + line_suffix + "\n"
@@ -88,7 +108,7 @@ _condition_pattern = re.compile(r"(?P<if>if|elif)(?P<not>n?)(?P<rel>def|eqn?|[lg
 def include( input_file: Iterable[str]
            , output_file: TextIO
            , configs: Dict[str, str]
-           , states: Dict[str, Dict[str, str]]
+           , states: Dict[str, Dict[str, Union[str, Tuple[str, str, str]]]]
            , if_stack: Deque[Tuple[bool, bool]]
            , modifications: Dict[str, Union[str, List[Tuple[str, str]]]]
            ):
@@ -105,7 +125,7 @@ def include( input_file: Iterable[str]
           }
         states: dict like
           {
-            "macros": dict like {str: str}
+            "macros": dict like {str: str, str: (str, str, str)}
           }
         if_stack: collections.deque of (bool, bool)
           - the first item indicates whether the current if-block has been
@@ -145,6 +165,17 @@ def include( input_file: Iterable[str]
                 if if_stack[-1][1]:
                     arguments = command[1].split(maxsplit=1)
                     macros[arguments[0]] = arguments[1] if len(arguments)>1 else ""
+            elif command[0]=="defineR":
+                if if_stack[-1][1]:
+                    macro_name: str
+                    remaining: str
+                    macro_name, remaining = command[1].split(maxsplit=1)
+                    endposition1: int = line_subs_mark_pattern.search(remaining, 1).end()
+                    endposition2: int = re.search(r'\s', remaining, endposition1).start()
+                    regex: str = remaining[1:endposition1-1].replace(r'\/', '/')
+                    flags: str = remaining[endposition1:endposition2].strip()
+                    replacement: str = remaining[endposition2:].strip()
+                    macros[macro_name] = (regex, replacement, flags)
             elif command[0]=="undef":
                 if if_stack[-1][1]:
                     if command[1] in macros:
@@ -218,12 +249,15 @@ def include( input_file: Iterable[str]
                             else:
                                 macro_name, macro_value = command[1].split(maxsplit=1)
                                 mask = macro_name in macros
+                                real_value: Union[str, Tuple[str, str, str]] = macros.get(macro_name, "")
+                                if isinstance(real_value, tuple):
+                                    real_value: str = real_value[1]
 
                                 if match_["rel"]=="eq":
-                                    condition = mask and macros[macro_name]==macro_value
+                                    condition = mask and real_value==macro_value
                                 else:
                                     ref_number: Optional[Number] = parse_number(macro_value)
-                                    real_number: Optional[Number] = parse_number(macros[macro_name])
+                                    real_number: Optional[Number] = parse_number(real_value)
                                     mask = mask and ref_number is not None\
                                                 and real_number is not None
                                     if match_["rel"]=="eqn":
@@ -263,7 +297,7 @@ MODE_DICT = {
 
 def preprocess( input_file: Iterable[str], output_file: TextIO
               , configs: Dict[str, str]
-              , states: Dict[str, Dict[str, str]]
+              , states: Dict[str, Dict[str, Union[str, Tuple[str, str, str]]]]
               ):
     """
     Args:
@@ -278,7 +312,7 @@ def preprocess( input_file: Iterable[str], output_file: TextIO
           configuring the prefix, suffix, and working path
         states (Dict[str, Dict[str, str]): dict like
           {
-            "macros": dict like {str: str}
+            "macros": dict like {str: str, str: (str, str, str)}
           }
           defining macros
     """
@@ -301,7 +335,7 @@ C: C Preprocessing Instruction Mode, e.g., #define A_TOY_PREPROCESSOR
 J: Java Comment Mode, e.g., // include class.java""")
 
     parser.add_argument("--def", action="append", type=str,
-        help="Manually define a macro like \"ABC\" or \"ABC=LSP\", \"=\" in macro name and definitions could be escaped by \"\\\"",
+        help="Manually define a macro like \"ABC\" or \"ABC=LSP\" or \"ABC=/REGEX/SUB/\", \"=\" in macro name and definitions and \"/\" in definitions could be escaped by \"\\\"",
         dest="macro")
 
     parser.add_argument("file", type=str, help="Input file.")
@@ -329,6 +363,17 @@ J: Java Comment Mode, e.g., // include class.java""")
             items = definition_separator_pattern.split(mcr, maxsplit=1)
             macro_name = real_equal_mark_pattern.sub("=", items[0])
             macro_value = real_equal_mark_pattern.sub("=", items[1]) if len(items)>1 else ""
+
+            if macro_value.startswith("/") and macro_value.endswith("/"):
+                regex: str
+                replacement: str
+                regex, replacement = line_subs_mark_pattern.split(macro_value[1:-1], maxsplit=1)
+                macro_value: Tuple[str, str, str] = ( regex.replace(r'\/', '/')
+                                                    , replacement.replace(r'\/', '/')
+                                                    , ""
+                                                    )
+            else:
+                macro_value: str = macro_value.replace(r'\/', '/')
             macros[macro_name] = macro_value
 
     path = os.path.dirname(args.file)
