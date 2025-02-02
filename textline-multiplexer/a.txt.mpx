@@ -1,6 +1,7 @@
 1: a.channel1.txt *
 2: a.channel2.txt *
 T: a.todo.txt *
+A: ~/a.abs.txt *
 
 这是个测试文件。
 
@@ -32,3 +33,4 @@ C: path/to/output * |
    + 输出指定的输出路 T>
    + 若没有指定输出路，则列出文件中定义的输出路，交互式选择 T>
    + 覆写选项 T>
+T>

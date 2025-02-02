@@ -611,6 +611,84 @@ The entering and exiting scripts can also be specified by activity name like
 <!-- A service file `activity-switch-watcher.service` is provided in
 `services`. -->
 
+## Text Line Multiplexer
+
+A text line multiplexer sends text lines into different channels according to
+the command and the end of the line.
+
+## Output Channel Declaration
+
+To declare output channels, use `*` meta character:
+
+```
+C: path/to/file *
+```
+
+The channel should use a single character as symbol. The channel declaration
+line will be ignored in output channels.
+
+## Output Channel Specification
+
+A plain line will be sent to all the output channels by default. You can also
+use the command `|` to send a line to all the channels explicitly. This is
+specifically useful when the line ends with meta characters `*`, `|`, or `>`
+that may lead to confusion.
+
+```
+This line will appear in all the output channels.
+This line is explicitly marked as to be sent to all the channels. >v< |
+This line should appear in all the channels, but ends with a special character, thus should be marked out explicitly <> |
+```
+
+If a line should only appear in parts of channels, You can use `>` command.
+
+```
+This line will appear in two channels: C & A CA>
+```
+
+The line above will appear in channels C and A.
+
+If no channels is specified with `>` command, then this line will be ignored in
+all the output channels.
+
+Even when specifying output channels for empty lines, the leading whitespace cannot be omitted.
+
+```
+This line will be ignored in all the output channels. >
+The next line will appear in channel C as an empty line:
+ C>
+The next line will in contrast appear in all the output channels as the missing whitespace makes it not recognized as a channel specification.
+C>
+```
+
+## Command Line Usage
+
+```
+usage: mpx [-h] [-L] [-c OUTPUT_CHANNELS] -i SOURCE [--overwrite {warning,fatal,quiet,ask}]
+
+options:
+  -h, --help            show this help message and exit
+  -L, --list-channels
+  -c OUTPUT_CHANNELS, --output-channels OUTPUT_CHANNELS
+  -i SOURCE, --source SOURCE
+  --overwrite {warning,fatal,quiet,ask}
+```
+
+`mpx -L -i input.mpx` will only list the declared channels in the source file
+`input.mpx`.
+
+`mpx -i input.mpx -c ABC` will create output channels A, B, C declared in `input.mpx`.
+
+If `-c` is omitted, *e.g.*, `mpx -i input.mpx`, an interactive prompt will be
+printed to ask the user input the intended output channel.
+
+`--overwrite` option controls the behaviour meeting existing output files. The
+default option is `warning`, overwriting the existing files with a warning
+printed. `fatal` will cause a fatal error and exit the process to avoid
+overwriting existing files. `quiet` will overwrite the existing files without
+any messages. `ask` will pause the program and ask if the user wants to
+overwrite the existing file.
+
 ## Other Tiny Tools
 
 * `~/.sogoubackup/backup` - backup the configs of Sogou Input Method routinely

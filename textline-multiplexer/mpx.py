@@ -6,6 +6,7 @@ from typing import List, Dict
 from typing import TextIO
 import os.path
 import logging
+import os
 
 logger = logging.getLogger("textline-textline-multiplexer")
 
@@ -46,11 +47,15 @@ def main():
     declared_channels: Dict[str, str] = {}
     for mt_l in meta_lines:
         items: List[str] = mt_l[:-2].split(": ", maxsplit=1)
-        declared_channels[items[0]] = items[1]
+        declared_channels[items[0]] =\
+                os.path.expanduser(
+                        os.path.expandvars(
+                            items[1] if os.path.isabs(items[1]) else os.fspath(input_file.parent/items[1])
+                          )
+                      )
 
     output_flows: Dict[str, TextIO] = {}
     for ch in output_channels:
-        # TODO: override options
         if os.path.exists(declared_channels[ch]):
             if args.overwrite=="warning":
                 logger.warning("%s exists, will be overwriten", declared_channels[ch])
