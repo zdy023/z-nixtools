@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 from typing import List, Dict
-from typing import TextIO
+from typing import TextIO, Union
 import os.path
 import logging
 import os
@@ -70,8 +70,39 @@ def main():
                     exit(2)
         output_flows[ch] = open(declared_channels[ch], "w")
 
+    modelines: List[str] = list(
+                                filter( lambda l: l.endswith(" **")
+                                      , source_lines
+                                      )
+                              )
+    # 0 as ALL, output to all channels
+    # -1 as MUTE, output to no channels
+    # str as +XXX, output to dedicated channels
+    blank_mode: Union[str, int] = 0
+    if len(modelines)>0:
+        modeline: str = modelines[0]
+        modeline = modeline[:-3].strip()
+        if modeline=="ALL":
+            blank_mode = 0
+        elif modeline=="MUTE":
+            blank_mode = -1
+        elif modeline[0]=="+":
+            blank_mode = modeline[1:]
+    if blank_mode==0:
+        def write_blank(l: str):
+            for fl in output_flows.values():
+                fl.write(l + "\n")
+    elif blank_mode==-1:
+        def write_blank(l: str):
+            pass
+    else:
+        def write_blank(l: str):
+            for ch in blank_mode:
+                if ch in output_flows:
+                    output_flows[ch].write(l + "\n")
+
     for l in source_lines:
-        if l.endswith(" *"):
+        if l.endswith(" *") or l.endswith(" **"):
             continue
         if l.endswith(">"):
             try:
@@ -87,8 +118,9 @@ def main():
             for fl in output_flows.values():
                 fl.write(l[:-2] + "\n")
         else:
-            for fl in output_flows.values():
-                fl.write(l + "\n")
+            #for fl in output_flows.values():
+                #fl.write(l + "\n")
+            write_blank(l)
 
     for fl in output_flows.values():
         fl.flush()

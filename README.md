@@ -629,13 +629,32 @@ line will be ignored in output channels.
 
 ## Output Channel Specification
 
-A plain line will be sent to all the output channels by default. You can also
-use the command `|` to send a line to all the channels explicitly. This is
-specifically useful when the line ends with meta characters `*`, `|`, or `>`
-that may lead to confusion.
+A plain line will be sent to all the output channels by default. You can change the default behaviour for plain lines using `**` command.
 
 ```
-This line will appear in all the output channels.
+ALL **
+```
+
+This command explicitly tells to send plain lines to all the channels.
+
+```
+MUTE **
+```
+
+This command demands not to send the plain lines to any channels.
+
+```
++ABC **
+```
+
+This command says that the plain lines should be sent to channels A, B, and C.
+
+You can use the command `|` to send a line to all the channels explicitly.
+
+<!-- This is specifically useful when the line ends with meta characters `*`, `|`,
+or `>` that may lead to confusion. -->
+
+```
 This line is explicitly marked as to be sent to all the channels. >v< |
 This line should appear in all the channels, but ends with a special character, thus should be marked out explicitly <> |
 ```

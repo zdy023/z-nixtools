@@ -2,6 +2,7 @@
 2: a.channel2.txt *
 T: a.todo.txt *
 A: ~/a.abs.txt *
++T **
 
 这是个测试文件。
 
