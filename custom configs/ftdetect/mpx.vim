@@ -10,3 +10,4 @@ function MPXSyntax()
 endfunction
 
 autocmd BufRead,BufNewFile *.mpx call MPXSyntax()
+cnoremap mpx<Space>on call MPXSyntax()
