@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 from typing import List, Dict
-from typing import TextIO, Union
+from typing import TextIO #, Union
 import os.path
 import logging
 import os
@@ -38,21 +38,26 @@ def main():
 
     if args.output_channels is None or len(args.output_channels)==0:
         output_channels: str =\
-                input( "{:}\nPlease input the channels to output: "\
+                input( "{:}\nPlease input the channels to output (seperated by commas): "\
                         .format("\n".join(meta_lines))
                      ).strip()
     else:
         output_channels: str = args.output_channels.strip()
+    output_channels: List[str] = output_channels.split(",")
 
     declared_channels: Dict[str, str] = {}
-    for mt_l in meta_lines:
+    declared_tags: Dict[str, str] = {}
+    for i, mt_l in enumerate(meta_lines):
         items: List[str] = mt_l[:-2].split(": ", maxsplit=1)
+        if len(items[0])==1:
+            declared_tags[items[0]] = "_{:d}".format(i)
         declared_channels[items[0]] =\
                 os.path.expanduser(
                         os.path.expandvars(
                             items[1] if os.path.isabs(items[1]) else os.fspath(input_file.parent/items[1])
                           )
                       )
+    tag_translation_dict: Dict[int, str] = str.maketrans(declared_tags)
 
     output_flows: Dict[str, TextIO] = {}
     for ch in output_channels:
@@ -68,62 +73,99 @@ def main():
                                   ).strip()
                 if len(overwrites)<1 or overwrites[0].lower!="y":
                     exit(2)
-        output_flows[ch] = open(declared_channels[ch], "w")
+        channel_expression: str = ch.translate(tag_translation_dict)
+        output_flows[channel_expression] = open(declared_channels[ch], "w")
 
     modelines: List[str] = list(
                                 filter( lambda l: l.endswith(" **")
                                       , source_lines
                                       )
                               )
-    # 0 as ALL, output to all channels
-    # -1 as MUTE, output to no channels
-    # str as +XXX, output to dedicated channels
-    blank_mode: Union[str, int] = 0
+    # 0 as ALL, default with all the tags
+    # -1 as MUTE, default with no tags
+    # str as +XXX, default to specific tags
+    default_tags: str = "".join(declared_tags)
     if len(modelines)>0:
         modeline: str = modelines[0]
         modeline = modeline[:-3].strip()
         logger.info("Using mode: %s", modeline)
-        if modeline=="ALL":
-            blank_mode = 0
-        elif modeline=="MUTE":
-            blank_mode = -1
+        if modeline=="MUTE":
+            default_tags = ""
         elif modeline[0]=="+":
-            blank_mode = modeline[1:]
-    else:
-        logger.info("Using mode: %s", "ALL")
-    if blank_mode==0:
-        def write_blank(l: str):
-            for fl in output_flows.values():
-                fl.write(l + "\n")
-    elif blank_mode==-1:
-        def write_blank(l: str):
-            pass
-    else:
-        def write_blank(l: str):
-            for ch in blank_mode:
-                if ch in output_flows:
-                    output_flows[ch].write(l + "\n")
+            default_tags = modeline[1:]
+
+    #blank_mode: Union[str, int] = 0
+    #if len(modelines)>0:
+        #modeline: str = modelines[0]
+        #modeline = modeline[:-3].strip()
+        #logger.info("Using mode: %s", modeline)
+        #if modeline=="ALL":
+            #blank_mode = 0
+        #elif modeline=="MUTE":
+            #blank_mode = -1
+        #elif modeline[0]=="+":
+            #blank_mode = modeline[1:]
+    #else:
+        #logger.info("Using mode: %s", "ALL")
+    #if blank_mode==0:
+        #def write_blank(l: str):
+            #for fl in output_flows.values():
+                #fl.write(l + "\n")
+    #elif blank_mode==-1:
+        #def write_blank(l: str):
+            #pass
+    #else:
+        #def write_blank(l: str):
+            #for ch in blank_mode:
+                #if ch in output_flows:
+                    #output_flows[ch].write(l + "\n")
 
     for l in source_lines:
         if l.endswith(" *") or l.endswith(" **"):
             continue
+
+        # 1. parse tags
         if l.endswith(">"):
             try:
                 space_offset: int = l.rindex(" ")
-                channels: str = l[space_offset+1:-1]
-                for chnnl in channels:
-                    if chnnl in output_flows:
-                        output_flows[chnnl].write(l[:space_offset] + "\n")
+                tags: str = l[space_offset+1:-1]
+                line: str = l[:space_offset]
             except ValueError:
-                for fl in output_flows.values():
-                    fl.write(l + "\n")
+                tags: str = default_tags
+                line: str = l
         elif l.endswith(" |"):
-            for fl in output_flows.values():
-                fl.write(l[:-2] + "\n")
+            tags: str = "".join(declared_tags)
+            line: str = l[:-2]
         else:
+            tags: str = default_tags
+            line: str = l
+
+        # 2. sent to channels
+        tag_values: Dict[str, int] = {val: 0 for t, val in declared_tags.items()}
+        for t in tags:
+            tag_values[declared_tags[t]] = 1
+        print(line, tags, tag_values)
+        for fl in output_flows:
+            if eval(fl, locals=tag_values)>0:
+                output_flows[fl].write(line + "\n")
+
+        #if l.endswith(">"):
+            #try:
+                #space_offset: int = l.rindex(" ")
+                #channels: str = l[space_offset+1:-1]
+                #for chnnl in channels:
+                    #if chnnl in output_flows:
+                        #output_flows[chnnl].write(l[:space_offset] + "\n")
+            #except ValueError:
+                #for fl in output_flows.values():
+                    #fl.write(l + "\n")
+        #elif l.endswith(" |"):
             #for fl in output_flows.values():
-                #fl.write(l + "\n")
-            write_blank(l)
+                #fl.write(l[:-2] + "\n")
+        #else:
+            ##for fl in output_flows.values():
+                ##fl.write(l + "\n")
+            #write_blank(l)
 
     for fl in output_flows.values():
         fl.flush()

@@ -1,3 +1,2 @@
-a.channel1.txt
-a.channel2.txt
+a.channel*.txt
 a.todo.txt

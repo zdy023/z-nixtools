@@ -618,65 +618,86 @@ the command and the end of the line.
 
 ## Output Channel Declaration
 
-To declare output channels, use `*` meta character:
+To declare a simple output channel with a tag, use `*` meta character:
 
 ```
 C: path/to/file *
 ```
 
-The channel should use a single character as symbol. The channel declaration
-line will be ignored in output channels.
+The channel tag should use a single character. Note `(`, `)`, `+`, and `*` are
+preserved characters and shouldn't be used.
+
+You can also declare compositional channels by combined multiple existing tags
+with `(`, `)`, `+`, and `*`. `+` means `or` and `*` means `and`. See examples:
+
+```
+A: /dev/null
+B: /dev/null
+C: /dev/null
+A+B: a+b.txt *
+A*B: a*b.txt *
+(A+B)*C: abc.txt *
+```
+
+`A+B` will receive lines with either A tag or B tag. `A*B` will receive lines
+with both A and B tag. More complex logics and be used as well. For instance,
+`(A+B)*C` receives lines with C tag and one from A or B tags simultaneously.
+Note that all the tags used in the expression should be one-character, and be
+declared individually.
+
+The channel declaration line will be ignored in output channels.
 
 ## Output Channel Specification
 
-A plain line will be sent to all the output channels by default. You can change the default behaviour for plain lines using `**` command.
+The channel one line will be sent to depends on the tags given to the line. To
+give a line a tag, use `>` command.
+
+```
+This line has two tags: C & A CA>
+```
+
+If no tags are specified with `>` command, then this line will be considered
+without any tags.
+
+```
+This line has no tags. >
+```
+
+To give all the tags to a line more concisely, `|` can be used.
+
+```
+This line is marked with all the tags. >v< |
+```
+
+To determine the default tags for a plain line without any explicit commands,
+global command `**` can be used.
 
 ```
 ALL **
 ```
 
-This command explicitly tells to send plain lines to all the channels.
+This command tells that a plain line will have all the declared tags, just as
+`|`. This is also the default behaviour.
 
 ```
 MUTE **
 ```
 
-This command demands not to send the plain lines to any channels.
+This command tells that a plain line is considered with no tags, just as `>`.
 
 ```
 +ABC **
 ```
 
-This command says that the plain lines should be sent to channels A, B, and C.
+This command says that the a plain line will be considered with tags A, B, and
+C, just as `ABC>`.
 
-You can use the command `|` to send a line to all the channels explicitly.
-
-<!-- This is specifically useful when the line ends with meta characters `*`, `|`,
-or `>` that may lead to confusion. -->
+Even when specifying tags for empty lines, the leading whitespace cannot be omitted.
 
 ```
-This line is explicitly marked as to be sent to all the channels. >v< |
-This line should appear in all the channels, but ends with a special character, thus should be marked out explicitly <> |
-```
-
-If a line should only appear in parts of channels, You can use `>` command.
-
-```
-This line will appear in two channels: C & A CA>
-```
-
-The line above will appear in channels C and A.
-
-If no channels is specified with `>` command, then this line will be ignored in
-all the output channels.
-
-Even when specifying output channels for empty lines, the leading whitespace cannot be omitted.
-
-```
-This line will be ignored in all the output channels. >
-The next line will appear in channel C as an empty line:
+The next 'emtpy' line has a tag C:
  C>
-The next line will in contrast appear in all the output channels as the missing whitespace makes it not recognized as a channel specification.
+The next line is considered a plain line with the default tags:
 C>
 ```
 
@@ -696,7 +717,8 @@ options:
 `mpx -L -i input.mpx` will only list the declared channels in the source file
 `input.mpx`.
 
-`mpx -i input.mpx -c ABC` will create output channels A, B, C declared in `input.mpx`.
+`mpx -i input.mpx -c A,B,A+B` will create output channels A, B, and `A+B`
+declared in `input.mpx`.
 
 If `-c` is omitted, *e.g.*, `mpx -i input.mpx`, an interactive prompt will be
 printed to ask the user input the intended output channel.
