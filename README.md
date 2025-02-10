@@ -616,7 +616,7 @@ The entering and exiting scripts can also be specified by activity name like
 A text line multiplexer sends text lines into different channels according to
 the command and the end of the line.
 
-## Output Channel Declaration
+### Output Channel and Tag Declaration
 
 To declare a simple output channel with a tag, use `*` meta character:
 
@@ -647,7 +647,7 @@ declared individually.
 
 The channel declaration line will be ignored in output channels.
 
-## Output Channel Specification
+### Output Channel Specification
 
 The channel one line will be sent to depends on the tags given to the line. To
 give a line a tag, use `>` command.
@@ -701,7 +701,27 @@ The next line is considered a plain line with the default tags:
 C>
 ```
 
-## Command Line Usage
+### Predefined Tags
+
+Sometimes you may want to pre-set the tags for a group of lines so that these
+lines can be considered plain lines even they end with meta characters. This
+way also prevents breaking syntax highlighting for original file formats. See:
+
+    T <
+    ```
+    ABC
+    ```
+     <
+
+These lines are the same as
+
+    ``` T>
+    ABC T>
+    ``` T>
+
+but won't break syntax highlighting of markdown.
+
+### Command Line Usage
 
 ```
 usage: mpx [-h] [-L] [-c OUTPUT_CHANNELS] -i SOURCE [--overwrite {warning,fatal,quiet,ask}]

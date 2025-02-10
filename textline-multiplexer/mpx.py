@@ -120,30 +120,43 @@ def main():
                 #if ch in output_flows:
                     #output_flows[ch].write(l + "\n")
 
-    for l in source_lines:
+    predefined_tags: str = ""
+    for l_no, l in enumerate(source_lines):
         if l.endswith(" *") or l.endswith(" **"):
             continue
 
         # 1. parse tags
-        if l.endswith(">"):
-            try:
-                space_offset: int = l.rindex(" ")
-                tags: str = l[space_offset+1:-1]
-                line: str = l[:space_offset]
-            except ValueError:
+        if l.endswith(" <"):
+            predefined_tags: str = l[:-2]
+            continue
+
+        if len(predefined_tags)==0:
+            if l.endswith(">"):
+                try:
+                    space_offset: int = l.rindex(" ")
+                    tags: str = l[space_offset+1:-1]
+                    line: str = l[:space_offset]
+                except ValueError:
+                    tags: str = default_tags
+                    line: str = l
+            elif l.endswith(" |"):
+                tags: str = "".join(declared_tags)
+                line: str = l[:-2]
+            else:
                 tags: str = default_tags
                 line: str = l
-        elif l.endswith(" |"):
-            tags: str = "".join(declared_tags)
-            line: str = l[:-2]
         else:
-            tags: str = default_tags
+            tags: str = predefined_tags
             line: str = l
 
         # 2. sent to channels
         tag_values: Dict[str, int] = {val: 0 for t, val in declared_tags.items()}
-        for t in tags:
-            tag_values[declared_tags[t]] = 1
+        try:
+            for t in tags:
+                tag_values[declared_tags[t]] = 1
+        except KeyError:
+            logger.exception("Key Error @L%d: %s", l_no, line)
+            exit(1)
         #print(line, tags, tag_values)
         for fl in output_flows:
             if eval(fl, locals=tag_values)>0:
