@@ -144,7 +144,7 @@ def main():
         tag_values: Dict[str, int] = {val: 0 for t, val in declared_tags.items()}
         for t in tags:
             tag_values[declared_tags[t]] = 1
-        print(line, tags, tag_values)
+        #print(line, tags, tag_values)
         for fl in output_flows:
             if eval(fl, locals=tag_values)>0:
                 output_flows[fl].write(line + "\n")
