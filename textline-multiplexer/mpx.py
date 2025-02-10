@@ -82,12 +82,15 @@ def main():
     if len(modelines)>0:
         modeline: str = modelines[0]
         modeline = modeline[:-3].strip()
+        logger.info("Using mode: %s", modeline)
         if modeline=="ALL":
             blank_mode = 0
         elif modeline=="MUTE":
             blank_mode = -1
         elif modeline[0]=="+":
             blank_mode = modeline[1:]
+    else:
+        logger.info("Using mode: %s", "ALL")
     if blank_mode==0:
         def write_blank(l: str):
             for fl in output_flows.values():
