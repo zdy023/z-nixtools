@@ -4,6 +4,7 @@ T: a.todo.txt *
 A: ~/a.abs.txt *
 1+2: a.channel|.txt *
 1*2: a.channel&.txt *
+!(T): a.common.txt *
 +T **
 
 这是个测试文件。

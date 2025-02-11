@@ -624,11 +624,12 @@ To declare a simple output channel with a tag, use `*` meta character:
 C: path/to/file *
 ```
 
-The channel tag should use a single character. Note `(`, `)`, `+`, and `*` are
-preserved characters and shouldn't be used.
+The channel tag should use a single character. Note `(`, `)`, `+`, `*`, and `!`
+are preserved characters and shouldn't be used.
 
 You can also declare compositional channels by combined multiple existing tags
-with `(`, `)`, `+`, and `*`. `+` means `or` and `*` means `and`. See examples:
+with `(`, `)`, `+`, `*`, `!`. `+` means 'or' and `*` means 'and' and `!` means
+'not'. See examples:
 
 ```
 A: /dev/null
@@ -637,13 +638,15 @@ C: /dev/null
 A+B: a+b.txt *
 A*B: a*b.txt *
 (A+B)*C: abc.txt *
+!(C): noc.txt *
 ```
 
 `A+B` will receive lines with either A tag or B tag. `A*B` will receive lines
 with both A and B tag. More complex logics and be used as well. For instance,
 `(A+B)*C` receives lines with C tag and one from A or B tags simultaneously.
-Note that all the tags used in the expression should be one-character, and be
-declared individually.
+`!(C)` receives lines without C tag. Note that the parentheses after `!`
+operator cannot be ignored. Also note that all the tags used in the expression
+should be one-character, and be declared individually.
 
 The channel declaration line will be ignored in output channels.
 

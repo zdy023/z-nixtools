@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 from typing import List, Dict
-from typing import TextIO #, Union
+from typing import TextIO, Callable, Any
 import os.path
 import logging
 import os
@@ -57,7 +57,10 @@ def main():
                             items[1] if os.path.isabs(items[1]) else os.fspath(input_file.parent/items[1])
                           )
                       )
-    tag_translation_dict: Dict[int, str] = str.maketrans(declared_tags)
+    tag_translation_dict: Dict[str, str] = declared_tags.copy()
+    tag_translation_dict['!'] = "_not"
+    _not: Callable[[int], int] = lambda x: int(x==0)
+    tag_translation_dict: Dict[int, str] = str.maketrans(tag_translation_dict)
 
     output_flows: Dict[str, TextIO] = {}
     for ch in output_channels:
@@ -150,15 +153,16 @@ def main():
             line: str = l
 
         # 2. sent to channels
-        tag_values: Dict[str, int] = {val: 0 for t, val in declared_tags.items()}
+        tag_values: Dict[str, Any] = {val: 0 for t, val in declared_tags.items()}
         try:
             for t in tags:
                 tag_values[declared_tags[t]] = 1
         except KeyError:
             logger.exception("Key Error @L%d: %s", l_no, line)
             exit(1)
-        #print(line, tags, tag_values)
+        tag_values["_not"] = _not
         for fl in output_flows:
+            #print(line, tags, tag_values, fl)
             if eval(fl, locals=tag_values)>0:
                 output_flows[fl].write(line + "\n")
 
