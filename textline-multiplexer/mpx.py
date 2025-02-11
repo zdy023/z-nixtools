@@ -127,7 +127,7 @@ def main():
 
         # 1. parse tags
         if l.endswith(" <"):
-            predefined_tags: str = l[:-2]
+            predefined_tags: str = l[:-2].strip()
             continue
 
         if len(predefined_tags)==0:
