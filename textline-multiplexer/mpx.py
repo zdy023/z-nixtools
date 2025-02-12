@@ -95,7 +95,7 @@ def main():
         modeline: str = modelines[0]
         modeline = modeline[:-3].strip()
         logger.info("Using mode: %s", modeline)
-        modes: List[str] = modeline.split(":", maxsplit=1)
+        modes: List[str] = modeline.rsplit(":", maxsplit=1)
         if modes[0]=="MUTE":
             default_tags = ""
         elif modes[0][0]=="+":
