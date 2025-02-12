@@ -704,6 +704,26 @@ The next line is considered a plain line with the default tags:
 C>
 ```
 
+### Special Default Tags for Blank Lines
+
+As blank lines are often used in markup and typesetting languages to
+distinguish paragraphs, it is verbose to add a tag for each blank line that the
+global default tags are not suitable for. In such cases, mpx supports handle
+default tags for blank lines specially as `PRECED` to use the tags of the last
+non-blank line. To enable `PRECED` mode, append `:PRECED` in the modeline
+command:
+
+```
+ALL:PRECED **
+```
+
+To explicitly demand that the blank lines follow the idential default tags of
+the other non-blank plain lines, specify the mode as `NORMAL`, *e.g.*:
+
+```
+MUTE:NORMAL **
+```
+
 ### Predefined Tags
 
 Sometimes you may want to pre-set the tags for a group of lines so that these

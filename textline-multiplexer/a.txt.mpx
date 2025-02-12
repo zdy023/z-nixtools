@@ -5,7 +5,7 @@ A: ~/a.abs.txt *
 1+2: a.channel|.txt *
 1*2: a.channel&.txt *
 !(T): a.common.txt *
-+T **
++T:PRECED **
 
 这是个测试文件。
 

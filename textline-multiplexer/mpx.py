@@ -88,14 +88,20 @@ def main():
     # -1 as MUTE, default with no tags
     # str as +XXX, default to specific tags
     default_tags: str = "".join(declared_tags)
+    # NORMAL: as common plain lines
+    # PRECED: use tag of preceding lines
+    blank_mode: str = "NORMAL"
     if len(modelines)>0:
         modeline: str = modelines[0]
         modeline = modeline[:-3].strip()
         logger.info("Using mode: %s", modeline)
-        if modeline=="MUTE":
+        modes: List[str] = modeline.split(":", maxsplit=1)
+        if modes[0]=="MUTE":
             default_tags = ""
-        elif modeline[0]=="+":
-            default_tags = modeline[1:]
+        elif modes[0][0]=="+":
+            default_tags = modes[0][1:]
+        if len(modes)>1:
+            blank_mode = modes[1]
 
     #blank_mode: Union[str, int] = 0
     #if len(modelines)>0:
@@ -124,6 +130,7 @@ def main():
                     #output_flows[ch].write(l + "\n")
 
     predefined_tags: str = ""
+    preceding_tags: str = default_tags
     for l_no, l in enumerate(source_lines):
         if l.endswith(" *") or l.endswith(" **"):
             continue
@@ -145,6 +152,9 @@ def main():
             elif l.endswith(" |"):
                 tags: str = "".join(declared_tags)
                 line: str = l[:-2]
+            elif l=="":
+                tags: str = default_tags if blank_mode=="NORMAL" else preceding_tags
+                line: str = l
             else:
                 tags: str = default_tags
                 line: str = l
@@ -158,13 +168,15 @@ def main():
             for t in tags:
                 tag_values[declared_tags[t]] = 1
         except KeyError:
-            logger.exception("Key Error @L%d: %s", l_no, line)
+            logger.exception("Key Error @L%d: %s", l_no+1, line)
             exit(1)
         tag_values["_not"] = _not
         for fl in output_flows:
             #print(line, tags, tag_values, fl)
             if eval(fl, locals=tag_values)>0:
                 output_flows[fl].write(line + "\n")
+
+        preceding_tags = tags
 
         #if l.endswith(">"):
             #try:
