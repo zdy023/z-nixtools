@@ -602,8 +602,8 @@ invokes
 `~/.autoactions/currentActivityChanged/exit=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
 if it exists and is executable. When an activity is entered, suppose its id is
 "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy", the tool will automatically invokes
-`~/.autoactions/currentActivityChanged/exit=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy`
-if it exists and is executable.
+`~/.autoactions/currentActivityChanged/yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy` if
+it exists and is executable.
 
 The entering and exiting scripts can also be specified by activity name like
 `name=workspace` and `exit-name=workspace`.
