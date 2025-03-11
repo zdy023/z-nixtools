@@ -130,7 +130,8 @@ set scrolloff=7
 set fdm=marker
 " basic settings
 
-let g:tex_flavor="latex"
+"let g:tex_flavor="latex"
+let g:tex_flavor="latexmk -f -pdf"
 
 autocmd BufRead,BufNewFile * packadd matchit
 
