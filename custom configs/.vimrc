@@ -340,7 +340,7 @@ autocmd FileType markdown,html inoremap <buffer> <c-j> <br><CR>
 nnoremap <localleader>co :ColorToggle<CR>
 
 highlight TempMark  term=bold,reverse cterm=bold ctermfg=red ctermbg=yellow
-autocmd BufRead,BufNewFile * syn match TempMark /\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=/
+autocmd BufRead,BufNewFile * syn match TempMark /\(^\s*\)\@<=\'\([^'].*\|\'.\+\)\'\(\s*$\)\@=/
 nnoremap <localleader>hl I'<esc>A'<esc>
 nnoremap <localleader>uh :s/\(^\s*\)\@<=\'\\|\'$//g<cr>:noh<cr>
 nnoremap <localleader>hn /\(^\s*\)\@<=\'.\+\'\(\s*$\)\@=<cr>:noh<cr>
