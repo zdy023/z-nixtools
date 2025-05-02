@@ -50,7 +50,9 @@ Plugin 'VundleVim/Vundle.vim'
 Plugin 'skywind3000/asyncrun.vim'
 Plugin 'terryma/vim-expand-region'
 Plugin 'Yggdroot/indentLine'
-Plugin 'zdy023/vim-easymotion'
+Plugin 'justinmk/vim-sneak'
+Plugin 'tpope/vim-surround'
+"Plugin 'zdy023/vim-easymotion'
 "Plugin 'easymotion/vim-easymotion'
 Plugin 'vim-scripts/Mark'
 Plugin 'tpope/vim-fugitive'
@@ -64,10 +66,12 @@ Plugin 'maralla/completor.vim'
 Plugin 'voldikss/vim-floaterm'
 Plugin 'zdy023/changesPlugin'
 Plugin 'mbbill/undotree'
-Plugin 'chrisbra/NrrwRgn'
+"Plugin 'chrisbra/NrrwRgn'
 "Plugin 'vim-scripts/AnsiEsc.vim'
 Plugin 'chrisbra/Colorizer'
 Plugin 'junegunn/vim-easy-align'
+Plugin 'ctrlpvim/ctrlp.vim'
+Plugin 'mhinz/vim-startify'
 
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
@@ -91,6 +95,7 @@ Plugin 'mattn/calendar-vim'
 Plugin 'nblock/vim-dokuwiki'
 Plugin 'vim-scripts/bnf.vim'
 Plugin 'vim-scripts/ebnf.vim'
+Plugin 'johngrib/vim-game-code-break'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -175,18 +180,18 @@ set ttimeoutlen=100
 " <Leader>f{char} to move to {char}
 "map  <Leader><Leader>f <Plug>(easymotion-bd-f)
 "nmap <Leader><Leader>f <Plug>(easymotion-overwin-f)
-nmap t <Plug>(easymotion-fl)
-nmap T <Plug>(easymotion-Fl)
-xmap t <Plug>(easymotion-fl)
-xmap T <Plug>(easymotion-Fl)
+"nmap t <Plug>(easymotion-fl)
+"nmap T <Plug>(easymotion-Fl)
+"xmap t <Plug>(easymotion-fl)
+"xmap T <Plug>(easymotion-Fl)
 
 " s{char}{char} to move to {char}{char}
-nmap <Leader><Leader>s <Plug>(easymotion-bd-fl2)
+"nmap <Leader><Leader>s <Plug>(easymotion-bd-fl2)
 
 " Move to line
 "map <Leader><Leader>L <Plug>(easymotion-bd-jk)
 "nmap <Leader><Leader>L <Plug>(easymotion-overwin-line)
-map K <Plug>(easymotion-bd-jk)
+"map K <Plug>(easymotion-bd-jk)
 
 " Move to word
 "map  <Leader><Leader>w <Plug>(easymotion-bd-w)
@@ -195,18 +200,18 @@ map K <Plug>(easymotion-bd-jk)
 " Gif config
 "map <Leader><Leader>l <Plug>(easymotion-lineforward)
 "map <Leader><Leader>h <Plug>(easymotion-linebackward)
-nmap w <Plug>(easymotion-lineforward)
-nmap b <Plug>(easymotion-linebackward)
-xmap w <Plug>(easymotion-lineforward)
-xmap b <Plug>(easymotion-linebackward)
-map <Leader><Leader>j <Plug>(easymotion-j)
-map <Leader><Leader>k <Plug>(easymotion-k)
-
-map <space>; <Plug>(easymotion-repeat)
-map <Leader><Leader>n <Plug>(easymotion-next)
-map <Leader><Leader>N <Plug>(easymotion-prev)
-
-let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
+"nmap w <Plug>(easymotion-lineforward)
+"nmap b <Plug>(easymotion-linebackward)
+"xmap w <Plug>(easymotion-lineforward)
+"xmap b <Plug>(easymotion-linebackward)
+"map <Leader><Leader>j <Plug>(easymotion-j)
+"map <Leader><Leader>k <Plug>(easymotion-k)
+"
+"map <space>; <Plug>(easymotion-repeat)
+"map <Leader><Leader>n <Plug>(easymotion-next)
+"map <Leader><Leader>N <Plug>(easymotion-prev)
+"
+"let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
 
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
