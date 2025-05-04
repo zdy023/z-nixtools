@@ -52,6 +52,7 @@ Plugin 'terryma/vim-expand-region'
 Plugin 'Yggdroot/indentLine'
 Plugin 'justinmk/vim-sneak'
 Plugin 'tpope/vim-surround'
+" https://github.com/easymotion/vim-easymotion/issues/484#issuecomment-1200663901
 "Plugin 'zdy023/vim-easymotion'
 "Plugin 'easymotion/vim-easymotion'
 Plugin 'vim-scripts/Mark'
