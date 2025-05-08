@@ -284,16 +284,28 @@ class TemplateGroup:
 
             fix_snippet_choice (Optional[Union[int, Mapping[str, Optional[int]]]]):
               by default, the snippet placeholder will be instantiated with a
-              random choice; if a single interger $i$ is given to this
-              parameter, all the snippet placeholder will be instantiated with
-              the $i$-th choice (if it has such many choices, otherwise it will
-              be instantiated with the last choice); if a dict is given, then
-              the placeholder of snippet `x` will be instantiated with the
-              `fix_snippet_choice[x]`-th choice; if `fix_snippet_choice[x]` is
-              not present, then 0 is deemed default; if `fix_snippet_choice[x]`
-              is "random", then it will still be replaced randomly; if
-              `fix_snippet_choice[x]` is `unified_random`, then all the
-              placeholders of `x` will be replaced with the same random choice.
+              random choice;
+              * if a single integer $i$ is given to this parameter, all the
+              snippet placeholder will be instantiated with the $i$-th choice
+              (if it has such many choices, otherwise it will be instantiated
+              with the last choice);
+              * if a dict is given, then
+                * if `fix_snippet_choice[x]` is an integer, the placeholder of
+                snippet `x` will be instantiated with the
+                `fix_snippet_choice[x]`-th choice;
+                * if `fix_snippet_choice[x]` is a slice object, the placeholder
+                os snippet `x` will be instantiated with a random one from the
+                given slice
+                * if `fix_snippet_choice[x]` is a list of integers or slices,
+                the placeholder will be instantiated with a random one from the
+                union ranges specified by the integers and slices.
+                * if `fix_snippet_choice[x]` is not present, then 0 is deemed
+                default;
+                * if `fix_snippet_choice[x]` is "random", then it will still be
+                replaced randomly;
+                * if `fix_snippet_choice[x]` is `unified_random`, then all the
+                placeholders of `x` will be replaced with the same random
+                choice.
 
         Returns:
             Union[PromptGroupT, GeneralMessage]: instantiated
@@ -416,16 +428,28 @@ class TemplateGroup:
         Args:
             fix_snippet_choice (Optional[Union[int, Mapping[str, Optional[int]]]]):
               by default, the snippet placeholder will be instantiated with a
-              random choice; if a single interger $i$ is given to this
-              parameter, all the snippet placeholder will be instantiated with
-              the $i$-th choice (if it has such many choices, otherwise it will
-              be instantiated with the last choice); if a dict is given, then
-              the placeholder of snippet `x` will be instantiated with the
-              `fix_snippet_choice[x]`-th choice; if `fix_snippet_choice[x]` is
-              not present, then 0 is deemed default; if `fix_snippet_choice[x]`
-              is "random", then it will still be replaced randomly; if
-              `fix_snippet_choice[x]` is `unified_random`, then all the
-              placeholders of `x` will be replaced with the same random choice.
+              random choice;
+              * if a single integer $i$ is given to this parameter, all the
+              snippet placeholder will be instantiated with the $i$-th choice
+              (if it has such many choices, otherwise it will be instantiated
+              with the last choice);
+              * if a dict is given, then
+                * if `fix_snippet_choice[x]` is an integer, the placeholder of
+                snippet `x` will be instantiated with the
+                `fix_snippet_choice[x]`-th choice;
+                * if `fix_snippet_choice[x]` is a slice object, the placeholder
+                os snippet `x` will be instantiated with a random one from the
+                given slice
+                * if `fix_snippet_choice[x]` is a list of integers or slices,
+                the placeholder will be instantiated with a random one from the
+                union ranges specified by the integers and slices.
+                * if `fix_snippet_choice[x]` is not present, then 0 is deemed
+                default;
+                * if `fix_snippet_choice[x]` is "random", then it will still be
+                replaced randomly;
+                * if `fix_snippet_choice[x]` is `unified_random`, then all the
+                placeholders of `x` will be replaced with the same random
+                choice.
 
         Returns:
             TemplateGroupT: replace templates
@@ -446,6 +470,15 @@ class TemplateGroup:
             for snpp, ch in self._snippets.items():
                 if isinstance(fix_snippet_choice.get(snpp, 0), int):
                     runtime_snippets[snpp] = ch[fix_snippet_choice.get(snpp, 0)]
+                elif isinstance(fix_snippet_choice[snpp], slice):
+                    runtime_snippets[snpp] = ch[fix_snippet_choice[snpp]]
+                elif isinstance(fix_snippet_choice[snpp], list):
+                    runtime_snippets[snpp] = []
+                    for idx in fix_snippet_choice[snpp]:
+                        if isinstance(idx, int):
+                            runtime_snippets[snpp].append(ch[idx])
+                        else:
+                            runtime_snippets[snpp] += ch[idx]
                 elif fix_snippet_choice[snpp]=="unified_random":
                     runtime_snippets[snpp] = self._rng.choice(ch)
                 else:
