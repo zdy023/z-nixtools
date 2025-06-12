@@ -368,8 +368,8 @@ class TemplateGroup:
         raise NotImplementedError()
         #  }}} method safe_substitute # 
 
-    def snippet(self, snippet_id: str) -> str:
-        return self._snippets.get(snippet_id, "")
+    def snippet(self, snippet_id: str) -> List[str]:
+        return self._snippets.get(snippet_id, [])
 
     @classmethod
     def instantiate_snippet( cls, snippet: str, slot_id_suffix: str
