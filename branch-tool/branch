@@ -36,18 +36,18 @@ function r() {
 			--safe-links\
 			./ "$destpath"/"$branch_name"/
 		if [[ $(<branch-config/symlist) != "" ]]; then
-			mapfile -t symfiles <(sed -e 's#^#'"$PWD"/'#g' branch-config/symlist)
+			mapfile -t symfiles < <(sed -e 's#^#'"$PWD"/'#g' branch-config/symlist)
 			ln -sf "${symfiles[@]}" "$destpath"/"$branch_name"/
 		fi
 	fi
 
 	echo Branch Info: run at "$branch_name"@"$destpath":"$autodelete"
-	cd "$destpath"/"$branch_name" || echo "changing to $destpath/$branch_name error!" && return
+	! cd "$destpath"/"$branch_name" && echo "changing to $destpath/$branch_name error!" && return 1
 	shift 1
 	echo Command: "$@"
 	"$@"
 	returncode=$?
-	cd ~- || echo "changing back to workdir error!" && return
+	! cd ~- && echo "changing back to workdir error!" && return 1
 	echo Branch Info: run at "$branch_name"@"$destpath":"$autodelete"
 
 	if [[ $autodelete -ne 0 ]]; then
