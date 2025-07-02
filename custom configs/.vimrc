@@ -73,6 +73,9 @@ Plugin 'chrisbra/Colorizer'
 Plugin 'junegunn/vim-easy-align'
 Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'mhinz/vim-startify'
+Plugin 'mg979/vim-visual-multi'
+Plugin 'itchyny/vim-cursorword'
+Plugin 'machakann/vim-highlightedyank'
 
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'mattn/emmet-vim'
@@ -128,6 +131,9 @@ set hls
 set is
 "set cursorline
 set nocursorline
+
+let g:highlightedyank_highlight_duration = -1
+"let g:highlightedyank_highlight_in_visual = 0
 
 set wrap
 set scrolloff=7
