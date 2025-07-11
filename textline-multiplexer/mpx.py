@@ -90,6 +90,7 @@ def main():
     default_tags: str = "".join(declared_tags)
     # NORMAL: as common plain lines
     # PRECED: use tag of preceding lines
+    # PRECEDS: use tags of all consecutive preceding lines
     blank_mode: str = "NORMAL"
     if len(modelines)>0:
         modeline: str = modelines[0]
