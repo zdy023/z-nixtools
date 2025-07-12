@@ -132,6 +132,8 @@ def main():
 
     predefined_tags: str = ""
     preceding_tags: str = default_tags
+    proceeded_blank = True
+    is_free_blank = False
     for l_no, l in enumerate(source_lines):
         if l.endswith(" *") or l.endswith(" **"):
             continue
@@ -142,6 +144,7 @@ def main():
             continue
 
         if len(predefined_tags)==0:
+            is_free_blank = l==""
             if l.endswith(">"):
                 try:
                     space_offset: int = l.rindex(" ")
@@ -160,6 +163,7 @@ def main():
                 tags: str = default_tags
                 line: str = l
         else:
+            is_free_blank = False
             tags: str = predefined_tags
             line: str = l
 
@@ -177,7 +181,13 @@ def main():
             if eval(fl, locals=tag_values)>0:
                 output_flows[fl].write(line + "\n")
 
-        preceding_tags = tags
+        if blank_mode=="PRECEDS":
+            if proceeded_blank and not is_free_blank:
+                preceding_tags = ""
+            preceding_tags = "".join(set(preceding_tags + tags))
+            proceeded_blank = is_free_blank
+        else:
+            preceding_tags = tags
 
         #if l.endswith(">"):
             #try:

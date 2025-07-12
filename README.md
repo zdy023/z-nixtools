@@ -600,10 +600,10 @@ The scripts to be executed are supposed to be stored under
 id is "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", the tool will automatically
 invokes
 `~/.autoactions/currentActivityChanged/exit=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
-if it exists and is executable. When an activity is entered, suppose its id is
-"yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy", the tool will automatically invokes
+if it exists and is **executable**. When an activity is entered, suppose its id
+is "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy", the tool will automatically invokes
 `~/.autoactions/currentActivityChanged/yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy` if
-it exists and is executable.
+it exists and is **executable**.
 
 The entering and exiting scripts can also be specified by activity name like
 `name=workspace` and `exit-name=workspace`.
@@ -709,12 +709,36 @@ C>
 As blank lines are often used in markup and typesetting languages to
 distinguish paragraphs, it is verbose to add a tag for each blank line that the
 global default tags are not suitable for. In such cases, mpx supports handle
-default tags for blank lines specially as `PRECED` to use the tags of the last
-non-blank line. To enable `PRECED` mode, append `:PRECED` in the modeline
-command:
+default tags for blank lines specially
+
+1. `PRECED` mode uses the tags of the last non-blank line. To enable `PRECED`
+   mode, append `:PRECED` in the modeline command:
 
 ```
 ALL:PRECED **
+```
+
+`PRECED` mode is not that handy and in most cases `PRECEDS` mode should be
+used. `PRECED` mode is kept just for compatibility.
+
+2. `PRECEDS` mode uses the combination of tags of all the lines in the last
+   non-blank block. For instance,
+
+```
+a 1>
+b 2>
+c 34>
+d z>
+
+```
+
+The last blank line in the snippet above will have tags 1, 2, 3, 4, and z in
+`PRECEDS` mode, while only `z` in `PRECED` mode.
+
+`PRECEDS` mode is enabled in the similar way:
+
+```
++z:PRECEDS **
 ```
 
 To explicitly demand that the blank lines follow the idential default tags of

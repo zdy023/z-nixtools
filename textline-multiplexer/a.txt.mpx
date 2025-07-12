@@ -5,7 +5,7 @@ A: ~/a.abs.txt *
 1+2: a.channel|.txt *
 1*2: a.channel&.txt *
 !(T): a.common.txt *
-+T:PRECED **
++T:PRECEDS **
 
 这是个测试文件。
 
@@ -26,6 +26,7 @@ C: path/to/output * |
 这一行只会输出到a.channel1.txt中 1>
 这一行会输出到a.channel2.txt中 2>
 这一行会同时出现在a.channel1.txt和a.channel2.txt中 12>
+注意下面的空行的标签取决于空行标签模式NORMAL、PRECED或PRECEDS。
 
 如果>之前没有任何字符，则该行不会出现在任何输出流中。 >
 
@@ -41,5 +42,11 @@ T>
 
 12 <
 还可以对一段文本预定义一组标签，这段文本将全部使用该预定义的标签，且其中出现的元字符将不作为命令解析。
+
 ...
+
+345 210>
  <
+还有这里。
+
+玩得愉快！ |
