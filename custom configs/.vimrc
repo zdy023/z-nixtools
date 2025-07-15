@@ -101,6 +101,8 @@ Plugin 'vim-scripts/bnf.vim'
 Plugin 'vim-scripts/ebnf.vim'
 Plugin 'johngrib/vim-game-code-break'
 
+Plugin 'ryanoasis/vim-devicons'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
