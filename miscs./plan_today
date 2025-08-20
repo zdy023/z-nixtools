@@ -4,17 +4,18 @@ from pathlib import Path
 import re
 from typing import Pattern, Match, List
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 
 todo_file = Path("~/.note/综合待办.md").expanduser()
 plan_file = Path("~/.random_sched/plan_sched.rem").expanduser()
 
 #today_detect_pattern: Pattern[str] = re.compile(r"^\s*\* \[T\]")
 #prerequisite_pattern: Pattern[str] = re.compile(r"^\s*\* \[T\](?: /[^()]+/)? ")
-today_detect_pattern: Pattern[str] = re.compile(r"^\s*\* \[T\](?: /[^()]+/)? ")
+today_detect_pattern: Pattern[str] = re.compile(r"^\s*\* \[([TU])\](?: /[^()]+/)? ")
 date_hinting_pattern: Pattern[str] = re.compile(r" (?:\d{4}\.\d{4})?(?:[+-](?:(?:\d{4}\.)?\d{2})?\d{2})*$")
 
 today_str: str = datetime.today().strftime("%Y-%m-%d")
+tomorrow_str: str = (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%d")
 
 new_lines: List[str] = []
 new_plans: List[str] = []
@@ -27,8 +28,12 @@ for l in todo_file.read_text().splitlines():
     todo_item_end: Optional[int] = date_hinting_match.start() if date_hinting_match is not None else None
     todo_item: str = l[today_detect_match.end():todo_item_end]
 
-    new_plans.append("rem {:} msg {:}".format(today_str, todo_item))
-    new_lines.append(l.replace("[T]", "[ ]"))
+    if today_detect_match.group(1)=='T':
+        new_plans.append("rem {:} msg {:}".format(today_str, todo_item))
+        new_lines.append(l.replace("[T]", "[ ]"))
+    else:
+        new_plans.append("rem {:} msg {:}".format(tomorrow_str, todo_item))
+        new_lines.append(l.replace("[U]", "[ ]"))
 
 #todo_file.write_text("\n".join(new_lines) + "\n")
 with plan_file.open("a") as f:
