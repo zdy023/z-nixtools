@@ -806,6 +806,7 @@ overwrite the existing file.
 * `添加元信息.ptsp` - script for picard
 * `branch-tool` - snapshot the workspace for multi-branch experiment directory
 * `xclip_image_saver` - quick save the image base64 in clipboard to an image file
+* `plan_today` - update remind calendar automatically according to special marks in todo list
 
 Corresponding completion configuration:
 
