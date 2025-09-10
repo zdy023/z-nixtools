@@ -121,8 +121,6 @@ filetype plugin indent on    " required
 set mouse-=a
 set backspace=indent,eol,start
 
-"set nosi!
-"set noai!
 set ai
 set si
 
