@@ -118,15 +118,17 @@ filetype plugin indent on    " required
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
 
-set mouse-=a!
+set mouse-=a
 set backspace=indent,eol,start
 
-set nosi!
-set noai!
+"set nosi!
+"set noai!
+set ai
+set si
 
-set showcmd!
-set number!
-set ruler!
+set showcmd
+set number
+set ruler
 
 syntax on
 set hls
