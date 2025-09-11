@@ -51,12 +51,8 @@ def main():
         items: List[str] = mt_l[:-2].split(": ", maxsplit=1)
         if len(items[0])==1:
             declared_tags[items[0]] = "_{:d}".format(i)
-        declared_channels[items[0]] =\
-                os.path.expanduser(
-                        os.path.expandvars(
-                            items[1] if os.path.isabs(items[1]) else os.fspath(input_file.parent/items[1])
-                          )
-                      )
+        channel_path: str = os.path.expanduser(os.path.expandvars(items[1]))
+        declared_channels[items[0]] = channel_path if os.path.isabs(channel_path) else os.fspath(input_file.parent/channel_path)
     tag_translation_dict: Dict[str, str] = declared_tags.copy()
     tag_translation_dict['!'] = "_not"
     _not: Callable[[int], int] = lambda x: int(x==0)
