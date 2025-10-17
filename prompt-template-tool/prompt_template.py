@@ -495,7 +495,7 @@ class TemplateGroup:
             new_lines: List[str] = []
             #has_equal_lines = False
             for l in lines:
-                print("NODE", l)
+                #print("NODE", l)
                 if l.startswith("=== "):
                     fields: List[str] = l.strip().split()
                     snippet_name: str = fields[1]
@@ -527,25 +527,26 @@ class TemplateGroup:
             return new_lines
             #  }}} function _replace_snippets # 
 
-        def _escape(to_escape: List[str]) -> str:
-            #  function _escape {{{ # 
-            #lines: List[str] = to_escape.splitlines(keepends=True)
-            lines: List[str] = to_escape
-            new_lines: List[str] = []
-            for l in lines:
-                if l.startswith("\\\\\\"):
-                    new_lines.append(l[3:])
-                else:
-                    new_lines.append(l)
-            #if not to_escape.endswith("\n"):
-                #new_lines = new_lines[:-1]
-            return "".join(new_lines)
-            #  }}} function _escape # 
-
         for tmpl in template:
-            tmpl["content"] = VisionTemplate(_escape(_replace_snippets(tmpl["content"])))
+            tmpl["content"] = VisionTemplate(TemplateGroup.remove_escape(_replace_snippets(tmpl["content"])))
         return template, default_text_mappings, default_img_mappings
         #  }}} method _substitute_snippets # 
+
+    @staticmethod
+    def remove_escape(to_escape: List[str]) -> str:
+        #  function _escape {{{ # 
+        #lines: List[str] = to_escape.splitlines(keepends=True)
+        lines: List[str] = to_escape
+        new_lines: List[str] = []
+        for l in lines:
+            if l.startswith("\\\\\\"):
+                new_lines.append(l[3:])
+            else:
+                new_lines.append(l)
+        #if not to_escape.endswith("\n"):
+            #new_lines = new_lines[:-1]
+        return "".join(new_lines)
+        #  }}} function _escape # 
 
     @classmethod
     def parse( cls, template_file: str
@@ -633,35 +634,11 @@ class TemplateGroup:
                         img_obj = img_obj.resize((width, height))
                     default_images[current_value_name[6:]] = img_obj
                 else:
-                    current_value: str = "".join(current_value_strs)
+                    current_value: str = "".join(TemplateGroup.remove_escape(current_value_strs))
                     if current_value.endswith("\n"):
                         current_value = current_value[:-1]
                     default_values[current_value_name] = current_value
                 recording_value = False
-            #elif l.startswith("=== "): # snippet invocation
-                #fields: List[str] = l.strip().split()
-                #snippet_name: str = fields[1]
-                #slot_id_suffix: str = fields[2]
-#
-                #snippet_text = cls.instantiate_snippet( snippets[snippet_name]
-                                                      #, slot_id_suffix
-                                                      #, default_values
-                                                      #, default_images
-                                                      #)
-                #if recording_value:
-                    #current_value_strs.append(snippet_text)
-                #elif recording_snippet:
-                    #current_snippet_strs.append(snippet_text)
-                #elif recording:
-                    #current_template_strs.append(snippet_text)
-            #elif l.startswith("\\\\\\"): # escaping
-                #literal_line: str = l[3:]
-                #if recording_value:
-                    #current_value_strs.append(literal_line)
-                #elif recording_snippet:
-                    #current_snippet_strs.append(literal_line)
-                #elif recording:
-                    #current_template_strs.append(literal_line)
             elif l == "<<<\n":
                 if recording_value:
                     current_value_strs[-1] = current_value_strs[-1][:-1]
@@ -771,7 +748,7 @@ if __name__ == "__main__":
                                                                         , "vara3_1": "a31"
                                                                         , "vara3_ib_1": "a3ib1"
                                                                         }
-                                                         , fix_snippet_choice={ "a": 2
+                                                         , fix_snippet_choice={ "a": [0, 1]
                                                                               , "b": 0
                                                                               }
                                                          )
