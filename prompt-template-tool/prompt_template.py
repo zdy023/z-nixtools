@@ -370,7 +370,7 @@ class TemplateGroup:
         raise NotImplementedError()
         #  }}} method safe_substitute # 
 
-    def snippet(self, snippet_id: str) -> List[str]:
+    def snippet(self, snippet_id: str) -> List[List[str]]:
         return self._snippets.get(snippet_id, [])
 
     @classmethod
