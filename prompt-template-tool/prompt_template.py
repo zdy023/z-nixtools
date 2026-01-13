@@ -562,7 +562,7 @@ class TemplateGroup:
                 value_macros[mcr] = ""
 
         preprocessed_file: TextIO = io.StringIO()
-        config_dict: Dict[str, str] = libzpp.MODE_DICT["T"]
+        config_dict: Dict[str, str] = libzpp.MODE_DICT["T"].copy()
         config_dict["path"] = os.path.dirname(template_file)
         with open(template_file) as f:
             libzpp.preprocess( f, preprocessed_file
