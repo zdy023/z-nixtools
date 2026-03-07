@@ -8,18 +8,25 @@ a2 ${vara}
 ---
 a3 ${vara3}
 33333
+<<<
 ```
 
 ``` b
 b1 ${varb}
 === a ib
 \\\=== a 2
+1234567
+<<<
+abcdefg
 ---
 b2 NOTHING
 ```
 
 ### vara_ib
 def_vara
+<<<
+\\\###
+321
 ###
 
 --- user

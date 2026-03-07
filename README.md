@@ -499,6 +499,13 @@ Such lines are considered comments.
 When you want to use several lines which will be confused with the special meta
 lines in the prompt, you can precede the line with `\\\` to escapte it.
 
+```
+The "\n" at the end of line will be deleted.
+<<<
+```
+
+You can use `<<<` to remove the last "\n".
+
 ##### Snippet Definitions
 
 	``` snippet_name
