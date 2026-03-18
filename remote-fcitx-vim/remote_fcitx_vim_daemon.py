@@ -3,7 +3,7 @@
 """
 remote_fcitx_vim_daemon
 Author: David Chang
-Last Revision: Aug 27, 2020
+Last Revision: Mar 18, 2026
 """
 
 import signal
@@ -20,27 +20,6 @@ import protocols
 import utils
 
 import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--address", default="0.0.0.0", type=str, help="The address to bind with.")
-parser.add_argument("--port", default=30002, type=int, help="The port to bind with.")
-args = parser.parse_args()
-
-signal.signal(signal.SIGINT, utils.existence_handler)
-signal.signal(signal.SIGTERM, utils.existence_handler)
-
-protocols.init_salt()
-
-null_status = -1
-normal_status = 0
-insertion_status = 1
-
-local_address = args.address
-local_port = args.port
-
-local_socket_file = "/tmp/remote-fcitx-vim-socket.{:}.{:}".format(socket.gethostname(), os.getuid())
-if os.path.exists(local_socket_file):
-    os.remove(local_socket_file)
 
 def remote_process(local_address, local_port, message_pipe):
     """
@@ -61,7 +40,7 @@ def remote_process(local_address, local_port, message_pipe):
             session, _ = server_socket.accept()
             print("Remote machine connected.")
             session.setblocking(True)
-            session_active = True
+            #session_active = True
 
             with tempfile.NamedTemporaryFile(prefix="remote-fcitx-vim-conn-"):
                 while utils.is_active(session):
@@ -106,20 +85,44 @@ def local_process(socket_file, message_pipe):
             session.shutdown(socket.SHUT_RDWR)
         daemon_socket.shutdown(socket.SHUT_RDWR)
 
-try:
-    receiver, sender = multiprocessing.Pipe(duplex=False)
-    remote_process_instance = multiprocessing.Process(target=remote_process,
-            args=(local_address, local_port, receiver))
-    local_process_instance = multiprocessing.Process(target=local_process,
-            args=(local_socket_file, sender))
+if __name__ == "__main__":
+    multiprocessing.freeze_support()
 
-    remote_process_instance.start()
-    local_process_instance.start()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--address", default="0.0.0.0", type=str, help="The address to bind with.")
+    parser.add_argument("--port", default=30002, type=int, help="The port to bind with.")
+    args = parser.parse_args()
 
-    remote_process_instance.join()
-    local_process_instance.join()
-except KeyboardInterrupt:
-    local_process_instance.terminate()
-    remote_process_instance.terminate()
-    os.remove(local_socket_file)
-    exit(0)
+    signal.signal(signal.SIGINT, utils.existence_handler)
+    signal.signal(signal.SIGTERM, utils.existence_handler)
+
+    protocols.init_salt()
+
+    null_status = -1
+    normal_status = 0
+    insertion_status = 1
+
+    local_address = args.address
+    local_port = args.port
+
+    local_socket_file = "/tmp/remote-fcitx-vim-socket.{:}.{:}".format(socket.gethostname(), os.getuid())
+    if os.path.exists(local_socket_file):
+        os.remove(local_socket_file)
+
+    try:
+        receiver, sender = multiprocessing.Pipe(duplex=False)
+        remote_process_instance = multiprocessing.Process(target=remote_process,
+                args=(local_address, local_port, receiver))
+        local_process_instance = multiprocessing.Process(target=local_process,
+                args=(local_socket_file, sender))
+
+        remote_process_instance.start()
+        local_process_instance.start()
+
+        remote_process_instance.join()
+        local_process_instance.join()
+    except KeyboardInterrupt:
+        local_process_instance.terminate()
+        remote_process_instance.terminate()
+        os.remove(local_socket_file)
+        exit(0)
