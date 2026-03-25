@@ -9,7 +9,7 @@ syn match PromptValDef /^###\( \w\+\)\=$/ contains=PromptMark " define default v
 syn match PromptSegIns /^=== \w\+ \w\+$/ contains=PromptMark
 
 syn match Comment /^% .*$/ contains=ZppCommand
-syn match PromptEscapeLine /^\\\\\\.*$/ contains=PromptEscape
+syn match PromptEscapeLine /^\\\\\\.*$/ contains=PromptEscape,PromptSlot,PromptImage,PromptImagef
 syn match PromptEscape /^\\\\\\/ contained " Anything after \\\ will be parsed literally
 
 syn match PromptSlot /\(\(^\|[^$]\)\(\$\$\)*\)\@<=\${\=\w\+}\=/ contains=PromptSlotChar
