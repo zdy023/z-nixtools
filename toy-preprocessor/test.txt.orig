@@ -12,3 +12,19 @@ I got a FOO.
 #iflt NUM 3
 print(3)
 #endif
+
+#for LOOP
+#ifeq LOOP a
+branch A
+#elifeq LOOP b
+branch B
+#else
+branch others
+#endif
+#endfor
+
+LOOP is back to `LOOP`.
+
+#for LOOP :
+LOOP is `LOOP`.
+#endfor

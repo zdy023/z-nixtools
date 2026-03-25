@@ -13,6 +13,8 @@ Last Revision: Dec 2024
 # ./zpp -m C --def 'ABC=/(?<!^)ABC/321/' test.txt.orig -o output.txt
 # ./zpp -m C --def 'ABC=/(?<!^)ABC/321/' --def NUM=2 test.txt.orig -o output.txt
 # ./zpp -m C --def 'ABC=/(?<!^)ABC/321/' --def NUM=3 test.txt.orig -o output.txt
+# ./zpp -m C --def 'LOOP=/(?<!^)LOOP\b/a b c/' test.txt.orig -o output.txt
+# ./zpp -m C --def 'LOOP=/(?<!^)LOOP\b/a:b:c/' test.txt.orig -o output.txt
 
 import argparse
 import re
@@ -84,7 +86,7 @@ def parse_number(number_str: str) -> Union[None, int, float]:
         return number
     except ValueError:
         pass
-    logger.warning("%s is neither interger nor float.", number_str)
+    logger.warning("`%s` is neither interger nor float.", number_str)
     return None
 
 def _print_plainline( line: str, macros: Dict[str, Union[str, Tuple[str, str, str]]], line_subs: List[Tuple[str, str]]
@@ -150,23 +152,95 @@ def include( input_file: Iterable[str]
     line_suffix: str = modifications.get("line_suffix", "")
     line_subs: List[Tuple[str, str]] = modifications.get("line_subs", [])
 
+    looping_block: List[str] = []
+    loop_depth = 0
+    loop_substitutions: List[Union[str, Tuple[str, str, str]]] = []
+    loop_macro_name: str = None
+
     for l in input_file:
+        # assume there is a trailing '\n'
         unstripped_line = l[:-1]
         l = l.strip()
+
+        # Extract command
         if l.startswith(prefix) and l.endswith(suffix):
             candidate = l[len(prefix):-len(suffix)] if len(suffix)>0 else l[len(prefix):]
             candidate = candidate.strip()
 
             command = candidate.split(maxsplit=1)
-            if len(command)<1:
-                if if_stack[-1][1]:
+        else:
+            command = []
+
+        # First handle in-loop logics
+        if loop_depth>0:
+            if len(command)>=1:
+                if command[0]=="for":
+                    loop_depth += 1
+                elif command[0]=="endfor":
+                    loop_depth -= 1
+            if loop_depth>0:
+                looping_block.append(unstripped_line + "\n")
+            else:
+                macro_backup: Union[None, str, Tuple[str, str, str]] = macros.get(loop_macro_name, None)
+                for fll in loop_substitutions:
+                    macros[loop_macro_name] = fll
+                    include(looping_block, output_file, configs, states, if_stack, modifications)
+                # if is None, loop_substitutions will be empty, so the update
+                # to macros in the loop won't be executed
+                if macro_backup is not None:
+                    macros[loop_macro_name] = macro_backup
+
+        # Then handle condition logics
+        elif len(command)>=1 and command[0]=="else":
+            if_stack[-1][1] = if_stack[-2][1] and not if_stack[-1][0]
+            if_stack[-1][0] = if_stack[-2][1]
+        elif len(command)>=1 and command[0]=="endif":
+            if_stack.pop()
+        else:
+            match_ = _condition_pattern.match(command[0]) if len(command)>=1 else None
+            if match_ is not None:
+                if match_["if"]=="if":
+                    if_stack.append([False, False])
+                if if_stack[-1][0]:
+                    if_stack[-1][1] = False
+                else:
+                    if not if_stack[-2][1]:
+                        condition = False
+                    else:
+                        if match_["rel"]=="def":
+                            condition = command[1] in macros
+                            mask = True
+                        else:
+                            macro_name, macro_value = command[1].split(maxsplit=1)
+                            mask = macro_name in macros
+                            real_value: Union[str, Tuple[str, str, str]] = macros.get(macro_name, "")
+                            if isinstance(real_value, tuple):
+                                real_value: str = real_value[1]
+
+                            if match_["rel"]=="eq":
+                                condition = mask and real_value==macro_value
+                            else:
+                                ref_number: Optional[Number] = parse_number(macro_value)
+                                real_number: Optional[Number] = parse_number(real_value)
+                                mask = mask and ref_number is not None\
+                                            and real_number is not None
+                                if match_["rel"]=="eqn":
+                                    condition = mask and real_number==ref_number
+                                else:
+                                    condition = mask and getattr(operator, match_["rel"])(real_number, ref_number)
+
+                        if match_["not"]=="n":
+                            condition = mask and not condition
+                    if_stack[-1] = [condition, condition]
+
+            # Finally, other logics
+            elif if_stack[-1][1]:
+                if len(command)<1:
                     output_file.write(_print_plainline(unstripped_line, macros, line_subs, line_prefix, line_suffix))
-            elif command[0]=="define":
-                if if_stack[-1][1]:
+                elif command[0]=="define":
                     arguments = command[1].split(maxsplit=1)
                     macros[arguments[0]] = arguments[1] if len(arguments)>1 else ""
-            elif command[0]=="defineR":
-                if if_stack[-1][1]:
+                elif command[0]=="defineR":
                     macro_name: str
                     remaining: str
                     macro_name, remaining = command[1].split(maxsplit=1)
@@ -176,13 +250,11 @@ def include( input_file: Iterable[str]
                     flags: str = remaining[endposition1:endposition2].strip()
                     replacement: str = remaining[endposition2:].strip()
                     macros[macro_name] = (regex, replacement, flags)
-            elif command[0]=="undef":
-                if if_stack[-1][1]:
+                elif command[0]=="undef":
                     if command[1] in macros:
                         del macros[command[1]]
 
-            elif command[0]=="include":
-                if if_stack[-1][1]:
+                elif command[0]=="include":
                     in_prefix = prefix
                     in_suffix = suffix
                     in_line_prefix = ""
@@ -227,53 +299,29 @@ def include( input_file: Iterable[str]
                                                }
                                )
 
-            elif command[0]=="else":
-                if_stack[-1][1] = if_stack[-2][1] and not if_stack[-1][0]
-                if_stack[-1][0] = if_stack[-2][1]
-            elif command[0]=="endif":
-                if_stack.pop()
-            else:
-                match_ = _condition_pattern.match(command[0])
-                if match_ is not None:
-                    if match_["if"]=="if":
-                        if_stack.append([False, False])
-                    if if_stack[-1][0]:
-                        if_stack[-1][1] = False
+                elif command[0]=="for":
+                    arguments: List[str] = command[1].split(maxsplit=1)
+                    loop_macro_name = arguments[0]
+                    macro_definition: Union[str, Tuple[str, str, str]] = macros.get(loop_macro_name)
+                    if isinstance(macro_definition, str):
+                        macro_value: str = macro_definition
                     else:
-                        if not if_stack[-2][1]:
-                            condition = False
-                        else:
-                            if match_["rel"]=="def":
-                                condition = command[1] in macros
-                                mask = True
-                            else:
-                                macro_name, macro_value = command[1].split(maxsplit=1)
-                                mask = macro_name in macros
-                                real_value: Union[str, Tuple[str, str, str]] = macros.get(macro_name, "")
-                                if isinstance(real_value, tuple):
-                                    real_value: str = real_value[1]
+                        macro_value: str = macro_definition[1]
+                    if len(arguments)<2:
+                        fillers: List[str] = macro_value.split()
+                    else:
+                        fillers: List[str] = macro_value.split(arguments[1])
 
-                                if match_["rel"]=="eq":
-                                    condition = mask and real_value==macro_value
-                                else:
-                                    ref_number: Optional[Number] = parse_number(macro_value)
-                                    real_number: Optional[Number] = parse_number(real_value)
-                                    mask = mask and ref_number is not None\
-                                                and real_number is not None
-                                    if match_["rel"]=="eqn":
-                                        condition = mask and real_number==ref_number
-                                    else:
-                                        condition = mask and getattr(operator, match_["rel"])(real_number, ref_number)
+                    if isinstance(macro_definition, tuple):
+                        loop_substitutions =\
+                                [ (macro_definition[0], fll, macro_definition[2])
+                              for fll in fillers
+                                ]
+                    else:
+                        loop_substitutions = fillers
 
-                            if match_["not"]=="n":
-                                condition = mask and not condition
-                        if_stack[-1] = [condition, condition]
-                else:
-                    if if_stack[-1][1]:
-                        output_file.write(_print_plainline(unstripped_line, macros, line_subs, line_prefix, line_suffix))
-        else:
-            if if_stack[-1][1]:
-                output_file.write(_print_plainline(unstripped_line, macros, line_subs, line_prefix, line_suffix))
+                    loop_depth += 1
+                    looping_block = []
     #  }}} function `include` # 
 
 MODE_DICT = {

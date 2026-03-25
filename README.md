@@ -366,6 +366,58 @@ Also `else` command is supported.
 
 Embedding `if` blocks is supported.
 
+4. `for` command
+
+```
+for MACRO_NAME [SEPERATOR]
+endfor
+```
+
+In case the macro value referenced by `MACRO_NAME` is a list of values, `for`
+command will duplicate the following text block before `endfor` command for
+multiple times and in each duplication the macro value of `MACRO_NAME` will be
+temporarily replaced with the corresponding list item. By default, the
+seperator is considered to be any contigous blank characters, but it can also
+be changed by an optional `SEPERATOR` argument.
+
+For example,
+
+```
+#define ABC 1 2 3 4 5
+#for ABC
+#ifge ABC 3
+G: ABC
+#else
+L: ABC
+#endif
+#endfor
+```
+
+will result in
+
+```
+L: 1
+L: 2
+G: 3
+G: 4
+G: 5
+```
+
+Similarly,
+
+```
+#define ABC 1,2,3,4,5
+#for ABC ,
+#ifge ABC 3
+G: ABC
+#else
+L: ABC
+#endif
+#endfor
+```
+
+will lead to the same result.
+
 ## `firefox-on-kde-activities`
 
 ### Test Environment
