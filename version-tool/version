@@ -2,6 +2,8 @@
 
 # vim: set filetype=python:
 
+import warnings
+
 import argparse
 import os
 import os.path
@@ -9,7 +11,14 @@ import sys
 #import itertools
 #import collections
 import datetime
-import terminaltables
+try:
+    import terminaltables3 as terminaltables
+except ModuleNotFoundError:
+    try:
+        warnings.warn("`terminaltables3` is not found. Dropping back to `terminaltables`.", ImportWarning)
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError("Both `terminaltables3` and `terminaltables` are not found. Please install at least one.")
+
 import shutil
 import subprocess
 
@@ -27,7 +36,8 @@ def main():
     init_parser = subparsers.add_parser("init", help="Initiate a version repository.")
     init_parser.add_argument("author", help="Author name.")
 
-    list_parser = subparsers.add_parser("list", help="List tracked files.")
+    #list_parser = subparsers.add_parser("list", help="List tracked files.")
+    subparsers.add_parser("list", help="List tracked files.")
 
     check_parser = subparsers.add_parser("check", help="Check the versions of a specific file.")
     check_parser.add_argument("--version", "-v", action="store_true", help="Check a version number instead of a file name.")
@@ -38,7 +48,8 @@ def main():
     diff_parser.add_argument("--versionb", "-b", type=str, help="Version to compare.")
     diff_parser.add_argument("file", type=str, help="File to check.")
 
-    status_parser = subparsers.add_parser("status", help="Check all the differences of tracked files.")
+    #status_parser = subparsers.add_parser("status", help="Check all the differences of tracked files.")
+    subparsers.add_parser("status", help="Check all the differences of tracked files.")
 
     commit_parser = subparsers.add_parser("commit", help="Commit a file version.")
     commit_parser.add_argument("file", nargs="+", type=str, help="File to commit.")
@@ -73,7 +84,7 @@ def main():
     NOT_VERSION_REPOSITORY_CODE = -2
     DATE_PARSING_CODE = -3
     FILE_NOT_TRACKED_CODE = -4
-    VERSION_EXISTS_CODE = -5
+    #VERSION_EXISTS_CODE = -5
     VERSION_NOT_EXISTS_CODE = -6
     #  }}} Constants # 
 

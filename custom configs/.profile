@@ -1,7 +1,6 @@
 export XIM_PROGRAM=fcitx5
 export XIM=fcitx5
 export GTK_IM_MODULE=fcitx
-export QT_IM_MODULES="wayland;fcitx"
 export QT_IM_MODULE=fcitx
 export XMODIFIERS="@im=fcitx"
 export INPUT_METHOD=fcitx5
