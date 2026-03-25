@@ -22,14 +22,14 @@ syn match PromptImageSize /:\d\+\>/ contained
 
 syn match LiteralDollar /\$\$/
 
-syn region ZppCommand start=/\(^% *\)\@<=\(include\|defineR\=\|undef\|\(el\)\=ifn\=\(def\|eqn\=\|[gl][et]\)\|else\|endif\|else\|endif\)/ end="$" contained contains=ZppCommandName,ZppMacroName,ZppFix,ZppLinePreFix,ZppLineSufFix,ZppReSub,ZppRegex
+syn region ZppCommand start=/\(^% *\)\@<=\(include\|defineR\=\|undef\|for\|endfor\|\(el\)\=ifn\=\(def\|eqn\=\|[gl][et]\)\|else\|endif\|else\|endif\)/ end="$" contained contains=ZppCommandName,ZppMacroName,ZppFix,ZppLinePreFix,ZppLineSufFix,ZppReSub,ZppRegex
 "syn match ZppCommandStart /\(^% *\)\@<=/ contained nextgroup=ZppIncludeCommand,ZppMacroCommand,ZppSingleCommand
 "syn match ZppFileName /[^-+/<>].*\(\s*$\)\@=/ contains=ZppAbsMark contained
 
-syn keyword ZppCommandName contained include define[R] undef ifdef ifeq ifeqn ifge ifle ifgt iflt ifndef ifneq ifneqn ifnge ifnle ifngt ifnlt elifdef elifeq elifeqn elifge elifle elifgt eliflt elifndef elifneq elifneqn elifnge elifnle elifngt elifnlt else endif
+syn keyword ZppCommandName contained include define[R] undef for endfor ifdef ifeq ifeqn ifge ifle ifgt iflt ifndef ifneq ifneqn ifnge ifnle ifngt ifnlt elifdef elifeq elifeqn elifge elifle elifgt eliflt elifndef elifneq elifneqn elifnge elifnle elifngt elifnlt else endif
 
 "syn match ZppIncludeCommand /\(^% *\)\@<=include\>/ contained "skipwhite nextgroup=ZppFix,ZppLineFix,ZppReSub,ZppFileName
-syn match ZppMacroName /\(\(defineR\=\|undef\|\(el\)\=ifn\=\(def\|eqn\=\|[gl][et]\)\|else\|endif\)\s\+\)\@<=\w\+\>/ contained skipwhite nextgroup=ZppRegex
+syn match ZppMacroName /\(\(defineR\=\|undef\|for\|endfor\|\(el\)\=ifn\=\(def\|eqn\=\|[gl][et]\)\|else\|endif\)\s\+\)\@<=\w\+\>/ contained skipwhite nextgroup=ZppRegex
 
 syn match ZppFix /\(\s\)\@<=[-+]\S*/ contains=ZppFixMark skipwhite nextgroup=ZppFix,ZppLinePreFix,ZppLineSufFix,ZppReSub
 syn match ZppLinePreFix /\(\s\)\@<=<\([^<]\|\\<\)*<\(\s\)\@=/ contains=ZppLinePreFixMark skipwhite nextgroup=ZppFix,ZppLineSufFix,ZppReSub
