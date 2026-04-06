@@ -4,11 +4,12 @@ Last Revision: Dec 2024
 """
 
 from typing import List, Dict, Pattern, Match, Tuple
-from typing import Union, ClassVar, Optional, cast, TypeVar, TextIO, Mapping
+from typing import Union, ClassVar, Optional, cast, TypeVar, TextIO, Mapping, Sequence
 import string
 #from . import libzpp
 import libzpp
 import copy
+from os import PathLike
 
 from PIL import Image
 import re
@@ -549,14 +550,14 @@ class TemplateGroup:
         #  }}} function _escape # 
 
     @classmethod
-    def parse( cls, template_file: str
-             , flag_macros: Optional[List[str]] = None
-             , value_macros: Optional[Dict[str, str]] = None
+    def parse( cls, template_file: PathLike
+             , flag_macros: Optional[Sequence[str]] = None
+             , value_macros: Optional[Mapping[str, str]] = None
              ) -> "TemplateGroup":
         #  method parse {{{ # 
         #  Preprocess with zpp {{{ # 
-        flag_macros = flag_macros or []
-        value_macros = value_macros or {}
+        flag_macros = list(flag_macros or [])
+        value_macros = dict(value_macros or {})
         for mcr in flag_macros:
             if mcr not in value_macros:
                 value_macros[mcr] = ""
