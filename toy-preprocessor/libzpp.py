@@ -347,6 +347,8 @@ def include( input_file: Iterable[str]
 
                     loop_depth += 1
                     looping_block = []
+                else:
+                    output_file.write(_print_plainline(unstripped_line, macros, line_subs, line_prefix, line_suffix))
     #  }}} function `include` # 
 
 MODE_DICT = {
