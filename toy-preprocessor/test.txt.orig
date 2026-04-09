@@ -28,3 +28,9 @@ LOOP is back to `LOOP`.
 #for LOOP :
 LOOP is `LOOP`.
 #endfor
+
+#define LOOP2 1 2 3
+
+#for LOOP,LOOP2
+(LOOP, LOOP2)
+#endfor

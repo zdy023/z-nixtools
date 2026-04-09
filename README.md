@@ -418,6 +418,24 @@ L: ABC
 
 will lead to the same result.
 
+`for` command also supports iterate on multiple macros simultaneously.
+
+```
+#define ABC 1,2,3
+#difine DEF a:b:c
+#for ABC,DEF , :
+(ABC,DEF)
+#endfor
+```
+
+will result in
+
+```
+(1,a)
+(2,b)
+(3,c)
+```
+
 ## `firefox-on-kde-activities`
 
 ### Test Environment

@@ -2,7 +2,7 @@
 
 """
 Composed by Danyang Zhang
-Last Revision: Dec 2024
+Last Revision: Apr 2026
 """
 
 # Test:
@@ -15,11 +15,13 @@ Last Revision: Dec 2024
 # ./zpp -m C --def 'ABC=/(?<!^)ABC/321/' --def NUM=3 test.txt.orig -o output.txt
 # ./zpp -m C --def 'LOOP=/(?<!^)LOOP\b/a b c/' test.txt.orig -o output.txt
 # ./zpp -m C --def 'LOOP=/(?<!^)LOOP\b/a:b:c/' test.txt.orig -o output.txt
+# ./zpp -m C test.txt.orig -o output.txt
 
 import argparse
 import re
 import os.path
 import collections
+import itertools
 
 from typing import Iterable, TextIO, Optional, Union
 from typing import Dict, Deque, Tuple, Pattern, List
@@ -154,8 +156,9 @@ def include( input_file: Iterable[str]
 
     looping_block: List[str] = []
     loop_depth = 0
-    loop_substitutions: List[Union[str, Tuple[str, str, str]]] = []
-    loop_macro_name: str = None
+    # [[substitutions for macro 1], [substitutions for macro 2], ...]
+    loop_substitutions: List[List[Union[str, Tuple[str, str, str]]]] = []
+    loop_macro_name: List[str] = []
 
     for l in input_file:
         # assume there is a trailing '\n'
@@ -181,14 +184,22 @@ def include( input_file: Iterable[str]
             if loop_depth>0:
                 looping_block.append(unstripped_line + "\n")
             else:
-                macro_backup: Union[None, str, Tuple[str, str, str]] = macros.get(loop_macro_name, None)
-                for fll in loop_substitutions:
-                    macros[loop_macro_name] = fll
+                macro_backup: Dict[str, Union[None, str, Tuple[str, str, str]]] = {}
+                for l_mcr_n in loop_macro_name:
+                    macro_backup[l_mcr_n] = macros.get(l_mcr_n, None)
+                for fll in itertools.zip_longest(*loop_substitutions, fillvalue=""):
+                    for l_mcr_n, fll_val in zip(loop_macro_name, fll):
+                        macros[l_mcr_n] = fll_val
                     include(looping_block, output_file, configs, states, if_stack, modifications)
-                # if is None, loop_substitutions will be empty, so the update
-                # to macros in the loop won't be executed
-                if macro_backup is not None:
-                    macros[loop_macro_name] = macro_backup
+                for l_mcr_n in loop_macro_name:
+                    if macro_backup[l_mcr_n] is not None:
+                        macros[l_mcr_n] = macro_backup[l_mcr_n]
+                    else:
+                        if l_mcr_n in macros:
+                            del macros[l_mcr_n]
+
+                loop_substitutions = []
+                loop_macro_name = []
 
         # Then handle condition logics
         elif len(command)>=1 and command[0]=="else":
@@ -301,24 +312,28 @@ def include( input_file: Iterable[str]
 
                 elif command[0]=="for":
                     arguments: List[str] = command[1].split(maxsplit=1)
-                    loop_macro_name = arguments[0]
-                    macro_definition: Union[str, Tuple[str, str, str]] = macros.get(loop_macro_name)
-                    if isinstance(macro_definition, str):
-                        macro_value: str = macro_definition
-                    else:
-                        macro_value: str = macro_definition[1]
-                    if len(arguments)<2:
-                        fillers: List[str] = macro_value.split()
-                    else:
-                        fillers: List[str] = macro_value.split(arguments[1])
+                    loop_macro_name = arguments[0].split(",")
+                    for l_mcr_n, sep in itertools.zip_longest(loop_macro_name, arguments[1:1+len(loop_macro_name)]):
+                        macro_definition: Union[str, Tuple[str, str, str]] = macros.get(l_mcr_n, "")
+                        if l_mcr_n in macros:
+                            macro_definition: Union[str, Tuple[str, str, str]] = macros[l_mcr_n]
+                            if isinstance(macro_definition, str):
+                                macro_value: str = macro_definition
+                            else:
+                                macro_value: str = macro_definition[1]
+                            fillers: List[str] = macro_value.split(sep)
+                        else:
+                            macro_definition = ""
+                            fillers = []
 
-                    if isinstance(macro_definition, tuple):
-                        loop_substitutions =\
-                                [ (macro_definition[0], fll, macro_definition[2])
-                              for fll in fillers
-                                ]
-                    else:
-                        loop_substitutions = fillers
+                        if isinstance(macro_definition, tuple):
+                            loop_substitutions.append(
+                                    [ (macro_definition[0], fll, macro_definition[2])
+                                  for fll in fillers
+                                    ]
+                                )
+                        else:
+                            loop_substitutions.append(fillers)
 
                     loop_depth += 1
                     looping_block = []
