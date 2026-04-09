@@ -100,19 +100,25 @@ def _print_plainline( line: str, macros: Dict[str, Union[str, Tuple[str, str, st
         nb_substituions: int = 0
         for mcr, mcr_val in macros.items():
             if isinstance(mcr_val, str):
-                line, nb_substituions = re.subn(r"\b" + mcr + r"\b", mcr_val, line, flags=re.ASCII)
+                new_line, nb_substituions = re.subn(r"\b" + mcr + r"\b", mcr_val, line, flags=re.ASCII)
             else:
                 # mcr_val[0]: regex
                 # mcr_val[1]: substitution
                 # mcr_val[2]: regex flags, one letter per flag
-                line, nb_substituions = re.subn(mcr_val[0], mcr_val[1], line, flags=all(getattr(re, fl) for fl in mcr_val[2]))
+                new_line, nb_substituions = re.subn(mcr_val[0], mcr_val[1], line, flags=all(getattr(re, fl) for fl in mcr_val[2]))
+            if new_line==line:
+                nb_substituions = 0
+            line = new_line
             nb_total_substituions += nb_substituions
         if nb_total_substituions==0:
             break
     while True:
         nb_substituions: int = 0
         for ptn, sstt in line_subs:
-            line, nb_substituions = re.subn(ptn, sstt, line)
+            new_line, nb_substituions = re.subn(ptn, sstt, line)
+            if new_line==line:
+                nb_substituions = 0
+            line = new_line
         if nb_substituions==0:
             break
     return line_prefix + line + line_suffix + "\n"

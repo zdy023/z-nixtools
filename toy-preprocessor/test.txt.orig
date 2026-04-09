@@ -37,5 +37,7 @@ LOOP is `LOOP`.
 
 #define BAR FOO
 BAR
+#define BAR BAR
+BAR
 
 # a normal line
