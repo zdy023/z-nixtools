@@ -95,16 +95,26 @@ def _print_plainline( line: str, macros: Dict[str, Union[str, Tuple[str, str, st
                     , line_prefix: str, line_suffix: str
                     ) -> str:
     #  function _print_plainline {{{ # 
-    for mcr, mcr_val in macros.items():
-        if isinstance(mcr_val, str):
-            line = re.sub(r"\b" + mcr + r"\b", mcr_val, line, flags=re.ASCII)
-        else:
-            # mcr_val[0]: regex
-            # mcr_val[1]: substitution
-            # mcr_val[2]: regex flags, one letter per flag
-            line = re.sub(mcr_val[0], mcr_val[1], line, flags=all(getattr(re, fl) for fl in mcr_val[2]))
-    for ptn, sstt in line_subs:
-        line = re.sub(ptn, sstt, line)
+    while True:
+        nb_total_substituions: int = 0
+        nb_substituions: int = 0
+        for mcr, mcr_val in macros.items():
+            if isinstance(mcr_val, str):
+                line, nb_substituions = re.subn(r"\b" + mcr + r"\b", mcr_val, line, flags=re.ASCII)
+            else:
+                # mcr_val[0]: regex
+                # mcr_val[1]: substitution
+                # mcr_val[2]: regex flags, one letter per flag
+                line, nb_substituions = re.subn(mcr_val[0], mcr_val[1], line, flags=all(getattr(re, fl) for fl in mcr_val[2]))
+            nb_total_substituions += nb_substituions
+        if nb_total_substituions==0:
+            break
+    while True:
+        nb_substituions: int = 0
+        for ptn, sstt in line_subs:
+            line, nb_substituions = re.subn(ptn, sstt, line)
+        if nb_substituions==0:
+            break
     return line_prefix + line + line_suffix + "\n"
     #  }}} function _print_plainline # 
 

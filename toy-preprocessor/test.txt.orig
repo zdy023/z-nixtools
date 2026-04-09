@@ -34,3 +34,6 @@ LOOP is `LOOP`.
 #for LOOP,LOOP2
 (LOOP, LOOP2)
 #endfor
+
+#define BAR FOO
+BAR

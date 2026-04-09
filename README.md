@@ -328,6 +328,8 @@ undef MACRO_NAME
 
 revokes the definition of an existing macro.
 
+The macros will be substituted recursively.
+
 3. if commands
 
 ```
