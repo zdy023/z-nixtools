@@ -16,6 +16,8 @@ Last Revision: Apr 2026
 # ./zpp -m C --def 'LOOP=/(?<!^)LOOP\b/a b c/' test.txt.orig -o output.txt
 # ./zpp -m C --def 'LOOP=/(?<!^)LOOP\b/a:b:c/' test.txt.orig -o output.txt
 # ./zpp -m C test.txt.orig -o output.txt
+# ./zpp -m C --def NONE=GIRL test.txt.orig -o output.txt
+# ./zpp -m C --def NONE test.txt.orig -o output.txt
 
 import argparse
 import re
@@ -238,7 +240,9 @@ def include( input_file: Iterable[str]
                             condition = command[1] in macros
                             mask = True
                         else:
-                            macro_name, macro_value = command[1].split(maxsplit=1)
+                            condition_items: List[str] = command[1].split(maxsplit=1)
+                            macro_name: str = condition_items[0]
+                            macro_value: str = condition_items[1] if len(condition_items)>1 else ""
                             mask = macro_name in macros
                             real_value: Union[str, Tuple[str, str, str]] = macros.get(macro_name, "")
                             if isinstance(real_value, tuple):
