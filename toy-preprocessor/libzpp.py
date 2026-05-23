@@ -16,6 +16,8 @@ Last Revision: Apr 2026
 # ./zpp -m C --def 'LOOP=/(?<!^)LOOP\b/a b c/' test.txt.orig -o output.txt
 # ./zpp -m C --def 'LOOP=/(?<!^)LOOP\b/a:b:c/' test.txt.orig -o output.txt
 # ./zpp -m C test.txt.orig -o output.txt
+# ./zpp -m C --def NONE=GIRL test.txt.orig -o output.txt
+# ./zpp -m C --def NONE test.txt.orig -o output.txt
 
 import argparse
 import re
@@ -100,19 +102,25 @@ def _print_plainline( line: str, macros: Dict[str, Union[str, Tuple[str, str, st
         nb_substituions: int = 0
         for mcr, mcr_val in macros.items():
             if isinstance(mcr_val, str):
-                line, nb_substituions = re.subn(r"\b" + mcr + r"\b", mcr_val, line, flags=re.ASCII)
+                new_line, nb_substituions = re.subn(r"\b" + mcr + r"\b", mcr_val, line, flags=re.ASCII)
             else:
                 # mcr_val[0]: regex
                 # mcr_val[1]: substitution
                 # mcr_val[2]: regex flags, one letter per flag
-                line, nb_substituions = re.subn(mcr_val[0], mcr_val[1], line, flags=all(getattr(re, fl) for fl in mcr_val[2]))
+                new_line, nb_substituions = re.subn(mcr_val[0], mcr_val[1], line, flags=all(getattr(re, fl) for fl in mcr_val[2]))
+            if new_line==line:
+                nb_substituions = 0
+            line = new_line
             nb_total_substituions += nb_substituions
         if nb_total_substituions==0:
             break
     while True:
         nb_substituions: int = 0
         for ptn, sstt in line_subs:
-            line, nb_substituions = re.subn(ptn, sstt, line)
+            new_line, nb_substituions = re.subn(ptn, sstt, line)
+            if new_line==line:
+                nb_substituions = 0
+            line = new_line
         if nb_substituions==0:
             break
     return line_prefix + line + line_suffix + "\n"
@@ -232,7 +240,9 @@ def include( input_file: Iterable[str]
                             condition = command[1] in macros
                             mask = True
                         else:
-                            macro_name, macro_value = command[1].split(maxsplit=1)
+                            condition_items: List[str] = command[1].split(maxsplit=1)
+                            macro_name: str = condition_items[0]
+                            macro_value: str = condition_items[1] if len(condition_items)>1 else ""
                             mask = macro_name in macros
                             real_value: Union[str, Tuple[str, str, str]] = macros.get(macro_name, "")
                             if isinstance(real_value, tuple):
