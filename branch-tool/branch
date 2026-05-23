@@ -23,10 +23,10 @@ function i() {
 }
 
 function r() {
-	branch_name=$(<branch_flag)
-	destpath=$(<branch-config/destpath)
+	branch_name="$(<branch_flag)"
+	destpath="$(<branch-config/destpath)"
 	mkdir -p "$destpath"/"$branch_name"
-	autodelete=$(<branch-config/autodelete)
+	autodelete="$(<branch-config/autodelete)"
 
 	if [[ $1 == s ]]; then
 		rsync -ruvtph --delete --progress\
@@ -36,8 +36,11 @@ function r() {
 			--safe-links\
 			./ "$destpath"/"$branch_name"/
 		if [[ $(<branch-config/symlist) != "" ]]; then
-			mapfile -t symfiles < <(sed -e 's#^#'"$PWD"/'#g' branch-config/symlist)
-			ln -sf "${symfiles[@]}" "$destpath"/"$branch_name"/
+			mapfile -t symfiles < branch-config/symlist
+			for sf in "${symfiles[@]}"; do
+				mkdir -p "$destpath/$branch_name/$(dirname "$sf")"
+				ln -sf "$PWD/$sf" "$destpath"/"$branch_name"/"$sf"
+			done
 		fi
 	fi
 
@@ -77,7 +80,7 @@ function h() {
 eof
 }
 
-case $1 in
+case "$1" in
 	init)
 		i "${2:?Empty destination!}" "${3:-0}";;
 	run)
