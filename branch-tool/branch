@@ -38,8 +38,15 @@ function r() {
 		if [[ $(<branch-config/symlist) != "" ]]; then
 			mapfile -t symfiles < branch-config/symlist
 			for sf in "${symfiles[@]}"; do
+				symlink_destpath="$destpath"/"$branch_name"/"$sf"
+				if [[ -h "$symlink_destpath" ]]; then
+					rm "$symlink_destpath"
+				elif [[ -f "$symlink_destpath" ]]; then
+					echo "$symlink_destpath exists and is not a symlink!"
+					return 1
+				fi
 				mkdir -p "$destpath/$branch_name/$(dirname "$sf")"
-				ln -sf "$PWD/$sf" "$destpath"/"$branch_name"/"$sf"
+				ln -sf "$PWD/$sf" "$symlink_destpath"
 			done
 		fi
 	fi
