@@ -20,17 +20,14 @@ Last Revision: Apr 2026
 # ./zpp -m C --def NONE test.txt.orig -o output.txt
 
 import argparse
-import re
-import os.path
 import collections
 import itertools
-
-from typing import Iterable, TextIO, Optional, Union
-from typing import Dict, Deque, Tuple, Pattern, List
-from numbers import Number
-import operator
-
 import logging
+import operator
+import os.path
+import re
+from numbers import Number
+from typing import Deque, Dict, Iterable, List, Match, Optional, Pattern, TextIO, Tuple, TypedDict, Union, cast
 
 logger = logging.Logger("zpp")
 
@@ -62,22 +59,46 @@ def parse_include_arguments(command_line: str) ->\
         items = command_line.split(maxsplit=1)
         return None, items[0][1:], None, None, None, items[1]
     if command_line.startswith("<"):
-        endposition: int = line_prefix_mark_pattern.search(command_line, 1).end()
+        including_prefix: str
+        remaining: str
+        including_prefix, remaining = _get_wrapped_arguments( line_prefix_mark_pattern
+                                                            , command_line, 1
+                                                            )
         return None, None\
-             , command_line[1:endposition-1].replace(r'\<', '<'), None\
-             , None, command_line[endposition:].strip()
+             , including_prefix.replace(r'\<', '<'), None\
+             , None, remaining.strip()
     if command_line.startswith(">"):
-        endposition: int = line_suffix_mark_pattern.search(command_line, 1).end()
+        including_suffix: str
+        remaining: str # type: ignore[no-redef]
+        including_suffix, remaining = _get_wrapped_arguments( line_suffix_mark_pattern
+                                                            , command_line, 1
+                                                            )
         return None, None\
-             , None, command_line[1:endposition-1].replace(r'\>', '>')\
-             , None, command_line[endposition:].strip()
+             , None, including_suffix.replace(r'\>', '>')\
+             , None, remaining.strip()
     if command_line.startswith("/"):
-        endposition1: int = line_subs_mark_pattern.search(command_line, 1).end()
-        endposition2: int = line_subs_mark_pattern.search(command_line, endposition1).end()
+        substitution_pattern: str
+        substitution_replacement: str
+        remaining: str # type: ignore[no-redef]
+        substitution_pattern, remaining = _get_wrapped_arguments( line_subs_mark_pattern
+                                                                , command_line, 1
+                                                                )
+        substitution_replacement, remaining = _get_wrapped_arguments( line_subs_mark_pattern
+                                                                    , remaining, 0
+                                                                    )
         return None, None, None, None\
-             , (command_line[1:endposition1-1].replace(r'\/', '/'), command_line[endposition1:endposition2-1].replace(r'\/', '/'))\
-             , command_line[endposition2:].strip()
+             , (substitution_pattern.replace(r'\/', '/'), substitution_replacement.replace(r'\/', '/'))\
+             , remaining.strip()
     return None, None, None, None, None, command_line
+
+def _get_wrapped_arguments(pattern: Pattern[str], command_line: str, search_position: int = 1) -> Tuple[str, str]:
+    #  _get_wrapped_arguments {{{ # 
+    endmarkmatch: Optional[Match[str]] = pattern.search(command_line, search_position)
+    if endmarkmatch is None:
+        raise ValueError("Invalid syntax. Missing the end character %s" % pattern.pattern)
+    endposition: int = endmarkmatch.end()
+    return command_line[search_position:endposition-1], command_line[endposition:]
+    #  }}} _get_wrapped_arguments # 
 
 def parse_number(number_str: str) -> Union[None, int, float]:
     try:
@@ -86,7 +107,7 @@ def parse_number(number_str: str) -> Union[None, int, float]:
     except ValueError:
         pass
     try:
-        number: float = float(number_str)
+        number: float = float(number_str) # type: ignore[no-redef]
         return number
     except ValueError:
         pass
@@ -115,7 +136,7 @@ def _print_plainline( line: str, macros: Dict[str, Union[str, Tuple[str, str, st
         if nb_total_substituions==0:
             break
     while True:
-        nb_substituions: int = 0
+        nb_substituions = 0
         for ptn, sstt in line_subs:
             new_line, nb_substituions = re.subn(ptn, sstt, line)
             if new_line==line:
@@ -126,14 +147,20 @@ def _print_plainline( line: str, macros: Dict[str, Union[str, Tuple[str, str, st
     return line_prefix + line + line_suffix + "\n"
     #  }}} function _print_plainline # 
 
+class ModificationDict(TypedDict):
+    line_prefix: str
+    line_suffix: str
+    line_subs: List[Tuple[str, str]]
+
 _condition_pattern = re.compile(r"(?P<if>if|elif)(?P<not>n?)(?P<rel>def|eqn?|[lg][et])")
 def include( input_file: Iterable[str]
            , output_file: TextIO
            , configs: Dict[str, str]
            , states: Dict[str, Dict[str, Union[str, Tuple[str, str, str]]]]
-           , if_stack: Deque[Tuple[bool, bool]]
-           , modifications: Dict[str, Union[str, List[Tuple[str, str]]]]
+           , if_stack: Deque[List[bool]]
+           , modifications: ModificationDict
            ):
+    #lizard forgives(cyclomatic_complexity)
     #  function `include` {{{ # 
     """
     Args:
@@ -149,7 +176,7 @@ def include( input_file: Iterable[str]
           {
             "macros": dict like {str: str, str: (str, str, str)}
           }
-        if_stack: collections.deque of (bool, bool)
+        if_stack: collections.deque of [bool, bool]
           - the first item indicates whether the current if-block has been
             matched ever
           - the second item indicates whether the current if-block is matched
@@ -175,7 +202,7 @@ def include( input_file: Iterable[str]
     looping_block: List[str] = []
     loop_depth = 0
     # [[substitutions for macro 1], [substitutions for macro 2], ...]
-    loop_substitutions: List[List[Union[str, Tuple[str, str, str]]]] = []
+    loop_substitutions: List[Union[List[str], List[Tuple[str, str, str]]]] = []
     loop_macro_name: List[str] = []
 
     for l in input_file:
@@ -207,11 +234,11 @@ def include( input_file: Iterable[str]
                     macro_backup[l_mcr_n] = macros.get(l_mcr_n, None)
                 for fll in itertools.zip_longest(*loop_substitutions, fillvalue=""):
                     for l_mcr_n, fll_val in zip(loop_macro_name, fll):
-                        macros[l_mcr_n] = fll_val
+                        macros[l_mcr_n] = fll_val # type: ignore[assignment]
                     include(looping_block, output_file, configs, states, if_stack, modifications)
                 for l_mcr_n in loop_macro_name:
                     if macro_backup[l_mcr_n] is not None:
-                        macros[l_mcr_n] = macro_backup[l_mcr_n]
+                        macros[l_mcr_n] = macro_backup[l_mcr_n] # type: ignore[assignment]
                     else:
                         if l_mcr_n in macros:
                             del macros[l_mcr_n]
@@ -246,13 +273,13 @@ def include( input_file: Iterable[str]
                             mask = macro_name in macros
                             real_value: Union[str, Tuple[str, str, str]] = macros.get(macro_name, "")
                             if isinstance(real_value, tuple):
-                                real_value: str = real_value[1]
+                                real_value = cast(str, real_value[1])
 
                             if match_["rel"]=="eq":
                                 condition = mask and real_value==macro_value
                             else:
-                                ref_number: Optional[Number] = parse_number(macro_value)
-                                real_number: Optional[Number] = parse_number(real_value)
+                                ref_number: Optional[Number] = parse_number(macro_value) # type: ignore[assignment]
+                                real_number: Optional[Number] = parse_number(real_value) # type: ignore[assignment]
                                 mask = mask and ref_number is not None\
                                             and real_number is not None
                                 if match_["rel"]=="eqn":
@@ -272,14 +299,24 @@ def include( input_file: Iterable[str]
                     arguments = command[1].split(maxsplit=1)
                     macros[arguments[0]] = arguments[1] if len(arguments)>1 else ""
                 elif command[0]=="defineR":
-                    macro_name: str
+                    macro_name: str # type: ignore[no-redef]
                     remaining: str
                     macro_name, remaining = command[1].split(maxsplit=1)
-                    endposition1: int = line_subs_mark_pattern.search(remaining, 1).end()
-                    endposition2: int = re.search(r'\s', remaining, endposition1).start()
-                    regex: str = remaining[1:endposition1-1].replace(r'\/', '/')
-                    flags: str = remaining[endposition1:endposition2].strip()
-                    replacement: str = remaining[endposition2:].strip()
+                    assert remaining.startswith("/"), "Invalid syntax for defineR: %s" % command[1]
+                    regex: str
+                    flags: str
+                    replacement: str
+                    regex, remaining = _get_wrapped_arguments(
+                                        line_subs_mark_pattern
+                                      , remaining, 1
+                                      )
+                    flags, replacement = _get_wrapped_arguments(
+                                            re.compile(r'\s')
+                                          , remaining, 0
+                                          )
+                    regex = regex.replace(r'\/', '/')
+                    flags = flags.strip()
+                    replacement = remaining.strip()
                     macros[macro_name] = (regex, replacement, flags)
                 elif command[0]=="undef":
                     if command[1] in macros:
@@ -313,7 +350,7 @@ def include( input_file: Iterable[str]
                     if remaining.startswith("#"):
                         include_file: str = remaining.lstrip("#") # use "#" to distinguish an absolute path from the replacement rules
                     else:
-                        include_file: str = os.path.join(path, remaining)
+                        include_file: str = os.path.join(path, remaining) # type: ignore[no-redef]
                     in_path = os.path.dirname(include_file)
 
                     with open(include_file) as incl_f:
@@ -331,16 +368,15 @@ def include( input_file: Iterable[str]
                                )
 
                 elif command[0]=="for":
-                    arguments: List[str] = command[1].split(maxsplit=1)
+                    arguments: List[str] = command[1].split(maxsplit=1) # type: ignore[no-redef]
                     loop_macro_name = arguments[0].split(",")
                     for l_mcr_n, sep in itertools.zip_longest(loop_macro_name, arguments[1:1+len(loop_macro_name)]):
-                        macro_definition: Union[str, Tuple[str, str, str]] = macros.get(l_mcr_n, "")
                         if l_mcr_n in macros:
                             macro_definition: Union[str, Tuple[str, str, str]] = macros[l_mcr_n]
                             if isinstance(macro_definition, str):
-                                macro_value: str = macro_definition
+                                macro_value: str = macro_definition # type: ignore[no-redef]
                             else:
-                                macro_value: str = macro_definition[1]
+                                macro_value: str = macro_definition[1] # type: ignore[no-redef]
                             fillers: List[str] = macro_value.split(sep)
                         else:
                             macro_definition = ""
@@ -403,7 +439,7 @@ def preprocess( input_file: Iterable[str], output_file: TextIO
     """
 
     if_stack = collections.deque([[True, True]])
-    include(input_file, output_file, configs, states, if_stack, {})
+    include(input_file, output_file, configs, states, if_stack, {}) # type: ignore[typeddict-item]
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
@@ -442,23 +478,23 @@ J: Java Comment Mode, e.g., // include class.java""")
     definition_separator_pattern = re.compile(r"(?<!\\)=")
     real_equal_mark_pattern = re.compile(r"\\=")
 
-    macros = {}
+    macros: Dict[str, Union[str, Tuple[str, str, str]]] = {}
     if args.macro:
         for mcr in args.macro:
             items = definition_separator_pattern.split(mcr, maxsplit=1)
             macro_name = real_equal_mark_pattern.sub("=", items[0])
-            macro_value = real_equal_mark_pattern.sub("=", items[1]) if len(items)>1 else ""
+            macro_value: str = real_equal_mark_pattern.sub("=", items[1]) if len(items)>1 else ""
 
             if macro_value.startswith("/") and macro_value.endswith("/"):
                 regex: str
                 replacement: str
                 regex, replacement = line_subs_mark_pattern.split(macro_value[1:-1], maxsplit=1)
-                macro_value: Tuple[str, str, str] = ( regex.replace(r'\/', '/')
+                macro_value: Tuple[str, str, str] = ( regex.replace(r'\/', '/') # type: ignore[no-redef]
                                                     , replacement.replace(r'\/', '/')
                                                     , ""
                                                     )
             else:
-                macro_value: str = macro_value.replace(r'\/', '/')
+                macro_value: str = macro_value.replace(r'\/', '/') # type: ignore[no-redef]
             macros[macro_name] = macro_value
 
     path = os.path.dirname(args.file)
@@ -474,7 +510,7 @@ J: Java Comment Mode, e.g., // include class.java""")
                          }
                , states={"macros": macros}
                , if_stack=if_stack
-               , modifications={}
+               , modifications={} # type: ignore[typeddict-item]
                )
 
 if __name__ == "__main__":
