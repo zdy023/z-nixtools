@@ -14,7 +14,9 @@ from os import PathLike
 from typing import (
     ClassVar,
     Dict,
+    Generic,
     List,
+    Literal,
     Mapping,
     Match,
     Optional,
@@ -22,6 +24,7 @@ from typing import (
     Sequence,
     TextIO,
     Tuple,
+    TypedDict,
     TypeVar,
     Union,
     cast,
@@ -50,7 +53,15 @@ from . import libzpp
 #      }
 #      ...
 # ]
-VisionMessage = List[Dict[str, Union[str, Dict[str, str], Image.Image]]]
+class _ImageUrlClass(TypedDict):
+    url: str
+    detail: str
+class VisionMessageSegment(TypedDict):
+    type: Literal["text", "image_url", "image"]
+    text: str
+    image_url: _ImageUrlClass
+    image: Image.Image
+VisionMessage = List[VisionMessageSegment]
 GeneralMessage = Union[str, VisionMessage]
 
 def split_mapping_dict(mapping: Dict[str, Union[str, Image.Image]])\
@@ -64,11 +75,11 @@ def split_mapping_dict(mapping: Dict[str, Union[str, Image.Image]])\
     img_mapping: Dict[Optional[str], Image.Image] = {}
     for k, val in mapping.items():
         if k.startswith("image_"):
-            img_mapping[k[6:]] = val
+            img_mapping[k[6:]] = cast(Image.Image, val)
         elif k == "image":
-            img_mapping[None] = val
+            img_mapping[None] = cast(Image.Image, val)
         else:
-            text_mapping[k] = val
+            text_mapping[k] = cast(str, val)
     return text_mapping, img_mapping
     #  }}} function split_mapping_dict # 
 
@@ -101,7 +112,7 @@ class VisionTemplate():
                        , img_mapping: Optional[Dict[Optional[str], Image.Image]] = None
                        , wrap_pure_text: bool = False
                        , to_base64: bool = True
-                       , fidelity_option: Dict[str, str] = {}
+                       , fidelity_option: Dict[Optional[str], str] = {}
                        ) -> GeneralMessage:
         #lizard forgives(cyclomatic_complexity)
         #  method safe_substitute {{{ # 
@@ -122,30 +133,32 @@ class VisionTemplate():
               }
             to_base64 (bool): whether to convert the input image to base64 or
               keep it as Image.Image.
-            fidelity_option (Dict[str, str]): fidelity option for image
-              instances like "low", "high", or "auto"; if specifying, share the
-              keys in img_mapping; for ${image_f:file_name} slots, use
-              "f:file_name" as keys.
+            fidelity_option (Dict[Optional[str], str]): fidelity option for
+                image instances like "low", "high", or "auto"; if specifying,
+                share the keys in img_mapping; for ${image_f:file_name} slots,
+                use "f:file_name" as keys.
 
         Returns:
             Union[str, VisionMessage]: the substituted message; str for pure
               texts and VisionMessage for visual-text message
         """
 
-        mapping: Dict[Optional[str], str] = text_mapping or {}
-        for k in list( filter( lambda k: k.startswith("image_") or k=="image"
+        mapping: Dict[str, str] = text_mapping or {}
+        for mk in list( filter( lambda k: k.startswith("image_") or k=="image"
                              , mapping.keys()
                              )
                      ):
-            del mapping[k]
+            del mapping[mk]
         prompt: str = self._template.safe_substitute(mapping)
 
+        img_mapping = cast(Dict[Optional[str], Image.Image], img_mapping or {})
+
         message: VisionMessage = []
-        splits: List[Tuple[str, str, str, str, str]] = VisionTemplate._image_regex.split(prompt)
+        splits: List[Optional[str]] = VisionTemplate._image_regex.split(prompt)
 
         if len(splits)==1:
             return prompt if not wrap_pure_text\
-                        else [ { "type": "text"
+                        else [ { "type": "text" # type: ignore[typeddict-item]
                                , "text": prompt
                                }
                              ]
@@ -158,44 +171,48 @@ class VisionTemplate():
                    , splits[3::step]
                    , splits[4::step]
                    ):
+            t = cast(str, t)
             if len(t)>0:
-                message.append({"type": "text", "text": t})
+                message.append({"type": "text", "text": t}) # type: ignore[typeddict-item]
+
+            img_obj: Optional[Image.Image]
             if img_f is None and img_id in img_mapping:
-                img_obj: Optional[Image.Image] = img_mapping[img_id]
+                img_obj = img_mapping[img_id]
                 fidelity: Optional[str] = fidelity_option.get(img_id, None)
             elif img_f is not None:
-                img_obj: Optional[Image.Image] = Image.open(img_f)
+                img_obj = cast(Image.Image, Image.open(img_f))
                 if img_w is not None and img_h is not None:
                     img_obj = img_obj.resize((int(img_w), int(img_h)))
-                fidelity: Optional[str] = fidelity_option.get("f:" + img_f, None)
+                fidelity: Optional[str] = fidelity_option.get("f:" + img_f, None) # type: ignore[no-redef]
             else:
-                img_obj: Optional[Image.Image] = None
+                img_obj = None
 
             if img_obj is not None:
-                img_obj: Image.Image = cast(Image.Image, img_obj)
+                img_obj = cast(Image.Image, img_obj)
 
                 if to_base64:
                     img_data: bytes
                     mode: str
                     img_data, mode = VisionTemplate._img_to_base64(img_obj)
 
-                    segment = { "type": "image_url"
-                              , "image_url": {
-                                  "url": "data:image/{:};base64,".format(mode)\
-                                       + base64.b64encode(img_data).decode()
-                                }
+                    segment: VisionMessageSegment =\
+                            { "type": "image_url" # type: ignore[typeddict-item]
+                            , "image_url": {
+                                "url": "data:image/{:};base64,".format(mode)\
+                                     + base64.b64encode(img_data).decode()
                               }
+                            }
                     if fidelity is not None:
-                        segment["image_url"]["detail"] = fidelity
+                        segment["image_url"]["detail"] = fidelity # type: ignore[index]
                     message.append(segment)
 
                 else:
-                    message.append( { "type": "image"
+                    message.append( { "type": "image" # type: ignore[typeddict-item]
                                     , "image": img_obj
                                     }
                                   )
-        if len(splits[-1])>0:
-            message.append({"type": "text", "text": splits[-1]})
+        if len(splits[-1])>0: # type: ignore[arg-type]
+            message.append({"type": "text", "text": splits[-1]}) # type: ignore[dict-item, typeddict-item]
         return message
         #  }}} method safe_substitute # 
 
@@ -205,7 +222,7 @@ class VisionTemplate():
         if img_obj.mode=="RGBA":
             mode: str = "png"
         else:
-            mode: str = "jpeg"
+            mode: str = "jpeg" # type: ignore[no-redef]
         with io.BytesIO() as bff:
             img_obj.save(bff, mode)
             img_data: bytes = bff.getvalue()
@@ -222,13 +239,18 @@ class VisionTemplate():
 
 # {
 #   "role": "system" | "user" | "assistant" | ""
-#   "content": M
+#   "content": Message
 # }
-M = TypeVar("Message")
-MessageGroupT = List[Dict[str, Union[str, M]]]
-TemplateGroupI = MessageGroupT[List[str]]
-TemplateGroupT = MessageGroupT[VisionTemplate]
-PromptGroupT = MessageGroupT[GeneralMessage]
+Message = TypeVar("Message")
+class MessageDict(TypedDict, Generic[Message]):
+    #  class MessageDict {{{ # 
+    role: Literal["system", "user", "assistant", ""]
+    content: Message
+    #  }}} class MessageDict # 
+MessageGroupT = List[MessageDict]
+TemplateGroupI = MessageGroupT[List[str]] # type: ignore[type-arg]
+TemplateGroupT = MessageGroupT[VisionTemplate] # type: ignore[type-arg]
+PromptGroupT = MessageGroupT[GeneralMessage] # type: ignore[type-arg]
 
 class TemplateGroup:
     #  class TemplateGroup {{{ # 
@@ -245,7 +267,7 @@ class TemplateGroup:
 
     def __init__( self
                 , templates: TemplateGroupI, style: str = "chat"
-                , snippets: Dict[str, List[str]] = {}
+                , snippets: Dict[str, List[List[str]]] = {}
                 , default_text_mappings: Optional[Dict[str, str]] = None
                 , default_img_mappings: Optional[Dict[str, Image.Image]] = None
                 , rng_seed: Optional[Union[int, np.random.Generator]] = None
@@ -253,9 +275,9 @@ class TemplateGroup:
         #  method __init__ {{{ # 
         self._templates: TemplateGroupI = templates
         self._style: str = style
-        self._snippets: Dict[str, List[str]] = snippets
+        self._snippets: Dict[str, List[List[str]]] = snippets
         self._default_text_mappings: Dict[str, str] = default_text_mappings or {}
-        self._default_img_mappings: Dict[str, str] = default_img_mappings or {}
+        self._default_img_mappings: Dict[str, Image.Image] = default_img_mappings or {}
         self._rng: np.random.Generator = np.random.default_rng(rng_seed)
         #  }}} method __init__ # 
 
@@ -274,7 +296,17 @@ class TemplateGroup:
                        , squeeze_empty: bool = True
                        , role_key: str = "role"
                        , content_key: str = "content"
-                       , fix_snippet_choice: Optional[Union[int, Mapping[str, Union[int, str]]]] = None
+                       , fix_snippet_choice:
+                            Optional[ Union[ int
+                                           , Mapping[ str
+                                                    , Union[ int
+                                                           , slice
+                                                           , List[Union[int, slice]]
+                                                           , str
+                                                           ]
+                                                    ]
+                                           ]
+                                    ] = None
                        ) -> Union[PromptGroupT, List[GeneralMessage]]:
         #  method safe_substitute {{{ # 
         """
@@ -342,7 +374,7 @@ class TemplateGroup:
 
         templates: TemplateGroupT
         default_text_mappings: Dict[str, str]
-        default_img_mappings: Dict[str, str]
+        default_img_mappings: Dict[str, Image.Image]
         templates, default_text_mappings, default_img_mappings = self._substitute_snippets(fix_snippet_choice)
 
         text_mapping = text_mapping or {}
@@ -352,7 +384,7 @@ class TemplateGroup:
         for k, val in default_img_mappings.items():
             img_mapping.setdefault(k, val)
 
-        style: str = style or self._style
+        style = style or self._style
 
         messages: PromptGroupT = []
         for tmpl in templates:
@@ -366,16 +398,16 @@ class TemplateGroup:
             content = self._filter_for_pure_text(pure_text, content)
             content = self._wrap_pure_text(wrap_pure_text, content)
             content = self._strip_white_spaces(strip_white_spaces, content)
-            content: Optional[GeneralMessage] = self._squeeze_empty(squeeze_empty, content)
+            content: Optional[GeneralMessage] = self._squeeze_empty(squeeze_empty, content) # type: ignore[no-redef]
             if content is not None:
-                messages.append( { role_key: tmpl["role"] or "user"
+                messages.append( { role_key: tmpl["role"] or "user" # type: ignore[misc]
                                  , content_key: content
                                  }
                                )
         if style=="chat":
             return messages
         elif style=="instruct":
-            messages: List[GeneralMessage] = [m[content_key] for m in messages]
+            messages: List[GeneralMessage] = [m[content_key] for m in messages] # type: ignore[no-redef, literal-required]
             return messages
         raise NotImplementedError()
         #  }}} method safe_substitute # 
@@ -385,14 +417,14 @@ class TemplateGroup:
         if pure_text and isinstance(content, list):
             content_strs: List[str] =\
                     [sct["text"] for sct in content if sct["type"]=="text"]
-            content: str = " ".join(content_strs)
+            content = " ".join(content_strs)
         return content
         #  }}} method _filter_for_pure_text # 
 
     def _wrap_pure_text(self, wrap_pure_text: bool, content: GeneralMessage) -> GeneralMessage:
         #  method _wrap_pure_text {{{ # 
         if wrap_pure_text and isinstance(content, str):
-            content: VisionMessage = [ { "type": "text"
+            content: VisionMessage = [ { "type": "text" # type: ignore[no-redef]
                                        , "text": content
                                        }
                                      ]
@@ -403,7 +435,8 @@ class TemplateGroup:
         #  method _strip_white_spaces {{{ # 
         if strip_white_spaces:
             if isinstance(content, str):
-                content: str = content.strip()
+                content = cast(str, content)
+                content = content.strip()
             else:
                 for sgm in content:
                     if sgm["type"]=="text":
@@ -415,7 +448,7 @@ class TemplateGroup:
         #  method _squeeze_empty {{{ # 
         if squeeze_empty:
             if isinstance(content, list):
-                content: VisionMessage = [sgm for sgm in content if sgm["type"]!="text" or len(sgm["text"])>0]
+                content = cast(VisionMessage, [sgm for sgm in content if sgm["type"]!="text" or len(sgm["text"])>0])
             if len(content)==0:
                 return None
         return content
@@ -426,8 +459,8 @@ class TemplateGroup:
 
     @classmethod
     def instantiate_snippet( cls, snippet: List[str], slot_id_suffix: str
-                           , default_values: Dict[str, str] = None
-                           , default_images: Dict[str, Image.Image] = None
+                           , default_values: Optional[Dict[str, str]] = None
+                           , default_images: Optional[Dict[str, Image.Image]] = None
                            ) -> List[str]:
         #  method instantiate_snippet {{{ # 
         """
@@ -436,8 +469,10 @@ class TemplateGroup:
 
         if default_values is None:
             default_values = {}
+        default_values = cast(Dict[str, str], default_values)
         if default_images is None:
             default_images = {}
+        default_images = cast(Dict[str, Image.Image], default_images)
 
         def replacer(m: Match[str]) -> str:
             if m.group("imgfpref") is not None:
@@ -471,10 +506,20 @@ class TemplateGroup:
         #  }}} method instantiate_snippet # 
 
     def _substitute_snippets( self
-                            , fix_snippet_choice: Optional[Union[int, Mapping[str, Union[int, str]]]] = None
+                            , fix_snippet_choice:
+                                Optional[ Union[ int
+                                               , Mapping[ str
+                                                        , Union[ int
+                                                               , slice
+                                                               , List[Union[int, slice]]
+                                                               , str
+                                                               ]
+                                                        ]
+                                               ]
+                                        ] = None
                             ) -> Tuple[ TemplateGroupT
                                       , Dict[str, str]
-                                      , Dict[str, str]
+                                      , Dict[str, Image.Image]
                                       ]:
         #  method _substitute_snippets {{{ # 
         """
@@ -507,12 +552,12 @@ class TemplateGroup:
         Returns:
             TemplateGroupT: replace templates
             Dict[str, str]: updated default_values
-            Dict[str, str]: updated default_images
+            Dict[str, Image.Image]: updated default_images
         """
 
         template: TemplateGroupI = copy.deepcopy(self._templates)
         default_text_mappings: Dict[str, str] = copy.deepcopy(self._default_text_mappings)
-        default_img_mappings: Dict[str, str] = copy.deepcopy(self._default_img_mappings)
+        default_img_mappings: Dict[str, Image.Image] = copy.deepcopy(self._default_img_mappings)
 
         runtime_snippets: Dict[str, List[List[str]]] = {}
         if isinstance(fix_snippet_choice, int):
@@ -524,7 +569,7 @@ class TemplateGroup:
                 if isinstance(fix_snippet_choice.get(snpp, 0), int):
                     runtime_snippets[snpp] = [ch[fix_snippet_choice.get(snpp, 0)]]
                 elif isinstance(fix_snippet_choice[snpp], slice):
-                    runtime_snippets[snpp] = ch[fix_snippet_choice[snpp]]
+                    runtime_snippets[snpp] = ch[fix_snippet_choice[snpp]] # type: ignore[assignment]
                 elif isinstance(fix_snippet_choice[snpp], list):
                     runtime_snippets[snpp] = []
                     for idx in fix_snippet_choice[snpp]:
@@ -554,11 +599,11 @@ class TemplateGroup:
 
                     snippet_template: List[List[str]] = runtime_snippets[snippet_name]
                     if len(snippet_template)>1:
-                        snippet_template: List[str] = snippet_template[self._rng.integers(len(snippet_template))]
+                        snippet_template: List[str] = snippet_template[self._rng.integers(len(snippet_template))] # type: ignore[no-redef]
                     else:
-                        snippet_template: List[str] = snippet_template[0]
-                    snippet_template: List[str] = _replace_snippets(snippet_template)
-                    snippet_text: List[str] = self.instantiate_snippet( snippet_template
+                        snippet_template: List[str] = snippet_template[0] # type: ignore[no-redef]
+                    snippet_template: List[str] = _replace_snippets(snippet_template) # type: ignore[no-redef, arg-type]
+                    snippet_text: List[str] = self.instantiate_snippet( snippet_template # type: ignore[arg-type]
                                                                 , slot_id_suffix
                                                                 , default_text_mappings
                                                                 , default_img_mappings
@@ -602,7 +647,7 @@ class TemplateGroup:
     @classmethod
     def parse( cls, template_file: PathLike
              , flag_macros: Optional[Sequence[str]] = None
-             , value_macros: Optional[Mapping[str, str]] = None
+             , value_macros: Optional[Mapping[str, Union[str, Tuple[str, str, str]]]] = None
              ) -> "TemplateGroup":
         #lizard forgives(cyclomatic_complexity)
         #  method parse {{{ # 
@@ -654,12 +699,12 @@ class TemplateGroup:
                 else:
                     if recording:
                         templates.append(
-                                { "role": current_role
+                                { "role": current_role # type: ignore[typeddict-item]
                                 #, "content": VisionTemplate("".join(current_template_strs))
                                 , "content": current_template_strs
                                 }
                               )
-                    current_role: str = l[3:].strip()
+                    current_role = l[3:].strip()
                     recording = True
                     current_template_strs = []
 
@@ -707,7 +752,7 @@ class TemplateGroup:
                     current_template_strs.append(l)
         if recording:
             templates.append(
-                    { "role": current_role
+                    { "role": current_role # type: ignore[typeddict-item]
                     #, "content": VisionTemplate("".join(current_template_strs))
                     , "content": current_template_strs
                     }
@@ -770,7 +815,7 @@ def display_vision_message(message: VisionMessage) -> str:
         elif sct["type"]=="image_url": # {{{
             lines.append("${{image:{:}}}".format(sct["image_url"]["url"][:30] + "..."))
         elif sct["type"]=="image": # {{{
-            lines.append( "${{image:{:}_{:}_{:}x{:}}}".format( sct["image"].filename
+            lines.append( "${{image:{:}_{:}_{:}x{:}}}".format( sct["image"].filename # type: ignore[attr-defined]
                                                              , sct["image"].mode
                                                              , sct["image"].width
                                                              , sct["image"].height
@@ -792,17 +837,20 @@ def display_prompt_group(prompt: PromptGroupT) -> str:
     #  }}} function display_prompt_group # 
 
 if __name__ == "__main__":
-    template: TemplateGroup = TemplateGroup.parse("a.prompt")
+    template: TemplateGroup = TemplateGroup.parse("a.prompt") # type: ignore[arg-type]
     print(str(template))
     print("\x1b[42m   \x1b[0m")
-    print( display_prompt_group( template.safe_substitute( text_mapping={ "vara_1": "a1"
-                                                                        , "varb_1": "b1"
-                                                                        , "vara3_1": "a31"
-                                                                        , "vara3_ib_1": "a3ib1"
-                                                                        }
-                                                         , fix_snippet_choice={ "a": [0, 1]
-                                                                              , "b": 0
-                                                                              }
-                                                         )
-                               )
+    print( display_prompt_group(
+            cast( PromptGroupT
+                , template.safe_substitute( text_mapping={ "vara_1": "a1"
+                                                         , "varb_1": "b1"
+                                                         , "vara3_1": "a31"
+                                                         , "vara3_ib_1": "a3ib1"
+                                                         }
+                                          , fix_snippet_choice={ "a": [0, 1]
+                                                               , "b": 0
+                                                               }
+                                          )
+                )
+          )
          )
