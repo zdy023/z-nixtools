@@ -3,20 +3,35 @@ Composed by Danyang Zhang
 Last Revision: Dec 2024
 """
 
-from typing import List, Dict, Pattern, Match, Tuple
-from typing import Union, ClassVar, Optional, cast, TypeVar, TextIO, Mapping, Sequence
-import string
-#from . import libzpp
-import libzpp
-import copy
-from os import PathLike
-
-from PIL import Image
-import re
-import io
 import base64
+
+import copy
+import io
 import os.path
+import re
+import string
+from os import PathLike
+from typing import (
+    ClassVar,
+    Dict,
+    List,
+    Mapping,
+    Match,
+    Optional,
+    Pattern,
+    Sequence,
+    TextIO,
+    Tuple,
+    TypeVar,
+    Union,
+    cast,
+)
+
 import numpy as np
+from PIL import Image
+
+#import libzpp
+from . import libzpp
 
 # [
 #      {
@@ -88,6 +103,7 @@ class VisionTemplate():
                        , to_base64: bool = True
                        , fidelity_option: Dict[str, str] = {}
                        ) -> GeneralMessage:
+        #lizard forgives(cyclomatic_complexity)
         #  method safe_substitute {{{ # 
         """
         Args:
@@ -125,7 +141,7 @@ class VisionTemplate():
         prompt: str = self._template.safe_substitute(mapping)
 
         message: VisionMessage = []
-        splits: List[Optional[str]] = VisionTemplate._image_regex.split(prompt)
+        splits: List[Tuple[str, str, str, str, str]] = VisionTemplate._image_regex.split(prompt)
 
         if len(splits)==1:
             return prompt if not wrap_pure_text\
@@ -159,13 +175,9 @@ class VisionTemplate():
                 img_obj: Image.Image = cast(Image.Image, img_obj)
 
                 if to_base64:
-                    if img_obj.mode=="RGBA":
-                        mode: str = "png"
-                    else:
-                        mode: str = "jpeg"
-                    with io.BytesIO() as bff:
-                        img_obj.save(bff, mode)
-                        img_data: bytes = bff.getvalue()
+                    img_data: bytes
+                    mode: str
+                    img_data, mode = VisionTemplate._img_to_base64(img_obj)
 
                     segment = { "type": "image_url"
                               , "image_url": {
@@ -186,6 +198,19 @@ class VisionTemplate():
             message.append({"type": "text", "text": splits[-1]})
         return message
         #  }}} method safe_substitute # 
+
+    @staticmethod
+    def _img_to_base64(img_obj: Image.Image) -> Tuple[bytes, str]:
+        #  method _img_to_base64 {{{ # 
+        if img_obj.mode=="RGBA":
+            mode: str = "png"
+        else:
+            mode: str = "jpeg"
+        with io.BytesIO() as bff:
+            img_obj.save(bff, mode)
+            img_data: bytes = bff.getvalue()
+        return img_data, mode
+        #  }}} method _img_to_base64 # 
 
     @property
     def template(self) -> str:
@@ -338,31 +363,15 @@ class TemplateGroup:
                                                         , to_base64=to_base64
                                                         , fidelity_option=fidelity_option
                                                         )
-            if pure_text and isinstance(content, list):
-                content_strs: List[str] =\
-                        [sct["text"] for sct in content if sct["type"]=="text"]
-                content: str = " ".join(content_strs)
-            if wrap_pure_text and isinstance(content, str):
-                content: VisionMessage = [ { "type": "text"
-                                           , "text": content
-                                           }
-                                         ]
-            if strip_white_spaces:
-                if isinstance(content, str):
-                    content: str = content.strip()
-                else:
-                    for sgm in content:
-                        if sgm["type"]=="text":
-                            sgm["text"] = sgm["text"].strip()
-            if squeeze_empty:
-                if isinstance(content, list):
-                    content: VisionMessage = [sgm for sgm in content if sgm["type"]!="text" or len(sgm["text"])>0]
-                if len(content)==0:
-                    continue
-            messages.append( { role_key: tmpl["role"] or "user"
-                             , content_key: content
-                             }
-                           )
+            content = self._filter_for_pure_text(pure_text, content)
+            content = self._wrap_pure_text(wrap_pure_text, content)
+            content = self._strip_white_spaces(strip_white_spaces, content)
+            content: Optional[GeneralMessage] = self._squeeze_empty(squeeze_empty, content)
+            if content is not None:
+                messages.append( { role_key: tmpl["role"] or "user"
+                                 , content_key: content
+                                 }
+                               )
         if style=="chat":
             return messages
         elif style=="instruct":
@@ -370,6 +379,47 @@ class TemplateGroup:
             return messages
         raise NotImplementedError()
         #  }}} method safe_substitute # 
+
+    def _filter_for_pure_text(self, pure_text: bool, content: GeneralMessage) -> GeneralMessage:
+        #  method _filter_for_pure_text {{{ # 
+        if pure_text and isinstance(content, list):
+            content_strs: List[str] =\
+                    [sct["text"] for sct in content if sct["type"]=="text"]
+            content: str = " ".join(content_strs)
+        return content
+        #  }}} method _filter_for_pure_text # 
+
+    def _wrap_pure_text(self, wrap_pure_text: bool, content: GeneralMessage) -> GeneralMessage:
+        #  method _wrap_pure_text {{{ # 
+        if wrap_pure_text and isinstance(content, str):
+            content: VisionMessage = [ { "type": "text"
+                                       , "text": content
+                                       }
+                                     ]
+        return content
+        #  }}} method _wrap_pure_text # 
+
+    def _strip_white_spaces(self, strip_white_spaces: bool, content: GeneralMessage) -> GeneralMessage:
+        #  method _strip_white_spaces {{{ # 
+        if strip_white_spaces:
+            if isinstance(content, str):
+                content: str = content.strip()
+            else:
+                for sgm in content:
+                    if sgm["type"]=="text":
+                        sgm["text"] = sgm["text"].strip()
+        return content
+        #  }}} method _strip_white_spaces # 
+
+    def _squeeze_empty(self, squeeze_empty: bool, content: GeneralMessage) -> Optional[GeneralMessage]:
+        #  method _squeeze_empty {{{ # 
+        if squeeze_empty:
+            if isinstance(content, list):
+                content: VisionMessage = [sgm for sgm in content if sgm["type"]!="text" or len(sgm["text"])>0]
+            if len(content)==0:
+                return None
+        return content
+        #  }}} method _squeeze_empty # 
 
     def snippet(self, snippet_id: str) -> List[List[str]]:
         return self._snippets.get(snippet_id, [])
@@ -554,6 +604,7 @@ class TemplateGroup:
              , flag_macros: Optional[Sequence[str]] = None
              , value_macros: Optional[Mapping[str, str]] = None
              ) -> "TemplateGroup":
+        #lizard forgives(cyclomatic_complexity)
         #  method parse {{{ # 
         #  Preprocess with zpp {{{ # 
         flag_macros = list(flag_macros or [])
