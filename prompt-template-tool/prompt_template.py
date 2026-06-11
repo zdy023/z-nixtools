@@ -53,11 +53,13 @@ from . import libzpp
 #      }
 #      ...
 # ]
-class _ImageUrlClass(TypedDict):
+class _ImageUrlClassBase(TypedDict):
     url: str
+class _ImageUrlClass(_ImageUrlClassBase, total=False):
     detail: str
-class VisionMessageSegment(TypedDict):
+class VisionMessageSegmentBase(TypedDict):
     type: Literal["text", "image_url", "image"]
+class VisionMessageSegment(VisionMessageSegmentBase, total=False):
     text: str
     image_url: _ImageUrlClass
     image: Image.Image
@@ -158,7 +160,7 @@ class VisionTemplate():
 
         if len(splits)==1:
             return prompt if not wrap_pure_text\
-                        else [ { "type": "text" # type: ignore[typeddict-item]
+                        else [ { "type": "text"
                                , "text": prompt
                                }
                              ]
@@ -173,7 +175,7 @@ class VisionTemplate():
                    ):
             t = cast(str, t)
             if len(t)>0:
-                message.append({"type": "text", "text": t}) # type: ignore[typeddict-item]
+                message.append({"type": "text", "text": t})
 
             img_obj: Optional[Image.Image]
             if img_f is None and img_id in img_mapping:
@@ -196,7 +198,7 @@ class VisionTemplate():
                     img_data, mode = VisionTemplate._img_to_base64(img_obj)
 
                     segment: VisionMessageSegment =\
-                            { "type": "image_url" # type: ignore[typeddict-item]
+                            { "type": "image_url"
                             , "image_url": {
                                 "url": "data:image/{:};base64,".format(mode)\
                                      + base64.b64encode(img_data).decode()
@@ -207,7 +209,7 @@ class VisionTemplate():
                     message.append(segment)
 
                 else:
-                    message.append( { "type": "image" # type: ignore[typeddict-item]
+                    message.append( { "type": "image"
                                     , "image": img_obj
                                     }
                                   )

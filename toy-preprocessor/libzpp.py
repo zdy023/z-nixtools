@@ -147,7 +147,7 @@ def _print_plainline( line: str, macros: Dict[str, Union[str, Tuple[str, str, st
     return line_prefix + line + line_suffix + "\n"
     #  }}} function _print_plainline # 
 
-class ModificationDict(TypedDict):
+class ModificationDict(TypedDict, total=False):
     line_prefix: str
     line_suffix: str
     line_subs: List[Tuple[str, str]]
@@ -439,7 +439,7 @@ def preprocess( input_file: Iterable[str], output_file: TextIO
     """
 
     if_stack = collections.deque([[True, True]])
-    include(input_file, output_file, configs, states, if_stack, {}) # type: ignore[typeddict-item]
+    include(input_file, output_file, configs, states, if_stack, {})
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
@@ -510,7 +510,7 @@ J: Java Comment Mode, e.g., // include class.java""")
                          }
                , states={"macros": macros}
                , if_stack=if_stack
-               , modifications={} # type: ignore[typeddict-item]
+               , modifications={}
                )
 
 if __name__ == "__main__":
